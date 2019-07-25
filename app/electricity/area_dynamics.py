@@ -1,4 +1,4 @@
-class area:
+class AreaDynamics:
 
   def __init__(self, inertia, dampening, timeConstant, droop, nominalFrequency):
     self.inertia = inertia            # inertia => M

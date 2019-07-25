@@ -1,4 +1,4 @@
-class generator:
+class Generator:
 
   def __init__(self, initialOutput):
     self.output = initialOutput # output => P_Gi (or Z in secondary control)
