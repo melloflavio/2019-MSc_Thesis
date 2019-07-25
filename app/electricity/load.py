@@ -1,6 +1,6 @@
 class Load:
   def __init__(self, initialLoad):
-    self.load = initialLoad # Load => Pl
+    self.load = initialLoad # Load => P_Li
 
   def setLoad(self, newLoad):
     self.load = newLoad
