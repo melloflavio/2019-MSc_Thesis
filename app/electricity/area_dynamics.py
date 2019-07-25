@@ -1,11 +1,13 @@
+from dto import ElectricalConstants
+
 class AreaDynamics:
 
-  def __init__(self, inertia, dampening, timeConstant, droop, nominalFrequency):
-    self.inertia = inertia            # inertia => M
-    self.dampening = dampening        # dampening => D
-    self.timeConstant = timeConstant  # timeConstant => Tg
-    self.droop = droop                # droop => Rd
-    self.nominalFrequency = nominalFrequency # nominalFrequency = (f_nom or f_0)
+  def __init__(self, electricalConstants: ElectricalConstants):
+    self.inertia = electricalConstants.inertia            # inertia => M
+    self.dampening = electricalConstants.dampening        # dampening => D
+    self.timeConstant = electricalConstants.timeConstant  # timeConstant => Tg
+    self.droop = electricalConstants.droop                # droop => Rd
+    self.nominalFrequency = electricalConstants.nominalFrequency # nominalFrequency = (f_nom or f_0)
 
   def getDeltaFrequency(self, frequency):
     return self.nominalFrequency - frequency

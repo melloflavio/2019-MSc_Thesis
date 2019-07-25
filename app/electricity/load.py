@@ -1,6 +1,10 @@
 class Load:
-  def __init__(self, initialLoad):
+  def __init__(self, loadId, initialLoad):
+    self.loadId = loadId
     self.load = initialLoad # Load => P_Li
+
+  def getId(self):
+    return self.loadId
 
   def setLoad(self, newLoad):
     self.load = newLoad
