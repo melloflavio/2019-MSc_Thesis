@@ -9,7 +9,7 @@ class ElectricalSystem:
     self.areaDynamics = AreaDynamics(electricalConstants)
     self.loads = loads
     self.generators = generators
-    self.history: SystemHistory = SystemHistory(
+    self.history = SystemHistory(
       totalPower = [],
       frequency =  [],
       generators = { gen.getId(): [gen.getOutput()] for gen in self.generators },
