@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 class Load:
   def __init__(self, loadId, initialLoad):
     self.loadId = loadId

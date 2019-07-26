@@ -13,7 +13,7 @@ class ElectricalSystem:
       totalPower = [],
       frequency =  [],
       generators = { gen.getId(): [gen.getOutput()] for gen in self.generators },
-      loads = { load.getId(): [load.getOutput()] for load in self.loads },
+      loads = { load.getId(): [load.getLoad()] for load in self.loads },
     )
 
   def getHistory(self):
