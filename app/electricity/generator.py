@@ -1,3 +1,5 @@
+from dto import NodeState
+
 class Generator:
 
   def __init__(self, generatorId, initialOutput):
@@ -12,3 +14,6 @@ class Generator:
 
   def getOutput(self):
     return self.output
+
+  def toLoadState(self) -> NodeState:
+    return NodeState(id_=self.generatorId, power=self.getOutput)

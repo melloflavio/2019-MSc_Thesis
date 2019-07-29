@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+from dto import NodeState
 
 class Load:
   def __init__(self, loadId, initialLoad):
@@ -13,3 +13,6 @@ class Load:
 
   def getLoad(self):
     return self.load
+
+  def toLoadState(self) -> NodeState:
+    return NodeState(id_=self.loadId, power=self.getLoad)
