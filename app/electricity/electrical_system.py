@@ -1,8 +1,4 @@
-#!/usr/bin/env python3
-
-from dto import ElectricalConstants, SystemHistory
-
-from .area_dynamics import AreaDynamics
+from dto import SystemHistory
 
 class ElectricalSystem:
   def __init__(self, initialFrequency, loads, generators):
