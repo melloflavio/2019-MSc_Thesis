@@ -2,6 +2,9 @@
 *sandbox.py
 *sandbox.ipynb
 
+# VSCode configuration
+.vscode/*
+
 #####################################
 ## Sample Python Gitignore
 #####################################
