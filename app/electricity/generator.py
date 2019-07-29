@@ -15,5 +15,5 @@ class Generator:
   def getOutput(self):
     return self.output
 
-  def toLoadState(self) -> NodeState:
-    return NodeState(id_=self.generatorId, power=self.getOutput)
+  def toNodeState(self) -> NodeState:
+    return NodeState(id_=self.generatorId, power=self.getOutput())

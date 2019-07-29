@@ -7,7 +7,8 @@ class AreaDynamics:
     return ElectricalConstants().nominalFrequency - frequency
 
   @staticmethod
-  def calculatePowerGeneratedNew(zg, powGeneratedOld, deltaFreq): # zg = total control action (sum of generators Z)
+  def calculatePowerGeneratedNew(zg, powGeneratedOld, frequencyOld): # zg = total control action (sum of generators Z)
+    deltaFreq = AreaDynamics.getDeltaFrequency(frequencyOld)
     rd = ElectricalConstants().droop
     tg = ElectricalConstants().timeConstant
 

@@ -14,5 +14,5 @@ class Load:
   def getLoad(self):
     return self.load
 
-  def toLoadState(self) -> NodeState:
-    return NodeState(id_=self.loadId, power=self.getLoad)
+  def toNodeState(self) -> NodeState:
+    return NodeState(id_=self.loadId, power=self.getLoad())
