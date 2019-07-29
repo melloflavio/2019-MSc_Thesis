@@ -11,6 +11,7 @@ numpy = "*"
 pandas = "*"
 matplotlib = "*"
 ipykernel = "*"
+singleton-decorator = "*"
 
 [requires]
 python_version = "3.7"
