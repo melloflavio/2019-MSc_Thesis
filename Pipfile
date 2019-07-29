@@ -13,6 +13,7 @@ pandas = "*"
 matplotlib = "*"
 ipykernel = "*"
 singleton-decorator = "*"
+pydash = "*"
 
 [requires]
 python_version = "3.7"
