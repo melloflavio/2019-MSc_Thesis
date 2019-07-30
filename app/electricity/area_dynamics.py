@@ -4,7 +4,7 @@ class AreaDynamics:
 
   @staticmethod
   def getDeltaFrequency(frequency):
-    return ElectricalConstants().nominalFrequency - frequency
+    return frequency - ElectricalConstants().nominalFrequency
 
   @staticmethod
   def calculatePowerGeneratedNew(zg, powGeneratedOld, frequencyOld): # zg = total control action (sum of generators Z)
