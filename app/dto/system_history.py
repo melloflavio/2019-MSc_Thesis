@@ -9,6 +9,7 @@ class SystemHistory(NamedTuple):
   frequency: List[float] = []
   generators: Dict[str, List[float]] = {}
   loads: Dict[str, List[float]] = {}
+  costs: Dict[str, List[float]] = {}
 
   def pushState(self, state: State):
     self.totalPower.append(state.totalPower)
@@ -17,3 +18,5 @@ class SystemHistory(NamedTuple):
       self.loads.setdefault(load.id_, []).append(load.power)
     for gen in state.generators:
       self.generators.setdefault(gen.id_, []).append(gen.power)
+    for genCost in state.cost:
+      self.costs.setdefault(genCost.id_, []).append(genCost.cost)

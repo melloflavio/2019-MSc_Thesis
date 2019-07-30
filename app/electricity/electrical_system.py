@@ -18,6 +18,7 @@ class ElectricalSystem:
         frequency=initialFrequency,
         loads=[l.toNodeStatePower() for l in self.loads],
         generators=[g.toNodeStatePower() for g in self.generators],
+        cost=[g.toNodeStateCost() for g in self.generators],
         ))
 
   def updateGenerators(self, generatorsUpdates: List[NodeStatePower]):
@@ -43,4 +44,5 @@ class ElectricalSystem:
         frequency=frequencyNew,
         loads=[l.toNodeStatePower() for l in self.loads],
         generators=[g.toNodeStatePower() for g in self.generators],
+        cost=[g.toNodeStateCost() for g in self.generators],
         ))
