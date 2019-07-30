@@ -1,4 +1,4 @@
-from dto import NodeState
+from dto import NodeStatePower
 
 class Load:
   def __init__(self, loadId, initialLoad):
@@ -14,5 +14,5 @@ class Load:
   def getLoad(self):
     return self.load
 
-  def toNodeState(self) -> NodeState:
-    return NodeState(id_=self.loadId, power=self.getLoad())
+  def toNodeStatePower(self) -> NodeStatePower:
+    return NodeStatePower(id_=self.loadId, power=self.getLoad())

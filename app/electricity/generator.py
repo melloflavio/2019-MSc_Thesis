@@ -1,4 +1,4 @@
-from dto import NodeState
+from dto import NodeStatePower
 
 class Generator:
 
@@ -15,5 +15,5 @@ class Generator:
   def getOutput(self):
     return self.output
 
-  def toNodeState(self) -> NodeState:
-    return NodeState(id_=self.generatorId, power=self.getOutput())
+  def toNodeStatePower(self) -> NodeStatePower:
+    return NodeStatePower(id_=self.generatorId, power=self.getOutput())

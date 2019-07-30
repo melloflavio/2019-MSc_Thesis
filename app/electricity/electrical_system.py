@@ -2,7 +2,7 @@ import pydash as _
 
 from typing import List
 
-from dto import NodeState, State, SystemHistory
+from dto import NodeStatePower, State, SystemHistory
 
 from .area_dynamics import AreaDynamics
 from .generator import Generator
@@ -16,11 +16,11 @@ class ElectricalSystem:
     SystemHistory().pushState(State(
         totalPower=initialPower,
         frequency=initialFrequency,
-        loads=[l.toNodeState() for l in self.loads],
-        generators=[g.toNodeState() for g in self.generators],
+        loads=[l.toNodeStatePower() for l in self.loads],
+        generators=[g.toNodeStatePower() for g in self.generators],
         ))
 
-  def updateGenerators(self, generatorsUpdates: List[NodeState]):
+  def updateGenerators(self, generatorsUpdates: List[NodeStatePower]):
     print(generatorsUpdates)
     # 1. Update the power output for each generator
     for generatorUpdate in generatorsUpdates:
@@ -41,6 +41,6 @@ class ElectricalSystem:
     SystemHistory().pushState(State(
         totalPower=powerGeneratedNew,
         frequency=frequencyNew,
-        loads=[l.toNodeState() for l in self.loads],
-        generators=[g.toNodeState() for g in self.generators],
+        loads=[l.toNodeStatePower() for l in self.loads],
+        generators=[g.toNodeStatePower() for g in self.generators],
         ))
