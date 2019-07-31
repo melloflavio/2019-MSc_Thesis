@@ -1,7 +1,7 @@
 from typing import List
 import scipy.optimize as opt
 
-from dto import CostProfile
+from dto import CostProfile, NodeStateCost
 
 class CostCalculator:
 
@@ -15,11 +15,13 @@ class CostCalculator:
   @staticmethod
   def _getObjectiveFn(generators):
     def objectiveFn(powers):
+      print(powers)
       generatorPowerTuples = zip(powers, generators)
-      return sum([
+      totalCost = sum([
           CostCalculator.calculateCost(power, generator.getCostProfile())
           for (power, generator) in generatorPowerTuples
           ])
+      return totalCost
     return objectiveFn
 
   # Generates all constraints associated with the optimization problem
@@ -71,9 +73,11 @@ class CostCalculator:
         objective,
         initialGuess,
         constraints=constraints,
-        options={'maxiter':20, 'disp':True}
+        # options={'maxiter':20, 'disp':True}
         )
 
-    # minimumSetup = results.x # Assigned power for each generator
-    minimumCost = results.fun
-    return minimumCost
+    minCost = results.fun
+    minSetup = zip(allGenerators, results.x) # Assigned power for each generator
+    minCostNodes = [NodeStateCost(id_=generator.getId(), cost=cost) for (generator, cost) in minSetup]
+
+    return minCost, minCostNodes

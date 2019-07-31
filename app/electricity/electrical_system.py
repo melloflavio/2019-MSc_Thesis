@@ -2,10 +2,11 @@ import pydash as _
 
 from typing import List
 
-from dto import NodeStatePower, State, SystemHistory
+from dto import NodeStatePower, NodeStateCost, State, SystemHistory
 
 from .area_dynamics import AreaDynamics
 from .generator import Generator
+from .cost_calculator import CostCalculator
 
 class ElectricalSystem:
   def __init__(self, initialFrequency, loads, generators):
@@ -18,7 +19,9 @@ class ElectricalSystem:
         frequency=initialFrequency,
         loads=[l.toNodeStatePower() for l in self.loads],
         generators=[g.toNodeStatePower() for g in self.generators],
-        cost=[g.toNodeStateCost() for g in self.generators],
+        actualCost=[g.toNodeStateCost() for g in self.generators],
+        optimalCost=[],
+        totalCost=[],
         ))
 
   def updateGenerators(self, generatorsUpdates: List[NodeStatePower]):
@@ -38,11 +41,26 @@ class ElectricalSystem:
     totalLoad = sum([l.getLoad() for l in self.loads])
     frequencyNew = AreaDynamics.calculateFrequencyNew(powerGeneratedNew, totalLoad, frequencyOld)
 
-    # 4. Push the new state to system history
+    # 4. Calculate the optimal generation cost of the current output
+    minCost, minCostNodes = CostCalculator.calculateMinimumCost(self.generators, zg)
+
+    # 5. Push the new state to system history
     SystemHistory().pushState(State(
         totalPower=powerGeneratedNew,
         frequency=frequencyNew,
         loads=[l.toNodeStatePower() for l in self.loads],
         generators=[g.toNodeStatePower() for g in self.generators],
-        cost=[g.toNodeStateCost() for g in self.generators],
+        actualCost=[g.toNodeStateCost() for g in self.generators],
+        optimalCost=minCostNodes,
+        totalCost=[
+            NodeStateCost(id_= "Minimum", cost=minCost),
+            NodeStateCost(id_= "Actual", cost=sum(g.getCost() for g in self.generators)),
+            ]
         ))
+
+  #       class NodeStateCost(NamedTuple):
+  # id_: str
+  # cost: float
+
+    actualCost: List[NodeStateCost]
+    optimalCost: List[NodeStateCost]

@@ -13,4 +13,6 @@ class State(NamedTuple):
   frequency: float
   loads: List[NodeStatePower]
   generators: List[NodeStatePower]
-  cost: List[NodeStateCost]
+  actualCost: List[NodeStateCost]
+  optimalCost: List[NodeStateCost]
+  totalCost: List[NodeStateCost]

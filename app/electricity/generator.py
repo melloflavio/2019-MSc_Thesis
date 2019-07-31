@@ -30,9 +30,11 @@ class Generator:
   def getMaxPower(self):
     return self.maxPower
 
+  def getCost(self):
+    return CostCalculator.calculateCost(self.getOutput(), self.costProfile)
+
   def toNodeStatePower(self) -> NodeStatePower:
     return NodeStatePower(id_=self.generatorId, power=self.getOutput())
 
   def toNodeStateCost(self) -> NodeStateCost:
-    cost = CostCalculator.calculateCost(self.getOutput(), self.costProfile)
-    return NodeStateCost(id_=self.generatorId, cost=cost)
+    return NodeStateCost(id_=self.generatorId, cost=self.getCost())
