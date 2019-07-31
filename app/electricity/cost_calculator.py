@@ -13,7 +13,7 @@ class CostCalculator:
 
   # Generates an objective function which calculates the total cost given a power output combination
   @staticmethod
-  def getObjectiveFn(generators):
+  def _getObjectiveFn(generators):
     def objectiveFn(powers):
       generatorPowerTuples = zip(powers, generators)
       return sum([
@@ -28,7 +28,7 @@ class CostCalculator:
   # - Power outputs must be within each generator's limits
   # Note: SciPy inequalities are in the from <computed_value> >=0
   @staticmethod
-  def generateConstraints(allGenerators: List[any], totalPower):
+  def _generateConstraints(allGenerators: List[any], totalPower):
     generatorIndexes = range(len(allGenerators))
 
     constraints = []
@@ -59,13 +59,13 @@ class CostCalculator:
   @staticmethod
   def calculateMinimumCost(allGenerators, totalPower):
     # Generate the objective function using the generators
-    objective = CostCalculator.getObjectiveFn(allGenerators)
+    objective = CostCalculator._getObjectiveFn(allGenerators)
 
     # Start optimization with current power setup
     initialGuess = [generator.getOutput() for generator in allGenerators]
 
     # Generate all relevant contraints
-    constraints = CostCalculator.generateConstraints(allGenerators, totalPower)
+    constraints = CostCalculator._generateConstraints(allGenerators, totalPower)
 
     results = opt.minimize(
         objective,
