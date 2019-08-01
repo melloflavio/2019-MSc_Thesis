@@ -5,7 +5,7 @@ from .state import State
 
 @singleton
 class SystemHistory(NamedTuple):
-  steps: int = [0]
+  steps: int = []
   totalPower: List[float] = []
   totalLoad: List[float] = []
   frequency: List[float] = []
@@ -29,4 +29,4 @@ class SystemHistory(NamedTuple):
       self.optimalCosts.setdefault(costItem.id_, []).append(costItem.cost)
     for totalCostItem in state.totalCost:
       self.totalCosts.setdefault(totalCostItem.id_, []).append(totalCostItem.cost)
-    self.steps.append(self.steps[-1]+1)
+    self.steps.append(len(self.steps))
