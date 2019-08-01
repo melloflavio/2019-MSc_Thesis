@@ -8,10 +8,9 @@ def plot_frequency(figure_num=0):
 
   # Get series to be plotted
   frequencySeries = SystemHistory().frequency
-  nSteps = len(frequencySeries)
-  stepsSeries = range(nSteps)
+  stepsSeries = SystemHistory().steps
   nominalFrequency = ElectricalConstants().nominalFrequency
-  nominalSeries = [nominalFrequency] * nSteps
+  nominalSeries = [nominalFrequency] * len(stepsSeries)
 
   plt.figure(figure_num)
 
