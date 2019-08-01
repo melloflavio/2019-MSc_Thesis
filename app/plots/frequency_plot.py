@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 
 from dto import ElectricalConstants, SystemHistory
 
-from .color_palette import COLOR_PALETTE
+from .plot_constants import COLOR_PALETTE
 
 def plotFrequency(figureNum=0):
 
