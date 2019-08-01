@@ -5,7 +5,6 @@ from typing import List
 from dto import NodeStatePower, NodeStateCost, State, SystemHistory
 
 from .area_dynamics import AreaDynamics
-from .generator import Generator
 from .cost_calculator import CostCalculator
 
 class ElectricalSystem:
@@ -14,6 +13,8 @@ class ElectricalSystem:
     self.generators = generators
 
     initialPower = sum([gen.getOutput() for gen in self.generators])
+    minCost, minCostNodes = CostCalculator.calculateMinimumCost(self.generators, initialPower)
+
     SystemHistory().pushState(State(
         totalPower=initialPower,
         totalLoad=sum([l.getLoad() for l in self.loads]),
@@ -21,8 +22,11 @@ class ElectricalSystem:
         loads=[l.toNodeStatePower() for l in self.loads],
         generators=[g.toNodeStatePower() for g in self.generators],
         actualCost=[g.toNodeStateCost() for g in self.generators],
-        optimalCost=[],
-        totalCost=[],
+        optimalCost=minCostNodes,
+        totalCost=[
+            NodeStateCost(id_= "Minimum", cost=minCost),
+            NodeStateCost(id_= "Actual", cost=sum(g.getCost() for g in self.generators)),
+            ]
         ))
 
   def updateGenerators(self, generatorsUpdates: List[NodeStatePower]):
@@ -54,8 +58,8 @@ class ElectricalSystem:
         actualCost=[g.toNodeStateCost() for g in self.generators],
         optimalCost=minCostNodes,
         totalCost=[
-            NodeStateCost(id_= "Minimum", cost=minCost),
-            NodeStateCost(id_= "Actual", cost=sum(g.getCost() for g in self.generators)),
+            NodeStateCost(id_="Minimum", cost=minCost),
+            NodeStateCost(id_="Actual", cost=sum(g.getCost() for g in self.generators)),
             ]
         ))
 
