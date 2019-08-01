@@ -4,12 +4,17 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
+pylint = "*"
 
 [packages]
 jupyter = "*"
 numpy = "*"
 pandas = "*"
 matplotlib = "*"
+ipykernel = "*"
+singleton-decorator = "*"
+pydash = "*"
+scipy = "*"
 
 [requires]
 python_version = "3.7"
