@@ -13,7 +13,7 @@ class ElectricalSystem:
     self.generators = generators
 
     initialPower = sum([gen.getOutput() for gen in self.generators])
-    minCost, minCostNodes = CostCalculator.calculateMinimumCost(self.generators, initialPower)
+    minCost, minCostNodesPower, minCostNodesCost = CostCalculator.calculateMinimumCost(self.generators, initialPower)
 
     SystemHistory().pushState(State(
         totalPower=initialPower,
@@ -22,7 +22,8 @@ class ElectricalSystem:
         loads=[l.toNodeStatePower() for l in self.loads],
         generators=[g.toNodeStatePower() for g in self.generators],
         actualCost=[g.toNodeStateCost() for g in self.generators],
-        optimalCost=minCostNodes,
+        costOptimalCost=minCostNodesCost,
+        costOptimalPower=minCostNodesPower,
         totalCost=[
             NodeStateCost(id_= "Minimum", cost=minCost),
             NodeStateCost(id_= "Actual", cost=sum(g.getCost() for g in self.generators)),
@@ -46,7 +47,7 @@ class ElectricalSystem:
     frequencyNew = AreaDynamics.calculateFrequencyNew(powerGeneratedNew, totalLoad, frequencyOld)
 
     # 4. Calculate the optimal generation cost of the current output
-    minCost, minCostNodes = CostCalculator.calculateMinimumCost(self.generators, zg)
+    minCost, minCostNodesPower, minCostNodesCost = CostCalculator.calculateMinimumCost(self.generators, zg)
 
     # 5. Push the new state to system history
     SystemHistory().pushState(State(
@@ -56,7 +57,8 @@ class ElectricalSystem:
         loads=[l.toNodeStatePower() for l in self.loads],
         generators=[g.toNodeStatePower() for g in self.generators],
         actualCost=[g.toNodeStateCost() for g in self.generators],
-        optimalCost=minCostNodes,
+        costOptimalCost=minCostNodesCost,
+        costOptimalPower=minCostNodesPower,
         totalCost=[
             NodeStateCost(id_="Minimum", cost=minCost),
             NodeStateCost(id_="Actual", cost=sum(g.getCost() for g in self.generators)),

@@ -15,5 +15,6 @@ class State(NamedTuple):
   loads: List[NodeStatePower]
   generators: List[NodeStatePower]
   actualCost: List[NodeStateCost]
-  optimalCost: List[NodeStateCost]
+  costOptimalCost: List[NodeStateCost]
+  costOptimalPower: List[NodeStatePower]
   totalCost: List[NodeStateCost]

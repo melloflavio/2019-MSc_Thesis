@@ -1,7 +1,7 @@
 from typing import List
 import scipy.optimize as opt
 
-from dto import CostProfile, NodeStateCost
+from dto import CostProfile, NodeStateCost, NodeStatePower
 
 class CostCalculator:
 
@@ -76,7 +76,11 @@ class CostCalculator:
         )
 
     minCost = results.fun
-    minSetup = zip(allGenerators, results.x) # Assigned power for each generator
-    minCostNodes = [NodeStateCost(id_=generator.getId(), cost=cost) for (generator, cost) in minSetup]
 
-    return minCost, minCostNodes
+    minSetup = zip(allGenerators, results.x) # Assigned power for each generator
+    minCostNodesPower = [NodeStatePower(id_=generator.getId(), power=power) for (generator, power) in minSetup]
+
+    minSetup = zip(allGenerators, results.x) # Regenerate zip iterator
+    minCostNodesCost = [NodeStateCost(id_=generator.getId(), cost=CostCalculator.calculateCost(power, generator.getCostProfile())) for (generator, power) in minSetup]
+
+    return minCost, minCostNodesPower, minCostNodesCost
