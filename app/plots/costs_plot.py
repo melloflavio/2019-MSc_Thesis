@@ -29,11 +29,64 @@ def plot_total_costs(figureNum=0):
   # Plot cost difference in right-side axis
   ax2.plot(stepsSeries, deltaCostSeries, color=colorCostsDifference, linestyle='--')
 
-  ax1.legend(['Actual Cost', 'Minimum Cost'])
-  ax1.set_xlabel('Steps', fontsize=12)
-  ax1.set_ylabel('Cost ($)', fontsize=12)
-  ax2.set_ylabel('Cost Differential (%)', color=colorCostsDifference, fontsize=12)
-
   plt.title('Costs ($) x Time (Steps)', fontsize=14)
+
+  plt.show()
+
+def plot_individual_costs_absolute(figureNum=0):
+
+  # Get series to be plotted
+  stepsSeries = SystemHistory().steps
+  actualCosts = SystemHistory().actualCosts
+  optimalCosts = SystemHistory().costOptimalCosts
+
+  plt.figure(figureNum)
+
+  legendFields = []
+
+  for idx, generatorId in enumerate(actualCosts):
+    # Since num generators is variable, colors may wrap around the palette
+    generatorColor = COLOR_PALETTE[idx % len(COLOR_PALETTE)]
+    actualCostsSeries = actualCosts[generatorId]
+    optimalCostsSeries = optimalCosts[generatorId]
+    plt.plot(stepsSeries, actualCostsSeries, color=generatorColor, linestyle='-')
+    plt.plot(stepsSeries, optimalCostsSeries, color=generatorColor, linestyle='--')
+
+    legendFields.extend(['{} Actual'.format(generatorId), '{} Optimal'.format(generatorId)])
+
+  plt.legend(legendFields)
+  plt.xlabel('Steps', fontsize=12)
+  plt.ylabel('Cost ($)', fontsize=12)
+
+  plt.title('Per Generator Costs ($) x Time (Steps)', fontsize=14)
+
+  plt.show()
+
+def plot_individual_costs_relative(figureNum=0):
+
+  # Get series to be plotted
+  stepsSeries = SystemHistory().steps
+  actualCosts = SystemHistory().actualCosts
+  optimalCosts = SystemHistory().costOptimalCosts
+
+  plt.figure(figureNum)
+
+  legendFields = []
+
+  for idx, generatorId in enumerate(actualCosts):
+    # Since num generators is variable, colors may wrap around the palette
+    generatorColor = COLOR_PALETTE[idx % len(COLOR_PALETTE)]
+    actualCostsSeries = actualCosts[generatorId]
+    optimalCostsSeries = optimalCosts[generatorId]
+    deltaCostSeries = [((actual - minimum)/minimum)*100 for (actual, minimum) in zip(actualCostsSeries, optimalCostsSeries)]
+    plt.plot(stepsSeries, deltaCostSeries, color=generatorColor, linestyle='-.')
+
+    legendFields.extend(['{} Actual'.format(generatorId), '{} Optimal'.format(generatorId)])
+
+  plt.legend(legendFields)
+  plt.xlabel('Steps', fontsize=12)
+  plt.ylabel('Cost Differential (%)', fontsize=12)
+
+  plt.title('Per Generator Costs Differential (%) x Time (Steps)', fontsize=14)
 
   plt.show()
