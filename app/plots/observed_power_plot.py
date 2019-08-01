@@ -4,7 +4,7 @@ from dto import SystemHistory
 
 from .color_palette import COLOR_PALETTE
 
-def plot_observed_power(figure_num=0, shouldPlotAllLoads=False):
+def plotObservedPower(figureNum=0, shouldPlotAllLoads=False):
 
   # Get series to be plotted
   stepsSeries = SystemHistory().steps
@@ -13,7 +13,7 @@ def plot_observed_power(figure_num=0, shouldPlotAllLoads=False):
   generators = SystemHistory().generators
   totalPowerSeries = SystemHistory().totalPower
 
-  plt.figure(figure_num)
+  plt.figure(figureNum)
 
   # Declare colors to be used
   colorTotalLoad = COLOR_PALETTE[0]

@@ -4,7 +4,7 @@ from dto import SystemHistory
 
 from .color_palette import COLOR_PALETTE
 
-def plot_total_costs(figureNum=0):
+def plotTotalCosts(figureNum=0):
 
   # Get series to be plotted
   stepsSeries = SystemHistory().steps
@@ -33,7 +33,7 @@ def plot_total_costs(figureNum=0):
 
   plt.show()
 
-def plot_individual_costs_absolute(figureNum=0):
+def plotIndividualCostsAbsolute(figureNum=0):
 
   # Get series to be plotted
   stepsSeries = SystemHistory().steps
@@ -62,7 +62,7 @@ def plot_individual_costs_absolute(figureNum=0):
 
   plt.show()
 
-def plot_individual_costs_relative(figureNum=0):
+def plotIndividualCostsRelative(figureNum=0):
 
   # Get series to be plotted
   stepsSeries = SystemHistory().steps

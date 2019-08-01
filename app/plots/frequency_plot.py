@@ -4,7 +4,7 @@ from dto import ElectricalConstants, SystemHistory
 
 from .color_palette import COLOR_PALETTE
 
-def plot_frequency(figure_num=0):
+def plotFrequency(figureNum=0):
 
   # Get series to be plotted
   frequencySeries = SystemHistory().frequency
@@ -12,7 +12,7 @@ def plot_frequency(figure_num=0):
   nominalFrequency = ElectricalConstants().nominalFrequency
   nominalSeries = [nominalFrequency] * len(stepsSeries)
 
-  plt.figure(figure_num)
+  plt.figure(figureNum)
 
   # Declare colors to be used
   colorNominalFreq = COLOR_PALETTE[0]
