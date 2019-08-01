@@ -15,7 +15,6 @@ class CostCalculator:
   @staticmethod
   def _getObjectiveFn(generators):
     def objectiveFn(powers):
-      print(powers)
       generatorPowerTuples = zip(powers, generators)
       totalCost = sum([
           CostCalculator.calculateCost(power, generator.getCostProfile())

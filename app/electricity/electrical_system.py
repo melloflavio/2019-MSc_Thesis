@@ -25,7 +25,6 @@ class ElectricalSystem:
         ))
 
   def updateGenerators(self, generatorsUpdates: List[NodeStatePower]):
-    print(generatorsUpdates)
     # 1. Update the power output for each generator
     for generatorUpdate in generatorsUpdates:
       selectedGenerator = _.find(self.generators, lambda gen: gen.getId() == generatorUpdate.id_)
