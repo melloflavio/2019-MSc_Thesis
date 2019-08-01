@@ -7,6 +7,7 @@ from .state import State
 class SystemHistory(NamedTuple):
   steps: int = [0]
   totalPower: List[float] = []
+  totalLoad: List[float] = []
   frequency: List[float] = []
   generators: Dict[str, List[float]] = {}
   loads: Dict[str, List[float]] = {}
@@ -16,6 +17,7 @@ class SystemHistory(NamedTuple):
 
   def pushState(self, state: State):
     self.totalPower.append(state.totalPower)
+    self.totalLoad.append(state.totalLoad)
     self.frequency.append(state.frequency)
     for load in state.loads:
       self.loads.setdefault(load.id_, []).append(load.power)

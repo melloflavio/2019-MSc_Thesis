@@ -10,6 +10,7 @@ class NodeStateCost(NamedTuple):
 
 class State(NamedTuple):
   totalPower: float
+  totalLoad: float
   frequency: float
   loads: List[NodeStatePower]
   generators: List[NodeStatePower]

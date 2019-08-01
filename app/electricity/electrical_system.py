@@ -16,6 +16,7 @@ class ElectricalSystem:
     initialPower = sum([gen.getOutput() for gen in self.generators])
     SystemHistory().pushState(State(
         totalPower=initialPower,
+        totalLoad=sum([l.getLoad() for l in self.loads]),
         frequency=initialFrequency,
         loads=[l.toNodeStatePower() for l in self.loads],
         generators=[g.toNodeStatePower() for g in self.generators],
@@ -46,6 +47,7 @@ class ElectricalSystem:
     # 5. Push the new state to system history
     SystemHistory().pushState(State(
         totalPower=powerGeneratedNew,
+        totalLoad=sum([l.getLoad() for l in self.loads]),
         frequency=frequencyNew,
         loads=[l.toNodeStatePower() for l in self.loads],
         generators=[g.toNodeStatePower() for g in self.generators],
