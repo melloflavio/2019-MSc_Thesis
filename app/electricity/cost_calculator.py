@@ -42,15 +42,15 @@ class CostCalculator:
 
     # Outputs must respect each generators maximum capacity
     constraints.extend([{
-          'type': 'ineq',
-          'fun': lambda x: - x[idx] + generator.getMaxPower()
+        'type': 'ineq',
+        'fun': lambda x: - x[idx] + generator.getMaxPower()
         } for idx, generator in enumerate(allGenerators)
       ])
 
     # Outputs must respect each generators minimum capacity
     constraints.extend([{
-          'type': 'ineq',
-          'fun': lambda x: x[idx] - generator.getMinPower()
+        'type': 'ineq',
+        'fun': lambda x: x[idx] - generator.getMinPower()
         } for idx, generator in enumerate(allGenerators)
       ])
 
@@ -78,9 +78,17 @@ class CostCalculator:
     minCost = results.fun
 
     minSetup = zip(allGenerators, results.x) # Assigned power for each generator
-    minCostNodesPower = [NodeStatePower(id_=generator.getId(), power=power) for (generator, power) in minSetup]
+    minCostNodesPower = [
+        NodeStatePower(
+          id_=generator.getId(),
+          power=power
+        ) for (generator, power) in minSetup]
 
     minSetup = zip(allGenerators, results.x) # Regenerate zip iterator
-    minCostNodesCost = [NodeStateCost(id_=generator.getId(), cost=CostCalculator.calculateCost(power, generator.getCostProfile())) for (generator, power) in minSetup]
+    minCostNodesCost = [
+        NodeStateCost(
+            id_=generator.getId(),
+            cost=CostCalculator.calculateCost(power, generator.getCostProfile())
+        ) for (generator, power) in minSetup]
 
     return minCost, minCostNodesPower, minCostNodesCost
