@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 
 from dto import SystemHistory
 
-from .plot_constants import COLOR_PALETTE
+from .plot_constants import COLOR_PALETTE, FONT_SIZES
 
 def plotTotalCosts(figureNum=0):
 
@@ -29,7 +29,10 @@ def plotTotalCosts(figureNum=0):
   # Plot cost difference in right-side axis
   ax2.plot(stepsSeries, deltaCostSeries, color=colorCostsDifference, linestyle='--')
 
-  plt.title('Costs ($) x Time (Steps)', fontsize=14)
+  ax1.set_xlabel('Steps', fontsize=FONT_SIZES['AXIS_LABEL'])
+  ax1.set_ylabel('Cost ($)', fontsize=FONT_SIZES['AXIS_LABEL'])
+  ax2.set_ylabel('Relative Cost to Optimal (%)', fontsize=FONT_SIZES['AXIS_LABEL'])
+  plt.title('Costs ($) x Time (Steps)', fontsize=FONT_SIZES['TITLE'])
 
   plt.show()
 
@@ -55,10 +58,10 @@ def plotIndividualCostsAbsolute(figureNum=0):
     legendFields.extend(['{} Actual'.format(generatorId), '{} Optimal'.format(generatorId)])
 
   plt.legend(legendFields)
-  plt.xlabel('Steps', fontsize=12)
-  plt.ylabel('Cost ($)', fontsize=12)
+  plt.xlabel('Steps', fontsize=FONT_SIZES['AXIS_LABEL'])
+  plt.ylabel('Cost ($)', fontsize=FONT_SIZES['AXIS_LABEL'])
 
-  plt.title('Per Generator Costs ($) x Time (Steps)', fontsize=14)
+  plt.title('Per Generator Costs ($) x Time (Steps)', fontsize=FONT_SIZES['TITLE'])
 
   plt.show()
 
@@ -84,9 +87,9 @@ def plotIndividualCostsRelative(figureNum=0):
     legendFields.extend(['{} Actual'.format(generatorId), '{} Optimal'.format(generatorId)])
 
   plt.legend(legendFields)
-  plt.xlabel('Steps', fontsize=12)
-  plt.ylabel('Cost Differential (%)', fontsize=12)
+  plt.xlabel('Steps', fontsize=FONT_SIZES['AXIS_LABEL'])
+  plt.ylabel('Cost Differential (%)', fontsize=FONT_SIZES['AXIS_LABEL'])
 
-  plt.title('Per Generator Costs Differential (%) x Time (Steps)', fontsize=14)
+  plt.title('Per Generator Costs Differential (%) x Time (Steps)', fontsize=FONT_SIZES['TITLE'])
 
   plt.show()

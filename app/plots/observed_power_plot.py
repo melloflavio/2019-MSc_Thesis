@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 
 from dto import SystemHistory
 
-from .plot_constants import COLOR_PALETTE
+from .plot_constants import COLOR_PALETTE, FONT_SIZES
 
 def plotObservedPower(figureNum=0, shouldPlotAllLoads=False):
 
@@ -45,9 +45,9 @@ def plotObservedPower(figureNum=0, shouldPlotAllLoads=False):
 
 
   plt.legend(legendFields)
-  plt.xlabel('Steps', fontsize=12)
-  plt.ylabel('Power (pu)', fontsize=12)
+  plt.xlabel('Steps', fontsize=FONT_SIZES['AXIS_LABEL'])
+  plt.ylabel('Power (pu)', fontsize=FONT_SIZES['AXIS_LABEL'])
 
-  plt.title('System Power (pu) x Time (Steps)', fontsize=14)
+  plt.title('System Power (pu) x Time (Steps)', fontsize=FONT_SIZES['TITLE'])
 
   plt.show()

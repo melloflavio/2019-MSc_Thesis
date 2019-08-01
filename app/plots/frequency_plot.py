@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 
 from dto import ElectricalConstants, SystemHistory
 
-from .plot_constants import COLOR_PALETTE
+from .plot_constants import COLOR_PALETTE, FONT_SIZES
 
 def plotFrequency(figureNum=0):
 
@@ -23,9 +23,9 @@ def plotFrequency(figureNum=0):
   plt.plot(stepsSeries, frequencySeries, color=colorObservedFreq)
   plt.legend(['Nominal', 'Observed'])
 
-  plt.xlabel('Steps', fontsize=12)
-  plt.ylabel('System Frequency (Hz)', fontsize=12)
+  plt.xlabel('Steps', fontsize=FONT_SIZES['AXIS_LABEL'])
+  plt.ylabel('System Frequency (Hz)', fontsize=FONT_SIZES['AXIS_LABEL'])
 
-  plt.title('System Frequency (Hz) x Time (Steps)', fontsize=14)
+  plt.title('System Frequency (Hz) x Time (Steps)', fontsize=FONT_SIZES['TITLE'])
 
   plt.show()

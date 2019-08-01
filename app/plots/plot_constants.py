@@ -1,3 +1,5 @@
+from typing import NamedTuple
+
 # ColorBrewer 10-color qualitative scale
 COLOR_PALETTE = [
     '#1f78b4',
@@ -10,3 +12,8 @@ COLOR_PALETTE = [
     '#b2df8a',
     '#cab2d6',
 ]
+
+FONT_SIZES = {
+    'TITLE': 14,
+    'AXIS_LABEL': 12,
+}
