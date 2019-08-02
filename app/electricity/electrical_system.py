@@ -5,7 +5,6 @@ from typing import List
 from dto import NodeStatePower, NodeStateCost, State, SystemHistory
 
 from .area_dynamics import AreaDynamics
-from .generator import Generator
 from .cost_calculator import CostCalculator
 
 class ElectricalSystem:
@@ -14,18 +13,24 @@ class ElectricalSystem:
     self.generators = generators
 
     initialPower = sum([gen.getOutput() for gen in self.generators])
+    minCost, minCostNodesPower, minCostNodesCost = CostCalculator.calculateMinimumCost(self.generators, initialPower)
+
     SystemHistory().pushState(State(
         totalPower=initialPower,
+        totalLoad=sum([l.getLoad() for l in self.loads]),
         frequency=initialFrequency,
         loads=[l.toNodeStatePower() for l in self.loads],
         generators=[g.toNodeStatePower() for g in self.generators],
         actualCost=[g.toNodeStateCost() for g in self.generators],
-        optimalCost=[],
-        totalCost=[],
+        costOptimalCost=minCostNodesCost,
+        costOptimalPower=minCostNodesPower,
+        totalCost=[
+            NodeStateCost(id_= "Minimum", cost=minCost),
+            NodeStateCost(id_= "Actual", cost=sum(g.getCost() for g in self.generators)),
+            ]
         ))
 
   def updateGenerators(self, generatorsUpdates: List[NodeStatePower]):
-    print(generatorsUpdates)
     # 1. Update the power output for each generator
     for generatorUpdate in generatorsUpdates:
       selectedGenerator = _.find(self.generators, lambda gen: gen.getId() == generatorUpdate.id_)
@@ -42,19 +47,21 @@ class ElectricalSystem:
     frequencyNew = AreaDynamics.calculateFrequencyNew(powerGeneratedNew, totalLoad, frequencyOld)
 
     # 4. Calculate the optimal generation cost of the current output
-    minCost, minCostNodes = CostCalculator.calculateMinimumCost(self.generators, zg)
+    minCost, minCostNodesPower, minCostNodesCost = CostCalculator.calculateMinimumCost(self.generators, zg)
 
     # 5. Push the new state to system history
     SystemHistory().pushState(State(
         totalPower=powerGeneratedNew,
+        totalLoad=sum([l.getLoad() for l in self.loads]),
         frequency=frequencyNew,
         loads=[l.toNodeStatePower() for l in self.loads],
         generators=[g.toNodeStatePower() for g in self.generators],
         actualCost=[g.toNodeStateCost() for g in self.generators],
-        optimalCost=minCostNodes,
+        costOptimalCost=minCostNodesCost,
+        costOptimalPower=minCostNodesPower,
         totalCost=[
-            NodeStateCost(id_= "Minimum", cost=minCost),
-            NodeStateCost(id_= "Actual", cost=sum(g.getCost() for g in self.generators)),
+            NodeStateCost(id_="Minimum", cost=minCost),
+            NodeStateCost(id_="Actual", cost=sum(g.getCost() for g in self.generators)),
             ]
         ))
 
