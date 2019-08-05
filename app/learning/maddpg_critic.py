@@ -2,7 +2,7 @@ import tensorflow as tf
 
 class CriticMaddpg():
   """ Critic network that estimates the value of the maddpg algorithm"""
-  def __init__(self, hSize, cell, scope, numVariables):
+  def __init__(self, hSize, ltsmCell, scope, numVariables):
 
     # Define the model (input-hidden layers-output)
     self.s = tf.placeholder(shape=[None, 1], dtype=tf.float32)
@@ -15,8 +15,8 @@ class CriticMaddpg():
     self.trainLength = tf.placeholder(dtype=tf.int32)           # trace lentgth
     rnnInput = tf.reshape(self.inputs, [self.batchSize, self.trainLength, 3])
 
-    self.stateIn = cell.zero_state(self.batchSize, tf.float32)
-    rnn, self.rnnState = tf.nn.dynamic_rnn(inputs=rnnInput, cell=cell,
+    self.stateIn = ltsmCell.zero_state(self.batchSize, tf.float32)
+    rnn, self.rnnState = tf.nn.dynamic_rnn(inputs=rnnInput, cell=ltsmCell,
                               dtype=tf.float32, initial_state=self.stateIn, scope=scope+'_rnn')
     rnn = tf.reshape(rnn, shape=[-1, hSize])
 
