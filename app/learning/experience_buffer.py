@@ -1,21 +1,21 @@
 import numpy as np
 
-class experience_buffer():
+class ExperienceBuffer():
   """ Create a buffer to store information to train recurrent models"""
-  def __init__(self, buffer_size = 100):
+  def __init__(self, bufferSize=100):
     self.buffer = []
-    self.buffer_size = buffer_size
+    self.bufferSize = bufferSize
 
-  def add(self,experience):
-    if len(self.buffer) + 1 >= self.buffer_size:
-      self.buffer[0:(1+len(self.buffer))-self.buffer_size] = []
+  def add(self, experience):
+    if len(self.buffer) + 1 >= self.bufferSize:
+      self.buffer[0:(1+len(self.buffer))-self.bufferSize] = []
     self.buffer.append(experience)
 
-  def sample(self,batch_size,trace_length,n_var):
-    index = np.random.choice(np.arange(len(self.buffer)),batch_size)
-    sampled_episodes = [self.buffer[i] for i in index]
+  def sample(self, batchSize, traceLength, numVars):
+    index = np.random.choice(np.arange(len(self.buffer)), batchSize)
+    sampledEpisodes = [self.buffer[i] for i in index]
     sampledTraces = []
-    for episode in sampled_episodes:
-      point = np.random.randint(0,episode.shape[0]+1-trace_length)
-      sampledTraces.append(episode[point:point+trace_length,:])
-    return np.reshape(np.array(sampledTraces),[-1,n_var])
+    for episode in sampledEpisodes:
+      point = np.random.randint(0, episode.shape[0]+1-traceLength)
+      sampledTraces.append(episode[point:point+traceLength, :])
+    return np.reshape(np.array(sampledTraces), [-1, numVars])
