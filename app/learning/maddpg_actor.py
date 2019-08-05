@@ -1,40 +1,53 @@
 import tensorflow as tf
 
+_BATCH_SIZE = 32
+
 class actor_maddpg():
   """ Actor network that estimates the policy of the maddpg algorithm"""
   def __init__(self, hSize, cell, scope, numVariables):
 
     # Define the model (input-hidden layers-output)
     self.inputs = tf.placeholder(shape=[None, 1], dtype=tf.float32)
-    self.initializer = tf.contrib.layers.xavier_initializer()
+    initializer = tf.contrib.layers.xavier_initializer()
 
     # LSTM to encode temporal information
-    self.batch_size = tf.placeholder(dtype=tf.int32, shape=[])   # batch size
+    self.batchSize = tf.placeholder(dtype=tf.int32, shape=[])   # batch size
     self.trainLength = tf.placeholder(dtype=tf.int32)           # trace lentgth
-    self.rnnInp = tf.reshape(self.inputs, [self.batch_size, self.trainLength, 1])
+    rnnInputs = tf.reshape(self.inputs, [self.batchSize, self.trainLength, 1])
 
-    self.state_in = cell.zero_state(self.batch_size, tf.float32)
-    self.rnn, self.rnn_state = tf.nn.dynamic_rnn(inputs=self.rnnInp, cell=cell,
-                              dtype=tf.float32, initial_state=self.state_in, scope=scope+'_rnn')
-    self.rnn = tf.reshape(self.rnn, shape=[-1, hSize])
+    self.stateIn = cell.zero_state(self.batchSize, tf.float32)
+    rnn, self.rnnState = tf.nn.dynamic_rnn(
+        inputs=rnnInputs,
+        cell=cell,
+        dtype=tf.float32,
+        initial_state=self.stateIn,
+        scope=scope+'_rnn',
+        )
+    rnn = tf.reshape(rnn, shape=[-1, hSize])
 
     # MLP on top of LSTM
-    self.layer1Bias = tf.Variable(self.initializer([1, 1000]))
-    self.layer1Weights = tf.Variable(self.initializer([hSize, 1000]))
-    self.layer1 = tf.nn.relu(tf.matmul(self.rnn, self.layer1Weights)+self.layer1Bias)
+    #Layer 1
+    l1_bias = tf.Variable(initializer([1, 1000]))
+    l1_weights = tf.Variable(initializer([hSize, 1000]))
+    layer_1 = tf.nn.relu(tf.matmul(rnn, l1_weights) + l1_bias)
 
-    self.layer2Bias = tf.Variable(self.initializer([1, 100]))
-    self.layer2Weights = tf.Variable(self.initializer([1000, 100]))
-    self.layer2 = tf.nn.relu(tf.matmul(self.layer1, self.layer2Weights)+self.layer2Bias)
+    #Layer 2
+    l2_bias = tf.Variable(initializer([1, 100]))
+    l2_weights = tf.Variable(initializer([1000, 100]))
+    layer_2 = tf.nn.relu(tf.matmul(layer_1, l2_weights) + l2_bias)
 
-    self.layer3Bias = tf.Variable(self.initializer([1, 50]))
-    self.layer3Weights = tf.Variable(self.initializer([100, 50]))
-    self.layer3 = tf.nn.relu(tf.matmul(self.layer2, self.layer3Weights)+self.layer3Bias)
+    #Layer 3
+    l3_bias = tf.Variable(initializer([1, 50]))
+    l3_weights = tf.Variable(initializer([100, 50]))
+    layer_3 = tf.nn.relu(tf.matmul(layer_2, l3_weights) + l3_bias)
 
-    self.layer4Bias = tf.Variable(self.initializer([1, 1]))
-    self.layer4Weights = tf.Variable(self.initializer([50, 1]))
-    self.actionUnscaled = tf.nn.tanh(tf.matmul(self.layer3, self.layer4Weights)+self.layer4Bias)
-    self.action = tf.multiply(self.actionUnscaled, 0.1)
+    #Layer 4
+    l4_bias = tf.Variable(initializer([1, 1]))
+    l4_weights = tf.Variable(initializer([50, 1]))
+    actionUnscaled = tf.nn.tanh(tf.matmul(layer_3, l4_weights) + l4_bias)
+
+    # Scale action
+    self.action = tf.multiply(actionUnscaled, 0.1)
 
     # Take params of the main actor network
     self.networkParams = tf.trainable_variables()[numVariables:]
@@ -43,12 +56,11 @@ class actor_maddpg():
     self.criticGradient = tf.placeholder(tf.float32, [None, 1])
 
     # Take the gradients and combine
-    self.unnormalizedActorGradients = tf.gradients(
+    unnormalizedActorGradients = tf.gradients(
                 self.action, self.networkParams, -self.criticGradient)
 
     # Normalize dividing by the size of the batch (gradients sum all over the batch)
-    self.actorGradients = list(map(lambda x: tf.div(x, 32),
-                                    self.unnormalizedActorGradients))
+    self.actorGradients = list(map(lambda x: tf.div(x, _BATCH_SIZE), unnormalizedActorGradients))
 
     # Optimization of the actor
     self.optimizer = tf.train.AdamOptimizer(1e-4)
@@ -56,6 +68,10 @@ class actor_maddpg():
 
   def createOpHolder(self, params, tau):
     """ Use target network op holder if needed"""
-    self.updateNetworkParams = [self.networkParams[i].assign(tf.multiply(params[i], tau) +
-                                  tf.multiply(self.networkParams[i], 1. - tau))
-                                  for i in range(len(self.networkParams))]
+    networkParamSize = len(self.networkParams)
+    self.updateNetworkParams = [None]*networkParamSize
+
+    for i in range(networkParamSize):
+      assignAction = self.networkParams[i].assign(
+          tf.multiply(params[i], tau) + tf.multiply(self.networkParams[i], 1. - tau))
+      self.updateNetworkParams[i] = assignAction
