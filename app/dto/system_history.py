@@ -1,7 +1,7 @@
 from typing import Dict, List, NamedTuple
 from singleton_decorator import singleton
 
-from .state import State
+from .state import ElectricalState
 
 @singleton
 class SystemHistory(NamedTuple):
@@ -16,7 +16,7 @@ class SystemHistory(NamedTuple):
   costOptimalPowers: Dict[str, List[float]] = {}
   totalCosts: Dict[str, List[float]] = {}
 
-  def pushState(self, state: State):
+  def pushState(self, state: ElectricalState):
     self.totalPower.append(state.totalPower)
     self.totalLoad.append(state.totalLoad)
     self.frequency.append(state.frequency)

@@ -2,7 +2,7 @@ import pydash as _
 
 from typing import List
 
-from dto import NodeStatePower, NodeStateCost, State, SystemHistory
+from dto import NodeStatePower, NodeStateCost, ElectricalState, SystemHistory
 
 from .area_dynamics import AreaDynamics
 from .cost_calculator import CostCalculator
@@ -15,7 +15,7 @@ class ElectricalSystem:
     initialPower = sum([gen.getOutput() for gen in self.generators])
     minCost, minCostNodesPower, minCostNodesCost = CostCalculator.calculateMinimumCost(self.generators, initialPower)
 
-    SystemHistory().pushState(State(
+    SystemHistory().pushState(ElectricalState(
         totalPower=initialPower,
         totalLoad=sum([l.getLoad() for l in self.loads]),
         frequency=initialFrequency,
@@ -50,7 +50,7 @@ class ElectricalSystem:
     minCost, minCostNodesPower, minCostNodesCost = CostCalculator.calculateMinimumCost(self.generators, zg)
 
     # 5. Push the new state to system history
-    SystemHistory().pushState(State(
+    SystemHistory().pushState(ElectricalState(
         totalPower=powerGeneratedNew,
         totalLoad=sum([l.getLoad() for l in self.loads]),
         frequency=frequencyNew,

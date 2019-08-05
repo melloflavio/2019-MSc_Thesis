@@ -8,7 +8,7 @@ class NodeStateCost(NamedTuple):
   id_: str
   cost: float
 
-class State(NamedTuple):
+class ElectricalState(NamedTuple):
   totalPower: float
   totalLoad: float
   frequency: float
