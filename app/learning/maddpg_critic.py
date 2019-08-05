@@ -5,10 +5,10 @@ class CriticMaddpg():
   def __init__(self, hSize, scope, numVariables):
 
     # Define the model (input-hidden layers-output)
-    self.s = tf.placeholder(shape=[None, 1], dtype=tf.float32)
-    self.a = tf.placeholder(shape=[None, 1], dtype=tf.float32)
-    self.a_o = tf.placeholder(shape=[None, 1], dtype=tf.float32)
-    self.inputs = tf.concat([self.s, self.a, self.a_o], axis=1)
+    self.state = tf.placeholder(shape=[None, 1], dtype=tf.float32)
+    self.action = tf.placeholder(shape=[None, 1], dtype=tf.float32)
+    self.actionOther = tf.placeholder(shape=[None, 1], dtype=tf.float32)
+    self.inputs = tf.concat([self.state, self.action, self.actionOther], axis=1)
 
     # LSTM to encode temporal information
     self.batchSize = tf.placeholder(dtype=tf.int32, shape=[])   # batch size
@@ -42,7 +42,7 @@ class CriticMaddpg():
     self.upd = optimizer.minimize(lossFn)
 
     # Get the gradient for the actor
-    self.critic_gradients = tf.gradients(self.Q, self.a)
+    self.critic_gradients = tf.gradients(self.Q, self.action)
 
   @staticmethod
   def _buildMlp(rnn, hSize):
