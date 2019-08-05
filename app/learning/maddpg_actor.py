@@ -4,7 +4,7 @@ _BATCH_SIZE = 32
 
 class ActorMaddpg():
   """ Actor network that estimates the policy of the maddpg algorithm"""
-  def __init__(self, hSize, ltsmCell, scope, numVariables):
+  def __init__(self, hSize, scope, numVariables):
 
     # Define the model (input-hidden layers-output)
     self.inputs = tf.placeholder(shape=[None, 1], dtype=tf.float32)
@@ -13,6 +13,8 @@ class ActorMaddpg():
     self.batchSize = tf.placeholder(dtype=tf.int32, shape=[])   # batch size
     self.trainLength = tf.placeholder(dtype=tf.int32)           # trace lentgth
     rnnInputs = tf.reshape(self.inputs, [self.batchSize, self.trainLength, 1])
+
+    ltsmCell = tf.contrib.rnn.BasicLSTMCell(num_units=hSize, state_is_tuple=True)
 
     self.stateIn = ltsmCell.zero_state(self.batchSize, tf.float32)
     rnn, self.rnnState = tf.nn.dynamic_rnn(
