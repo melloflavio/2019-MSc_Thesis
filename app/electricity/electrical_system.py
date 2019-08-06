@@ -65,9 +65,5 @@ class ElectricalSystem:
             ]
         ))
 
-  #       class NodeStateCost(NamedTuple):
-  # id_: str
-  # cost: float
-
-    actualCost: List[NodeStateCost]
-    optimalCost: List[NodeStateCost]
+  def getGeneratorIds(self):
+    return [g.getId() for g in self.generators]
