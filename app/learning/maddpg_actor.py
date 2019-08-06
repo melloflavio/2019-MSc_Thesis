@@ -1,10 +1,12 @@
 import tensorflow as tf
 
+from .learning_params import LearningParams
+
 _BATCH_SIZE = 32
 
 class ActorMaddpg():
   """ Actor network that estimates the policy of the maddpg algorithm"""
-  def __init__(self, hSize, scope, numVariables):
+  def __init__(self, scope, numVariables):
 
     # Define the model (input-hidden layers-output)
     self.inputs = tf.placeholder(shape=[None, 1], dtype=tf.float32)
@@ -14,7 +16,8 @@ class ActorMaddpg():
     self.trainLength = tf.placeholder(dtype=tf.int32)           # trace lentgth
     rnnInputs = tf.reshape(self.inputs, [self.batchSize, self.trainLength, 1])
 
-    ltsmCell = tf.contrib.rnn.BasicLSTMCell(num_units=hSize, state_is_tuple=True)
+    ltsmNumUnits = LearningParams().nnShape.layer_00_ltsm
+    ltsmCell = tf.contrib.rnn.BasicLSTMCell(num_units=ltsmNumUnits, state_is_tuple=True)
 
     self.stateIn = ltsmCell.zero_state(self.batchSize, tf.float32)
     rnn, self.rnnState = tf.nn.dynamic_rnn(
@@ -24,10 +27,10 @@ class ActorMaddpg():
         initial_state=self.stateIn,
         scope=scope+'_rnn',
         )
-    rnn = tf.reshape(rnn, shape=[-1, hSize])
+    rnn = tf.reshape(rnn, shape=[-1, ltsmNumUnits])
 
     # Stack on top of LSTM
-    self.action = ActorMaddpg._buildMlp(rnn, hSize)
+    self.action = ActorMaddpg._buildMlp(rnn)
 
     # Take params of the main actor network
     self.networkParams = tf.trainable_variables()[numVariables:]
@@ -47,28 +50,34 @@ class ActorMaddpg():
     self.upd = self.optimizer.apply_gradients(zip(self.actorGradients, self.networkParams))
 
   @staticmethod
-  def _buildMlp(rnn, hSize):
+  def _buildMlp(rnn):
     # Perform Xavier initialization of weights
     initializer = tf.contrib.layers.xavier_initializer()
 
+    ltsmNumUnits = LearningParams().nnShape.layer_00_ltsm
+
     #Layer 1
-    l1_bias = tf.Variable(initializer([1, 1000]))
-    l1_weights = tf.Variable(initializer([hSize, 1000]))
+    l1_units = LearningParams().nnShape.layer_01_mlp_01
+    l1_bias = tf.Variable(initializer([1, l1_units]))
+    l1_weights = tf.Variable(initializer([ltsmNumUnits, l1_units]))
     layer_1 = tf.nn.relu(tf.matmul(rnn, l1_weights) + l1_bias)
 
     #Layer 2
-    l2_bias = tf.Variable(initializer([1, 100]))
-    l2_weights = tf.Variable(initializer([1000, 100]))
+    l2_units = LearningParams().nnShape.layer_02_mlp_02
+    l2_bias = tf.Variable(initializer([1, l2_units]))
+    l2_weights = tf.Variable(initializer([l1_units, l2_units]))
     layer_2 = tf.nn.relu(tf.matmul(layer_1, l2_weights) + l2_bias)
 
     #Layer 3
-    l3_bias = tf.Variable(initializer([1, 50]))
-    l3_weights = tf.Variable(initializer([100, 50]))
+    l3_units = LearningParams().nnShape.layer_03_mlp_03
+    l3_bias = tf.Variable(initializer([1, l3_units]))
+    l3_weights = tf.Variable(initializer([l2_units, l3_units]))
     layer_3 = tf.nn.relu(tf.matmul(layer_2, l3_weights) + l3_bias)
 
     #Layer 4
-    l4_bias = tf.Variable(initializer([1, 1]))
-    l4_weights = tf.Variable(initializer([50, 1]))
+    l4_units = LearningParams().nnShape.layer_04_mlp_04
+    l4_bias = tf.Variable(initializer([1, l4_units]))
+    l4_weights = tf.Variable(initializer([l3_units, l4_units]))
     actionUnscaled = tf.nn.tanh(tf.matmul(layer_3, l4_weights) + l4_bias)
 
     action = tf.multiply(actionUnscaled, 0.1)
