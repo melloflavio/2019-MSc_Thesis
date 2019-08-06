@@ -15,8 +15,8 @@ class Generator:
   def getId(self) -> str:
     return self.generatorId
 
-  def setOutput(self, newOutput) -> None:
-    self.output = newOutput
+  def updateOutput(self, deltaOutput) -> None:
+    self.output += deltaOutput
 
   def getOutput(self) -> float:
     return self.output

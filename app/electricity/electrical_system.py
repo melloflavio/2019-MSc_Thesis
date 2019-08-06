@@ -1,8 +1,7 @@
+from typing import List
 import pydash as _
 
-from typing import List
-
-from dto import NodeStatePower, NodeStateCost, ElectricalState, SystemHistory
+from dto import NodeStateCost, ElectricalState, SystemHistory, NodePowerUpdate
 
 from .area_dynamics import AreaDynamics
 from .cost_calculator import CostCalculator
@@ -30,11 +29,11 @@ class ElectricalSystem:
             ]
         ))
 
-  def updateGenerators(self, generatorsUpdates: List[NodeStatePower]):
+  def updateGenerators(self, generatorsUpdates: List[NodePowerUpdate]):
     # 1. Update the power output for each generator
     for generatorUpdate in generatorsUpdates:
       selectedGenerator = _.find(self.generators, lambda gen: gen.getId() == generatorUpdate.id_)
-      selectedGenerator.setOutput(generatorUpdate.power)
+      selectedGenerator.updateOutput(generatorUpdate.deltaPower)
 
     # 2. Calculate the next total power output
     zg = sum([gen.power for gen in generatorsUpdates]) # Total Secondary Action (Z) from all generators

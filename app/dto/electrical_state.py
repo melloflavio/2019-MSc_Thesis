@@ -18,3 +18,7 @@ class ElectricalState(NamedTuple):
   costOptimalCost: List[NodeStateCost]
   costOptimalPower: List[NodeStatePower]
   totalCost: List[NodeStateCost]
+
+class NodePowerUpdate(NamedTuple):
+  id_: str
+  deltaPower: float
