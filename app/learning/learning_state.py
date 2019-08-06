@@ -8,7 +8,7 @@ class EpisodeState(NamedTuple):
   episodeBuffer: List[any]
 
 class ModelState(NamedTuple):
-  agents: List[any]
+  allAgents: List[any]
   xpBuffer: ExperienceBuffer
   cummRewardList: List[float]
 
