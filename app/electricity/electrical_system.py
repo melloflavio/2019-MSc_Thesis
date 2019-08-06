@@ -67,3 +67,7 @@ class ElectricalSystem:
 
   def getGeneratorIds(self):
     return [g.getId() for g in self.generators]
+
+  def getCurrentDeltaF(self):
+    currentFrequency = ElectricalState().frequency[-1]
+    return AreaDynamics.getDeltaFrequency(currentFrequency)
