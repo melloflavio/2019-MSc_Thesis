@@ -1,4 +1,5 @@
-from pprint import pprint
+# from pprint import pformat
+import json
 import tensorflow as tf
 
 from electricity import ElectricalSystem
@@ -50,7 +51,7 @@ class ModelTrainer():
           electricalSystem.updateGenerators(generatorUpdates)
 
           newDeltaF = electricalSystem.getCurrentDeltaF()
-          currentReward = 1 # TODO Calculate reward according to a given strategy
+          currentReward = 2**(10-abs(newDeltaF)) # TODO Calculate reward according to a given strategy
           _episode.cummReward += currentReward
 
           experience = LearningExperience(
@@ -61,10 +62,7 @@ class ModelTrainer():
           )
           _episode.experiences.append(experience)
 
-          pprint(dict(experience._asdict()))
-          # experience = np.array([current_f,new_f,a_1,a_2,r])
-          # episodeBuffer.append(experience)
-          # print("Delta f: ",round(current_f,2)," A1: ",a_1," A2: ",a_2, " Reward: ",r)
+          print(f'e{episodeIdx}s{stepIdx}: {json.dumps(experience._asdict(), indent=2)}')
 
 
 
