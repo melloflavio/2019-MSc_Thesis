@@ -1,7 +1,7 @@
 from typing import Dict, List, NamedTuple
 from singleton_decorator import singleton
 
-from .state import ElectricalState
+from .electrical_state import ElectricalState
 
 @singleton
 class SystemHistory(NamedTuple):

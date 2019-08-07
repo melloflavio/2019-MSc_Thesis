@@ -36,7 +36,7 @@ class ElectricalSystem:
       selectedGenerator.updateOutput(generatorUpdate.deltaPower)
 
     # 2. Calculate the next total power output
-    zg = sum([gen.power for gen in generatorsUpdates]) # Total Secondary Action (Z) from all generators
+    zg = sum([gen.getOutput() for gen in self.generators]) # Total Secondary Action (Z) from all generators
     totalPowerOld = SystemHistory().totalPower[-1] # Old Total Power (P_G_Old)
     frequencyOld = SystemHistory().frequency[-1]
     powerGeneratedNew = AreaDynamics.calculatePowerGeneratedNew(zg, totalPowerOld, frequencyOld)
@@ -68,5 +68,5 @@ class ElectricalSystem:
     return [g.getId() for g in self.generators]
 
   def getCurrentDeltaF(self):
-    currentFrequency = ElectricalState().frequency[-1]
+    currentFrequency = SystemHistory().frequency[-1]
     return AreaDynamics.getDeltaFrequency(currentFrequency)

@@ -1,26 +1,33 @@
+from dataclasses import dataclass
 from typing import NamedTuple, List
 from singleton_decorator import singleton
 
 from .experience_buffer import ExperienceBuffer, LearningExperience
 
-class EpisodeState(NamedTuple):
+@dataclass
+class EpisodeState:
   cummReward: float
   experiences: List[LearningExperience]
 
-class ModelState(NamedTuple):
+@dataclass
+class ModelState:
   allAgents: List[any]
   xpBuffer: ExperienceBuffer
   cummRewardList: List[float]
 
 @singleton
-class LearningState(NamedTuple):
-  episode: EpisodeState
-  model: ModelState
+@dataclass
+class LearningState:
+  episode: EpisodeState = None
+  model: ModelState = None
 
-
-  def __init__(self, *args, **kwargs):
-    super().__init__(*args, **kwargs)
-    self.resetEpisode()
-
-  def resetEpisode(self):
-    self.episode.cummReward = 0
+  def initData(self, allAgents, xpBuffer):
+    self.episode = EpisodeState(
+        cummReward=0,
+        experiences=[],
+    )
+    self.model = ModelState(
+        allAgents=allAgents,
+        xpBuffer=xpBuffer,
+        cummRewardList=[],
+    )

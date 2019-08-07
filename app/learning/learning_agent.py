@@ -11,14 +11,14 @@ class Agent():
 
   def __init__(self, _id):
     self._id = _id # Unique identifier of the agent
-    self.actor = Actor(scope=f'{_id}_actor', numVariables=0)
+    self.actor = Actor(scope=f'{_id}_actor', numVariables=len(tf.trainable_variables()))
     self.critic = Critic(scope=f'{_id}_critic', numVariables=len(tf.trainable_variables()))
     self.actorTarget = Actor(scope=f'{_id}_actor_target', numVariables=len(tf.trainable_variables()))
     self.criticTarget = Critic(scope=f'{_id}_critic_target', numVariables=len(tf.trainable_variables()))
 
     # Create Op Holders for target networks
-    self.actorTarget.createOpHolder(self.actor.network_params, LearningParams().tau)
-    self.criticTarget.createOpHolder(self.critic.network_params, LearningParams().tau)
+    self.actorTarget.createOpHolder(self.actor.networkParams, LearningParams().tau)
+    self.criticTarget.createOpHolder(self.critic.networkParams, LearningParams().tau)
 
     # Initial empty input state (must have size of LTSM)
     ltsmSize = LearningParams().nnShape.layer_00_ltsm
@@ -29,7 +29,7 @@ class Agent():
 
   def getActorAction(self, tfSession: tf.Session, currentDeltaF):
     action, nextState = tfSession.run(
-        [self.actor.action, self.rnnState],
+        [self.actor.action, self.actor.rnnState],
         feed_dict={
             self.actor.inputs: np.array(currentDeltaF).reshape(1,1),
             self.actor.stateIn: self.state,

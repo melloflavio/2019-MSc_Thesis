@@ -12,16 +12,15 @@ from .experience_buffer import ExperienceBuffer, LearningExperience
 class ModelTrainer():
   @staticmethod
   def trainAgents(electricalSystem: ElectricalSystem):
+    # Initialize Learning State
+    LearningState().initData(
+        allAgents=[Agent(_id) for _id in electricalSystem.getGeneratorIds()],
+        xpBuffer=ExperienceBuffer()
+    )
+
+    # alias for quicker access
     _episode = LearningState().episode
-    _model = LearningState().model # alias for quicker access
-
-    # Initialize Agents according to generators present in electrical system
-    _model.allAgents = [Agent(_id) for _id in electricalSystem.getGeneratorIds()]
-
-
-    # Initialize xp buffer
-    _model.xpBuffer = ExperienceBuffer()
-    _model.cummRewardList = []
+    _model = LearningState().model
 
     tfInit = tf.global_variables_initializer()
 
