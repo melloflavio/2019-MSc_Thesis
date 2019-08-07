@@ -1,11 +1,11 @@
 from typing import NamedTuple, List
 from singleton_decorator import singleton
 
-from .experience_buffer import ExperienceBuffer
+from .experience_buffer import ExperienceBuffer, LearningExperience
 
 class EpisodeState(NamedTuple):
   cummReward: float
-  episodeBuffer: List[any]
+  experiences: List[LearningExperience]
 
 class ModelState(NamedTuple):
   allAgents: List[any]

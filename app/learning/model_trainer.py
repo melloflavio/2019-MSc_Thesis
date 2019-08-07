@@ -1,3 +1,4 @@
+from pprint import pprint
 import tensorflow as tf
 
 from electricity import ElectricalSystem
@@ -6,7 +7,7 @@ from dto import NodePowerUpdate
 from .learning_agent import Agent
 from .learning_state import LearningState
 from .learning_params import LearningParams
-from .experience_buffer import ExperienceBuffer
+from .experience_buffer import ExperienceBuffer, LearningExperience
 
 class ModelTrainer():
   @staticmethod
@@ -53,6 +54,15 @@ class ModelTrainer():
           currentReward = 1 # TODO Calculate reward according to a given strategy
           _episode.cummReward += currentReward
 
+          experience = LearningExperience(
+              originalState     = currentDeltaF,
+              destinationState  = newDeltaF,
+              actions           = {agentId: action for (agentId, action) in zip(agentIds, actions)},
+              reward            = currentReward,
+          )
+          _episode.experiences.append(experience)
+
+          pprint(dict(experience._asdict()))
           # experience = np.array([current_f,new_f,a_1,a_2,r])
           # episodeBuffer.append(experience)
           # print("Delta f: ",round(current_f,2)," A1: ",a_1," A2: ",a_2, " Reward: ",r)
