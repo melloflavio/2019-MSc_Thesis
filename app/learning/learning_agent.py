@@ -11,10 +11,10 @@ class Agent():
 
   def __init__(self, _id):
     self._id = _id # Unique identifier of the agent
-    self.actor = Actor(scope=f'{_id}_actor', numVariables=len(tf.trainable_variables()))
-    self.critic = Critic(scope=f'{_id}_critic', numVariables=len(tf.trainable_variables()))
-    self.actorTarget = Actor(scope=f'{_id}_actor_target', numVariables=len(tf.trainable_variables()))
-    self.criticTarget = Critic(scope=f'{_id}_critic_target', numVariables=len(tf.trainable_variables()))
+    self.actor       = Actor(scope=f'{_id}_actor')
+    self.actorTarget = Actor(scope=f'{_id}_actor_target')
+    self.critic       = Critic(scope=f'{_id}_critic')
+    self.criticTarget = Critic(scope=f'{_id}_critic_target')
 
     # Create Op Holders for target networks
     self.actorTarget.createOpHolder(self.actor.networkParams, LearningParams().tau)

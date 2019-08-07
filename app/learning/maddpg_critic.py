@@ -4,7 +4,10 @@ from .learning_params import LearningParams
 
 class CriticMaddpg():
   """ Critic network that estimates the value of the maddpg algorithm"""
-  def __init__(self, scope, numVariables):
+  def __init__(self, scope):
+    # Number of trainable variables previously declared. Marks the point in which the variables
+    # declared by this model reside in the tf.trainable_variables() list
+    tfVarBeginIdx = len(tf.trainable_variables())
 
     # Define the model (input-hidden layers-output)
     self.state = tf.placeholder(shape=[None, 1], dtype=tf.float32)
@@ -33,8 +36,8 @@ class CriticMaddpg():
     # Stack MLP on top of LSTM
     self.Q = CriticMaddpg._buildMlp(rnn) # Critic output is the estimated Q value
 
-    # Take params of the main actor network
-    self.networkParams = tf.trainable_variables()[numVariables:]
+    # Params relevant to this network
+    self.networkParams = tf.trainable_variables()[tfVarBeginIdx:]
 
     # Obtained from the target network (double architecture)
     self.targetQ = tf.placeholder(tf.float32,  [None,  1])
