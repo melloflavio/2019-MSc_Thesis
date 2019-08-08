@@ -80,20 +80,26 @@ class ModelTrainer():
               rewards) = _model.xpBuffer.getSample(_params.batchSize, _params.traceSize)
 
             # Get Target Actors' Actions
-            allTargetActions = [agent.getActorTargetAction(tfSession, destinationStates, ModelTrainer.getEmptyLtsmState()) for agent in _model.allAgents]
+            allTargetActions = [agent.getActorTargetAction(
+                tfSession=tfSession,
+                state=destinationStates,
+                ltsmState=ModelTrainer.getEmptyLtsmState(),
+            )[0] # method returns tuple (action, nextState) here we only want the action
+            for agent in _model.allAgents]
 
             # Get Target Critics' Q Estimations
             allCriticTargets = []
             for agentIdx, agent in enumerate(_model.allAgents):
               targetAction = allTargetActions[agentIdx]
-              otherTargetActions = [action for i, action in enumerate(allTargetActions) if i != agentIdx]
+              otherTargetActionLists = [action for i, action in enumerate(allTargetActions) if i != agentIdx] # Get action elements other than this agent's
+              otherTargetActions = [action for actionList in otherTargetActionLists for action in actionList] # Stack all other agents' actions in a single vector (Each action is always wrapped as a [1,1] vector)
               estimatedQ = agent.getTargetCriticEstimatedQ(
                   tfSession=tfSession,
                   criticIn=CriticEstimateInput(
                       state=destinationStates,
                       actionActor=targetAction,
                       actionsOthers=otherTargetActions,
-                      ltsmInState=ModelTrainer.getEmptyLtsmState(),
+                      ltsmInternalState=ModelTrainer.getEmptyLtsmState(),
                       batchSize=_params.batchSize,
                       traceLength=_params.traceSize,
                   )

@@ -6,13 +6,6 @@ class CriticEstimateInput:
   state: List[List[any]]
   actionActor: float
   actionsOthers: List[float]
-  ltsmInState: tuple
+  ltsmInternalState: tuple
   batchSize: int
   traceLength: int
-
-#             self.state: s_prime,
-#             self.action: a_target_1,
-#             self.actionOthers: a_target_2,
-#             self.trainLength:trace,
-#             self.batchSize:batch,
-#             self.stateIn:state_train

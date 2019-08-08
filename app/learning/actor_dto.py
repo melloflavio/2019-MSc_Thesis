@@ -4,7 +4,7 @@ from dataclasses import dataclass
 @dataclass
 class ActionInput:
   actorInput: List[List[any]]
-  actorState: tuple
+  ltsmInternalState: tuple
   batchSize: int
   traceLength: int
 

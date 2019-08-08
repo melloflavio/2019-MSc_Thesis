@@ -22,5 +22,5 @@ class LearningParams(NamedTuple):
       layer_01_mlp_01 = 1000, # MLP Layer 1
       layer_02_mlp_02 = 100,  # MLP Layer 2
       layer_03_mlp_03 = 50,   # MLP Layer 3
-      layer_04_mlp_04 = 50,   # MLP Layer 4 (output layer)
+      layer_04_mlp_04 = 1,   # MLP Layer 4 (output layer)
   )

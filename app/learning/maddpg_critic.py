@@ -24,12 +24,12 @@ class CriticMaddpg():
     ltsmNumUnits = LearningParams().nnShape.layer_00_ltsm
     ltsmCell = tf.contrib.rnn.BasicLSTMCell(num_units=ltsmNumUnits, state_is_tuple=True)
 
-    self.stateIn = ltsmCell.zero_state(self.batchSize, tf.float32)
+    self.ltsmInternalState = ltsmCell.zero_state(self.batchSize, tf.float32)
     rnn, self.rnnState = tf.nn.dynamic_rnn(
         inputs=rnnInput,
         cell=ltsmCell,
         dtype=tf.float32,
-        initial_state=self.stateIn,
+        initial_state=self.ltsmInternalState,
         scope=scope+'_rnn',
         )
     rnn = tf.reshape(rnn, shape=[-1, ltsmNumUnits])
@@ -103,7 +103,7 @@ class CriticMaddpg():
             self.actionOthers: criticIn.actionsOthers,
             self.trainLength: criticIn.traceLength, ## TODO rename train length
             self.batchSize: criticIn.batchSize,
-            self.stateIn: criticIn.ltsmInState ## TODO rename stateIn
+            self.ltsmInternalState: criticIn.ltsmInternalState ## TODO rename stateIn
         }
       )
 

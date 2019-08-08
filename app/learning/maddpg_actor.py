@@ -1,6 +1,6 @@
 import tensorflow as tf
-from .actor_dto import ActionInput, ActionOutput
 
+from .actor_dto import ActionInput, ActionOutput
 from .learning_params import LearningParams
 
 _BATCH_SIZE = 32
@@ -24,12 +24,12 @@ class ActorMaddpg():
     ltsmNumUnits = LearningParams().nnShape.layer_00_ltsm
     ltsmCell = tf.contrib.rnn.BasicLSTMCell(num_units=ltsmNumUnits, state_is_tuple=True)
 
-    self.stateIn = ltsmCell.zero_state(self.batchSize, tf.float32)
+    self.ltsmInternalState = ltsmCell.zero_state(self.batchSize, tf.float32)
     rnn, self.rnnState = tf.nn.dynamic_rnn(
         inputs=rnnInputs,
         cell=ltsmCell,
         dtype=tf.float32,
-        initial_state=self.stateIn,
+        initial_state=self.ltsmInternalState,
         scope=scope+'_rnn',
         )
     rnn = tf.reshape(rnn, shape=[-1, ltsmNumUnits])
@@ -104,7 +104,7 @@ class ActorMaddpg():
         [self.action, self.rnnState],
         feed_dict={
             self.inputs: actionIn.actorInput,
-            self.stateIn: actionIn.actorState,
+            self.ltsmInternalState: actionIn.ltsmInternalState,
             self.batchSize: actionIn.batchSize,
             self.trainLength: actionIn.traceLength,
         }

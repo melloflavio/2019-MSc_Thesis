@@ -34,7 +34,7 @@ class Agent():
         tfSession=tfSession,
         actionIn=ActionInput(
             actorInput=[[currentDeltaF]],
-            actorState=self.state,
+            ltsmInternalState=self.state,
             batchSize=1,
             traceLength=1,
         )
@@ -45,12 +45,12 @@ class Agent():
 
     return action
 
-  def getActorTargetAction(self, tfSession: tf.Session, deltaF, ltsmState):
+  def getActorTargetAction(self, tfSession: tf.Session, state, ltsmState):
     (action, nextState) = self.actor.getAction(
         tfSession=tfSession,
         actionIn=ActionInput(
-            actorInput=deltaF,
-            actorState=ltsmState,
+            actorInput=state,
+            ltsmInternalState=ltsmState,
             batchSize=LearningParams().batchSize,
             traceLength=LearningParams().traceSize,
         )
