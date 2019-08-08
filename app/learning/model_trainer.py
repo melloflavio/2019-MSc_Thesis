@@ -10,6 +10,7 @@ from .learning_agent import Agent
 from .learning_state import LearningState
 from .learning_params import LearningParams
 from .experience_buffer import ExperienceBuffer, LearningExperience
+from .critic_dto import CriticEstimateInput
 
 class ModelTrainer():
   @staticmethod
@@ -78,10 +79,28 @@ class ModelTrainer():
               groupedActions,
               rewards) = _model.xpBuffer.getSample(_params.batchSize, _params.traceSize)
 
-            # Reset the recurrent layer's hidden state and get states
-            # stateTrain = (np.zeros([_params.batchSize, _params.nnShape.layer_00_ltsm]), ) * len(_model.allAgents)
-            targetActions = [agent.getActorTargetAction(tfSession, destinationStates) for agent in _model.allAgents]
-          # def getActorTargetAction(self, tfSession: tf.Session, deltaF):
+            # Get Target Actors' Actions
+            allTargetActions = [agent.getActorTargetAction(tfSession, destinationStates, ModelTrainer.getEmptyLtsmState()) for agent in _model.allAgents]
+
+            # Get Target Critics' Q Estimations
+            allCriticTargets = []
+            for agentIdx, agent in enumerate(_model.allAgents):
+              targetAction = allTargetActions[agentIdx]
+              otherTargetActions = [action for i, action in enumerate(allTargetActions) if i != agentIdx]
+              estimatedQ = agent.getTargetCriticEstimatedQ(
+                  tfSession=tfSession,
+                  criticIn=CriticEstimateInput(
+                      state=destinationStates,
+                      actionActor=targetAction,
+                      actionsOthers=otherTargetActions,
+                      ltsmInState=ModelTrainer.getEmptyLtsmState(),
+                      batchSize=_params.batchSize,
+                      traceLength=_params.traceSize,
+                  )
+              )
+              allCriticTargets.append(estimatedQ)
+
+########
 
         if len(_episode.experiences) >= 8:
             _model.xpBuffer.add(_episode.experiences)
@@ -95,3 +114,11 @@ class ModelTrainer():
     # Clear episode values
     LearningState().episode.cummReward = 0
     LearningState().episode.episodeBuffer = []
+
+  @staticmethod
+  def getEmptyLtsmState():
+    """Generates an empty training state"""
+    batchSize = LearningParams().batchSize
+    lstmSize = LearningParams().nnShape.layer_00_ltsm
+    emptyState = (np.zeros([batchSize, lstmSize]), ) * len(LearningState().model.allAgents)
+    return emptyState

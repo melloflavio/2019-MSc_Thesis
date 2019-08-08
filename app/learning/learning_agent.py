@@ -6,6 +6,7 @@ from .maddpg_critic import CriticMaddpg as Critic
 from .learning_params import LearningParams
 from .learning_state import LearningState
 from .actor_dto import ActionInput, ActionOutput
+from .critic_dto import CriticEstimateInput
 
 class Agent():
   """Entity representing a single agent in the scenario to be learned. Contains the actors & critics associated with learning"""
@@ -44,12 +45,12 @@ class Agent():
 
     return action
 
-  def getActorTargetAction(self, tfSession: tf.Session, deltaF):
+  def getActorTargetAction(self, tfSession: tf.Session, deltaF, ltsmState):
     (action, nextState) = self.actor.getAction(
         tfSession=tfSession,
         actionIn=ActionInput(
             actorInput=deltaF,
-            actorState=self.getTrainingState(),
+            actorState=ltsmState,
             batchSize=LearningParams().batchSize,
             traceLength=LearningParams().traceSize,
         )
@@ -57,10 +58,10 @@ class Agent():
 
     return action, nextState
 
+  def getTargetCriticEstimatedQ(self, tfSession: tf.Session, criticIn: CriticEstimateInput):
+    estimatedQ = self.criticTarget.getEstimatedQ(
+        tfSession=tfSession,
+        criticIn=criticIn
+    )
 
-  def getTrainingState(self):
-    """Generates an empty training state"""
-    batchSize = LearningParams().batchSize
-    lstmSize = LearningParams().nnShape.layer_00_ltsm
-    emptyState = (np.zeros([batchSize, lstmSize]), ) * len(LearningState().model.allAgents)
-    return emptyState
+    return estimatedQ

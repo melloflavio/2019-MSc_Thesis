@@ -1,6 +1,7 @@
 import tensorflow as tf
 
 from .learning_params import LearningParams
+from .critic_dto import CriticEstimateInput
 
 class CriticMaddpg():
   """ Critic network that estimates the value of the maddpg algorithm"""
@@ -12,8 +13,8 @@ class CriticMaddpg():
     # Define the model (input-hidden layers-output)
     self.state = tf.placeholder(shape=[None, 1], dtype=tf.float32)
     self.action = tf.placeholder(shape=[None, 1], dtype=tf.float32)
-    self.actionOther = tf.placeholder(shape=[None, 1], dtype=tf.float32)
-    self.inputs = tf.concat([self.state, self.action, self.actionOther], axis=1)
+    self.actionOthers = tf.placeholder(shape=[None, 1], dtype=tf.float32)
+    self.inputs = tf.concat([self.state, self.action, self.actionOthers], axis=1)
 
     # LSTM to encode temporal information
     self.batchSize = tf.placeholder(dtype=tf.int32, shape=[])   # batch size
@@ -92,3 +93,18 @@ class CriticMaddpg():
       assignAction = self.networkParams[i].assign(
           tf.multiply(params[i],  tau) + tf.multiply(self.networkParams[i],  1. - tau))
       self.updateNetworkParams[i] = assignAction
+
+  def getEstimatedQ(self, tfSession: tf.Session, criticIn: CriticEstimateInput) -> float:
+    estimatedQ = tfSession.run(
+        self.Q,
+        feed_dict={
+            self.state: criticIn.state,
+            self.action: criticIn.actionActor,
+            self.actionOthers: criticIn.actionsOthers,
+            self.trainLength: criticIn.traceLength, ## TODO rename train length
+            self.batchSize: criticIn.batchSize,
+            self.stateIn: criticIn.ltsmInState ## TODO rename stateIn
+        }
+      )
+
+    return estimatedQ
