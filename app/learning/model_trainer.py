@@ -10,7 +10,7 @@ from .learning_agent import Agent
 from .learning_state import LearningState
 from .learning_params import LearningParams
 from .experience_buffer import ExperienceBuffer, LearningExperience
-from .critic_dto import CriticEstimateInput
+from .critic_dto import CriticEstimateInput, CriticUpdateInput
 
 class ModelTrainer():
   @staticmethod
@@ -92,8 +92,8 @@ class ModelTrainer():
             for agentIdx, agent in enumerate(_model.allAgents):
               targetAction = allTargetActions[agentIdx]
               otherTargetActionLists = [action for i, action in enumerate(allTargetActions) if i != agentIdx] # Get action elements other than this agent's
-              otherTargetActions = [action for actionList in otherTargetActionLists for action in actionList] # Stack all other agents' actions in a single vector (Each action is always wrapped as a [1,1] vector)
-              estimatedQ = agent.getTargetCriticEstimatedQ(
+              otherTargetActions = [action for actionList in otherTargetActionLists for action in actionList] # Stack all other agents' actions in a single vector
+              targetQ = agent.getTargetCriticEstimatedQ(
                   tfSession=tfSession,
                   criticIn=CriticEstimateInput(
                       state=destinationStates,
@@ -104,7 +104,33 @@ class ModelTrainer():
                       traceLength=_params.traceSize,
                   )
               )
-              allCriticTargets.append(estimatedQ)
+              # Update Targets
+              targetQ = rewards + _params.gamma*targetQ
+
+              allCriticTargets.append(targetQ)
+
+            # Update the critic networks with the new Q's
+            for agentIdx, agent in enumerate(_model.allAgents):
+              agentActions = groupedActions.get(agent.getId())
+              actionsOthers = {agentId:groupedActions[agentId] for agentId in groupedActions if agentId != agent.getId()} # Remove this agent from list
+              actionsOthers = [action for actionList in actionsOthers.values() for action in actionList] # Stack all actions in a single array
+              #  [[action.get(agentId)] for action in allActions]
+              # [action for actionList in otherTargetActionLists for action in actionList]
+              targetQs = allCriticTargets[agentIdx]
+              agent.updateCritic(
+                  tfSession=tfSession,
+                  criticUpd=CriticUpdateInput(
+                      state=originalStates,
+                      actionActor=agentActions,
+                      actionsOthers=actionsOthers,
+                      targetQs=targetQs,
+                      ltsmInternalState=ModelTrainer.getEmptyLtsmState(),
+                      batchSize=_params.batchSize,
+                      traceLength=_params.traceSize,
+                ),
+              )
+
+
 
 ########
 

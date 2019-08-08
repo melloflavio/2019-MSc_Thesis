@@ -1,7 +1,7 @@
 import tensorflow as tf
 
 from .learning_params import LearningParams
-from .critic_dto import CriticEstimateInput
+from .critic_dto import CriticEstimateInput, CriticUpdateInput
 
 class CriticMaddpg():
   """ Critic network that estimates the value of the maddpg algorithm"""
@@ -46,7 +46,7 @@ class CriticMaddpg():
     # Loss function and optimization of the critic
     lossFn = tf.reduce_mean(tf.square(self.targetQ-self.Q))
     optimizer = tf.train.AdamOptimizer(1e-4)
-    self.upd = optimizer.minimize(lossFn)
+    self.updateFn = optimizer.minimize(lossFn)
 
     # Get the gradient for the actor
     self.critic_gradients = tf.gradients(self.Q, self.action)
@@ -103,8 +103,22 @@ class CriticMaddpg():
             self.actionOthers: criticIn.actionsOthers,
             self.trainLength: criticIn.traceLength, ## TODO rename train length
             self.batchSize: criticIn.batchSize,
-            self.ltsmInternalState: criticIn.ltsmInternalState ## TODO rename stateIn
+            self.ltsmInternalState: criticIn.ltsmInternalState,
         }
       )
 
     return estimatedQ
+
+  def updateModel(self, tfSession: tf.Session, criticUpd: CriticUpdateInput):
+    tfSession.run(
+        self.updateFn,
+        feed_dict={
+            self.state: criticUpd.state,
+            self.action: criticUpd.actionActor,
+            self.actionOthers: criticUpd.actionsOthers,
+            self.targetQ: criticUpd.targetQs,
+            self.trainLength: criticUpd.traceLength,
+            self.batchSize: criticUpd.batchSize,
+            self.ltsmInternalState: criticUpd.ltsmInternalState,
+        }
+      )

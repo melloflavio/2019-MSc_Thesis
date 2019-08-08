@@ -6,7 +6,7 @@ from .maddpg_critic import CriticMaddpg as Critic
 from .learning_params import LearningParams
 from .learning_state import LearningState
 from .actor_dto import ActionInput, ActionOutput
-from .critic_dto import CriticEstimateInput
+from .critic_dto import CriticEstimateInput, CriticUpdateInput
 
 class Agent():
   """Entity representing a single agent in the scenario to be learned. Contains the actors & critics associated with learning"""
@@ -61,7 +61,13 @@ class Agent():
   def getTargetCriticEstimatedQ(self, tfSession: tf.Session, criticIn: CriticEstimateInput):
     estimatedQ = self.criticTarget.getEstimatedQ(
         tfSession=tfSession,
-        criticIn=criticIn
+        criticIn=criticIn,
     )
 
     return estimatedQ
+
+  def updateCritic(self, tfSession: tf.Session, criticUpd: CriticUpdateInput):
+    self.critic.updateModel(
+        tfSession=tfSession,
+        criticUpd=criticUpd,
+    )
