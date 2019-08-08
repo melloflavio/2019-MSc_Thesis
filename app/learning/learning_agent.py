@@ -4,6 +4,7 @@ import numpy as np
 from .maddpg_actor import ActorMaddpg as Actor
 from .maddpg_critic import CriticMaddpg as Critic
 from .learning_params import LearningParams
+from .learning_state import LearningState
 from .actor_dto import ActionInput, ActionOutput
 
 class Agent():
@@ -42,3 +43,24 @@ class Agent():
     self.state = nextState
 
     return action
+
+  def getActorTargetAction(self, tfSession: tf.Session, deltaF):
+    (action, nextState) = self.actor.getAction(
+        tfSession=tfSession,
+        actionIn=ActionInput(
+            actorInput=deltaF,
+            actorState=self.getTrainingState(),
+            batchSize=LearningParams().batchSize,
+            traceLength=LearningParams().traceSize,
+        )
+    )
+
+    return action, nextState
+
+
+  def getTrainingState(self):
+    """Generates an empty training state"""
+    batchSize = LearningParams().batchSize
+    lstmSize = LearningParams().nnShape.layer_00_ltsm
+    emptyState = (np.zeros([batchSize, lstmSize]), ) * len(LearningState().model.allAgents)
+    return emptyState

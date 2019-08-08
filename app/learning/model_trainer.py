@@ -66,6 +66,26 @@ class ModelTrainer():
 
           print(f'e{episodeIdx}s{stepIdx}: {json.dumps(experience._asdict(), indent=2)}')
 
+          # Update the model
+          if (
+            stepIdx % 4 == 0  # Every N steps
+            and _model.xpBuffer.numStoredEpisodes > 0 # Starting from the second episode (must have at least one full episode in xp buffer)
+          ):
+
+            # Sample the experience batch (mini batch)
+            ( originalStates,
+              destinationStates,
+              groupedActions,
+              rewards) = _model.xpBuffer.getSample(_params.batchSize, _params.traceSize)
+
+            # Reset the recurrent layer's hidden state and get states
+            # stateTrain = (np.zeros([_params.batchSize, _params.nnShape.layer_00_ltsm]), ) * len(_model.allAgents)
+            targetActions = [agent.getActorTargetAction(tfSession, destinationStates) for agent in _model.allAgents]
+          # def getActorTargetAction(self, tfSession: tf.Session, deltaF):
+
+        if len(_episode.experiences) >= 8:
+            _model.xpBuffer.add(_episode.experiences)
+
   @staticmethod
   def resetEpisodeState():
     # Push current reward to reward list
