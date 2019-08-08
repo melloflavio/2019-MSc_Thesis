@@ -1,6 +1,7 @@
 # from pprint import pformat
 import json
 import tensorflow as tf
+import numpy as np
 
 from electricity import ElectricalSystem
 from dto import NodePowerUpdate
@@ -22,6 +23,7 @@ class ModelTrainer():
     # alias for quicker access
     _episode = LearningState().episode
     _model = LearningState().model
+    _params = LearningParams()
 
     tfInit = tf.global_variables_initializer()
 
@@ -30,13 +32,13 @@ class ModelTrainer():
       tfSession.run(tfInit)
 
       # Run all learning episodes
-      for episodeIdx in range(LearningParams().numEpisodes):
+      for episodeIdx in range(_params.numEpisodes):
 
         # Clear values regarding episodes
         ModelTrainer.resetEpisodeState()
 
         # Iterate over all the steps
-        for stepIdx in range(LearningParams().maxSteps):
+        for stepIdx in range(_params.maxSteps):
 
           # Get all agents' actions
           currentDeltaF = electricalSystem.getCurrentDeltaF()
@@ -63,9 +65,6 @@ class ModelTrainer():
           _episode.experiences.append(experience)
 
           print(f'e{episodeIdx}s{stepIdx}: {json.dumps(experience._asdict(), indent=2)}')
-
-
-
 
   @staticmethod
   def resetEpisodeState():

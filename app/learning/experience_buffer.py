@@ -36,11 +36,11 @@ class ExperienceBuffer():
   def _formatSampleTraces(self, sampledTraces: List[LearningExperience]):
     originalStates: List[float] = [xp.originalState for xp in sampledTraces]
     destinationStates: List[float] = [xp.destinationState for xp in sampledTraces]
-    reward: List[float] = [xp.reward for xp in sampledTraces]
+    rewards: List[float] = [xp.reward for xp in sampledTraces]
 
     # Group actions by agent. i.e. Transform a list of dictionaries into a dictionary of lists
     allActions = [xp.action for xp in sampledTraces] # Extract all actions from the sampled traces
     allAgentIds = allActions[0].keys()               # Get all agent ids from the first trace found (all steps should have the same actors, otherwise the consolidated actions would be misaligned)
     groupedActions = {agentId: [action.get(agentId) for action in allActions] for agentId in allAgentIds} # Create new dict, each key is the agentId, values are the list of actions said agent has taken in the trace
 
-    return (originalStates, destinationStates, groupedActions, reward)
+    return (originalStates, destinationStates, groupedActions, rewards)

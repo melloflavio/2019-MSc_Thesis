@@ -1,10 +1,10 @@
 import tensorflow as tf
+import numpy as np
 
 from .maddpg_actor import ActorMaddpg as Actor
 from .maddpg_critic import CriticMaddpg as Critic
 from .learning_params import LearningParams
-import numpy as np
-import tensorflow as tf
+from .actor_dto import ActionInput, ActionOutput
 
 class Agent():
   """Entity representing a single agent in the scenario to be learned. Contains the actors & critics associated with learning"""
@@ -28,17 +28,17 @@ class Agent():
     return self._id
 
   def getActorAction(self, tfSession: tf.Session, currentDeltaF):
-    action, nextState = tfSession.run(
-        [self.actor.action, self.actor.rnnState],
-        feed_dict={
-            self.actor.inputs: np.array(currentDeltaF).reshape(1,1),
-            self.actor.stateIn: self.state,
-            self.actor.batchSize:1,
-            self.actor.trainLength:1,
-        }
-      )
+    (action, nextState) = self.actor.getAction(
+        tfSession=tfSession,
+        actionIn=ActionInput(
+            actorInput=[[currentDeltaF]],
+            actorState=self.state,
+            batchSize=1,
+            traceLength=1,
+        )
+    )
 
-    action = action[0,0] + LearningParams().epsilon * np.random.normal(0.0,0.4)
+    action = action[0, 0] + LearningParams().epsilon * np.random.normal(0.0, 0.4)
     self.state = nextState
 
     return action

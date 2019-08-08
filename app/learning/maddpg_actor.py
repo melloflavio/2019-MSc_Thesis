@@ -1,4 +1,5 @@
 import tensorflow as tf
+from .actor_dto import ActionInput, ActionOutput
 
 from .learning_params import LearningParams
 
@@ -97,3 +98,16 @@ class ActorMaddpg():
       assignAction = self.networkParams[i].assign(
           tf.multiply(params[i], tau) + tf.multiply(self.networkParams[i], 1. - tau))
       self.updateNetworkParams[i] = assignAction
+
+  def getAction(self, tfSession: tf.Session, actionIn: ActionInput) -> ActionOutput:
+    action, nextState = tfSession.run(
+        [self.action, self.rnnState],
+        feed_dict={
+            self.inputs: actionIn.actorInput,
+            self.stateIn: actionIn.actorState,
+            self.batchSize: actionIn.batchSize,
+            self.trainLength: actionIn.traceLength,
+        }
+      )
+
+    return (action, nextState)
