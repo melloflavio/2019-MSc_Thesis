@@ -5,8 +5,8 @@ from .maddpg_actor import ActorMaddpg as Actor
 from .maddpg_critic import CriticMaddpg as Critic
 from .learning_params import LearningParams
 from .learning_state import LearningState
-from .actor_dto import ActionInput, ActionOutput
-from .critic_dto import CriticEstimateInput, CriticUpdateInput
+from .actor_dto import ActionInput
+from .critic_dto import CriticEstimateInput, CriticUpdateInput, CriticGradientInput
 
 class Agent():
   """Entity representing a single agent in the scenario to be learned. Contains the actors & critics associated with learning"""
@@ -29,7 +29,7 @@ class Agent():
   def getId(self):
     return self._id
 
-  def getActorAction(self, tfSession: tf.Session, currentDeltaF):
+  def runActorAction(self, tfSession: tf.Session, currentDeltaF):
     (action, nextState) = self.actor.getAction(
         tfSession=tfSession,
         actionIn=ActionInput(
@@ -40,8 +40,20 @@ class Agent():
         )
     )
 
-    action = action[0, 0] + LearningParams().epsilon * np.random.normal(0.0, 0.4)
     self.state = nextState
+
+    return action
+
+  def predictActorAction(self, tfSession: tf.Session, currentDeltaF, ltsmState):
+    (action, nextState) = self.actor.getAction(
+        tfSession=tfSession,
+        actionIn=ActionInput(
+            actorInput=currentDeltaF,
+            ltsmInternalState=ltsmState,
+            batchSize=LearningParams().batchSize,
+            traceLength=LearningParams().traceSize,
+        )
+    )
 
     return action
 
@@ -71,3 +83,10 @@ class Agent():
         tfSession=tfSession,
         criticUpd=criticUpd,
     )
+
+  def calculateCriticGradients(self, tfSession: tf.Session, inpt: CriticGradientInput):
+    gradients = self.critic.calculateGradients(
+        tfSession=tfSession,
+        inpt=inpt,
+    )
+    return gradients

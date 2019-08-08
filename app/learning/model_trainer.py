@@ -10,7 +10,7 @@ from .learning_agent import Agent
 from .learning_state import LearningState
 from .learning_params import LearningParams
 from .experience_buffer import ExperienceBuffer, LearningExperience
-from .critic_dto import CriticEstimateInput, CriticUpdateInput
+from .critic_dto import CriticEstimateInput, CriticUpdateInput, CriticGradientInput
 
 class ModelTrainer():
   @staticmethod
@@ -43,14 +43,15 @@ class ModelTrainer():
 
           # Get all agents' actions
           currentDeltaF = electricalSystem.getCurrentDeltaF()
-          actions = [agent.getActorAction(tfSession, currentDeltaF) for agent in _model.allAgents]
+          allActions = [agent.runActorAction(tfSession, currentDeltaF) for agent in _model.allAgents]
+          allActions = [action[0, 0] + LearningParams().epsilon * np.random.normal(0.0, 0.4) for action in allActions]
 
           # Execute agents'actions (i.e. update the generators' power output)
           agentIds = [agent.getId() for agent in _model.allAgents]
           generatorUpdates = [NodePowerUpdate(
               id_=agentId,
               deltaPower=action
-            ) for (agentId, action) in zip(agentIds, actions)]
+            ) for (agentId, action) in zip(agentIds, allActions)]
           electricalSystem.updateGenerators(generatorUpdates)
 
           newDeltaF = electricalSystem.getCurrentDeltaF()
@@ -60,7 +61,7 @@ class ModelTrainer():
           experience = LearningExperience(
               originalState     = currentDeltaF,
               destinationState  = newDeltaF,
-              actions           = {agentId: action for (agentId, action) in zip(agentIds, actions)},
+              actions           = {agentId: action for (agentId, action) in zip(agentIds, allActions)},
               reward            = currentReward,
           )
           _episode.experiences.append(experience)
@@ -114,8 +115,6 @@ class ModelTrainer():
               agentActions = groupedActions.get(agent.getId())
               actionsOthers = {agentId:groupedActions[agentId] for agentId in groupedActions if agentId != agent.getId()} # Remove this agent from list
               actionsOthers = [action for actionList in actionsOthers.values() for action in actionList] # Stack all actions in a single array
-              #  [[action.get(agentId)] for action in allActions]
-              # [action for actionList in otherTargetActionLists for action in actionList]
               targetQs = allCriticTargets[agentIdx]
               agent.updateCritic(
                   tfSession=tfSession,
@@ -129,6 +128,33 @@ class ModelTrainer():
                       traceLength=_params.traceSize,
                 ),
               )
+
+            allNewActions = [agent.predictActorAction(
+                tfSession=tfSession,
+                currentDeltaF=originalStates,
+                ltsmState=ModelTrainer.getEmptyLtsmState(),
+              ) for agent in _model.allAgents]
+
+            allGradients = []
+            for agentIdx, agent in enumerate(_model.allAgents):
+              agentActions = allNewActions[agentIdx]
+              otherActionLists = [action for i, action in enumerate(allNewActions) if i != agentIdx] # Get action elements other than this agent's
+              actionsOthers = [action for actionList in otherActionLists for action in actionList] # Stack all other agents' actions in a single vector
+              gradient = agent.calculateCriticGradients(
+                  tfSession=tfSession,
+                  inpt=CriticGradientInput(
+                      state=originalStates,
+                      actionActor=agentActions,
+                      actionsOthers=actionsOthers,
+                      ltsmInternalState=ModelTrainer.getEmptyLtsmState(),
+                      batchSize=_params.batchSize,
+                      traceLength=_params.traceSize,
+                  )
+                )
+              allGradients.append(gradient)
+
+
+
 
 
 

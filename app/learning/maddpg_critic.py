@@ -1,7 +1,7 @@
 import tensorflow as tf
 
 from .learning_params import LearningParams
-from .critic_dto import CriticEstimateInput, CriticUpdateInput
+from .critic_dto import CriticEstimateInput, CriticUpdateInput, CriticGradientInput
 
 class CriticMaddpg():
   """ Critic network that estimates the value of the maddpg algorithm"""
@@ -49,7 +49,7 @@ class CriticMaddpg():
     self.updateFn = optimizer.minimize(lossFn)
 
     # Get the gradient for the actor
-    self.critic_gradients = tf.gradients(self.Q, self.action)
+    self.criticGradientsFn = tf.gradients(self.Q, self.action)
 
   @staticmethod
   def _buildMlp(rnn):
@@ -122,3 +122,18 @@ class CriticMaddpg():
             self.ltsmInternalState: criticUpd.ltsmInternalState,
         }
       )
+
+  def calculateGradients(self, tfSession: tf.Session, inpt: CriticGradientInput):
+    gradients = tfSession.run(
+      self.criticGradientsFn,
+      feed_dict={
+            self.state: inpt.state,
+            self.action: inpt.actionActor,
+            self.actionOthers: inpt.actionsOthers,
+            self.trainLength: inpt.traceLength,
+            self.batchSize: inpt.batchSize,
+            self.ltsmInternalState: inpt.ltsmInternalState,
+        }
+    )
+    gradients = gradients[0]
+    return gradients

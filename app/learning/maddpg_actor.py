@@ -111,3 +111,16 @@ class ActorMaddpg():
       )
 
     return (action, nextState)
+
+  def getActionOnly(self, tfSession: tf.Session, actionIn: ActionInput) -> ActionOutput:
+    action, nextState = tfSession.run(
+        [self.action, self.rnnState],
+        feed_dict={
+            self.inputs: actionIn.actorInput,
+            self.ltsmInternalState: actionIn.ltsmInternalState,
+            self.batchSize: actionIn.batchSize,
+            self.trainLength: actionIn.traceLength,
+        }
+      )
+
+    return (action, nextState)
