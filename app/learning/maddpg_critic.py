@@ -18,8 +18,8 @@ class CriticMaddpg():
 
     # LSTM to encode temporal information
     self.batchSize = tf.placeholder(dtype=tf.int32, shape=[])   # batch size
-    self.trainLength = tf.placeholder(dtype=tf.int32)           # trace lentgth
-    rnnInput = tf.reshape(self.inputs, [self.batchSize, self.trainLength, 3])
+    self.traceLength = tf.placeholder(dtype=tf.int32)           # trace lentgth
+    rnnInput = tf.reshape(self.inputs, [self.batchSize, self.traceLength, 3])
 
     ltsmNumUnits = LearningParams().nnShape.layer_00_ltsm
     ltsmCell = tf.contrib.rnn.BasicLSTMCell(num_units=ltsmNumUnits, state_is_tuple=True)
@@ -101,7 +101,7 @@ class CriticMaddpg():
             self.state: criticIn.state,
             self.action: criticIn.actionActor,
             self.actionOthers: criticIn.actionsOthers,
-            self.trainLength: criticIn.traceLength, ## TODO rename train length
+            self.traceLength: criticIn.traceLength,
             self.batchSize: criticIn.batchSize,
             self.ltsmInternalState: criticIn.ltsmInternalState,
         }
@@ -117,7 +117,7 @@ class CriticMaddpg():
             self.action: criticUpd.actionActor,
             self.actionOthers: criticUpd.actionsOthers,
             self.targetQ: criticUpd.targetQs,
-            self.trainLength: criticUpd.traceLength,
+            self.traceLength: criticUpd.traceLength,
             self.batchSize: criticUpd.batchSize,
             self.ltsmInternalState: criticUpd.ltsmInternalState,
         }
@@ -130,7 +130,7 @@ class CriticMaddpg():
             self.state: inpt.state,
             self.action: inpt.actionActor,
             self.actionOthers: inpt.actionsOthers,
-            self.trainLength: inpt.traceLength,
+            self.traceLength: inpt.traceLength,
             self.batchSize: inpt.batchSize,
             self.ltsmInternalState: inpt.ltsmInternalState,
         }

@@ -18,8 +18,8 @@ class ActorMaddpg():
 
     # LSTM to encode temporal information
     self.batchSize = tf.placeholder(dtype=tf.int32, shape=[])   # batch size
-    self.trainLength = tf.placeholder(dtype=tf.int32)           # trace lentgth
-    rnnInputs = tf.reshape(self.inputs, [self.batchSize, self.trainLength, 1])
+    self.traceLength = tf.placeholder(dtype=tf.int32)           # trace lentgth
+    rnnInputs = tf.reshape(self.inputs, [self.batchSize, self.traceLength, 1])
 
     ltsmNumUnits = LearningParams().nnShape.layer_00_ltsm
     ltsmCell = tf.contrib.rnn.BasicLSTMCell(num_units=ltsmNumUnits, state_is_tuple=True)
@@ -106,7 +106,7 @@ class ActorMaddpg():
             self.inputs: actionIn.actorInput,
             self.ltsmInternalState: actionIn.ltsmInternalState,
             self.batchSize: actionIn.batchSize,
-            self.trainLength: actionIn.traceLength,
+            self.traceLength: actionIn.traceLength,
         }
       )
 
@@ -119,7 +119,7 @@ class ActorMaddpg():
             self.inputs: actionIn.actorInput,
             self.ltsmInternalState: actionIn.ltsmInternalState,
             self.batchSize: actionIn.batchSize,
-            self.trainLength: actionIn.traceLength,
+            self.traceLength: actionIn.traceLength,
         }
       )
 
@@ -133,7 +133,7 @@ class ActorMaddpg():
           self.criticGradient: inpt.gradients,
           self.ltsmInternalState: inpt.ltsmInternalState,
           self.batchSize: inpt.batchSize,
-          self.trainLength: inpt.traceLength,
+          self.traceLength: inpt.traceLength,
         }
     )
 

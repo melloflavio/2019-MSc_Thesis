@@ -51,7 +51,7 @@ class Agent():
             actorInput=currentDeltaF,
             ltsmInternalState=ltsmState,
             batchSize=LearningParams().batchSize,
-            traceLength=LearningParams().traceSize,
+            traceLength=LearningParams().traceLength,
         )
     )
 
@@ -64,7 +64,7 @@ class Agent():
             actorInput=state,
             ltsmInternalState=ltsmState,
             batchSize=LearningParams().batchSize,
-            traceLength=LearningParams().traceSize,
+            traceLength=LearningParams().traceLength,
         )
     )
 
