@@ -136,3 +136,6 @@ class ActorMaddpg():
           self.trainLength: inpt.traceLength,
         }
     )
+
+  def updateNetParams(self, tfSession: tf.Session):
+    tfSession.run(self.updateNetworkParams)

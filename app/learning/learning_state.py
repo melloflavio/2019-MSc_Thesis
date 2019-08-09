@@ -14,6 +14,7 @@ class ModelState:
   allAgents: List[any]
   xpBuffer: ExperienceBuffer
   cummRewardList: List[float]
+  epsilon: float
 
 @singleton
 @dataclass
@@ -21,7 +22,7 @@ class LearningState:
   episode: EpisodeState = None
   model: ModelState = None
 
-  def initData(self, allAgents, xpBuffer):
+  def initData(self, allAgents, xpBuffer, epsilon):
     self.episode = EpisodeState(
         cummReward=0,
         experiences=[],
@@ -30,4 +31,5 @@ class LearningState:
         allAgents=allAgents,
         xpBuffer=xpBuffer,
         cummRewardList=[],
+        epsilon=epsilon,
     )

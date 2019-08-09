@@ -93,3 +93,7 @@ class Agent():
 
   def updateActor(self, tfSession: tf.Session, inpt: ActorUpdateInput):
     self.actor.updateModel(tfSession, inpt)
+
+  def updateTargetModels(self, tfSession: tf.Session):
+    self.actorTarget.updateNetParams(tfSession)
+    self.criticTarget.updateNetParams(tfSession)

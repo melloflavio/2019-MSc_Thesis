@@ -19,7 +19,8 @@ class ModelTrainer():
     # Initialize Learning State
     LearningState().initData(
         allAgents=[Agent(_id) for _id in electricalSystem.getGeneratorIds()],
-        xpBuffer=ExperienceBuffer()
+        xpBuffer=ExperienceBuffer(),
+        epsilon=LearningParams().epsilon,
     )
 
     # alias for quicker access
@@ -45,7 +46,7 @@ class ModelTrainer():
           # Get all agents' actions
           currentDeltaF = electricalSystem.getCurrentDeltaF()
           allActions = [agent.runActorAction(tfSession, currentDeltaF) for agent in _model.allAgents]
-          allActions = [action[0, 0] + LearningParams().epsilon * np.random.normal(0.0, 0.4) for action in allActions]
+          allActions = [action[0, 0] + _model.epsilon * np.random.normal(0.0, 0.4) for action in allActions]
 
           # Execute agents'actions (i.e. update the generators' power output)
           agentIds = [agent.getId() for agent in _model.allAgents]
@@ -166,13 +167,18 @@ class ModelTrainer():
                     )
                 )
 
+            for agent in _model.allAgents:
+              agent.updateTargetModels(tfSession)
 
 
+          _model.epsilon = _model.epsilon*0.99999 if _model.epsilon < 0.5 else _model.epsilon*0.999999 #TODO isolate epsilon decay & parametrize
 
-########
 
         if len(_episode.experiences) >= 8:
             _model.xpBuffer.add(_episode.experiences)
+
+    actors = {agent.getId(): agent.actor for agent in _model.allAgents}
+    return actors
 
   @staticmethod
   def resetEpisodeState():

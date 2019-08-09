@@ -137,3 +137,6 @@ class CriticMaddpg():
     )
     gradients = gradients[0]
     return gradients
+
+  def updateNetParams(self, tfSession: tf.Session):
+    tfSession.run(self.updateNetworkParams)
