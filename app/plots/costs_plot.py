@@ -4,12 +4,12 @@ from dto import SystemHistory
 
 from .plot_constants import COLOR_PALETTE, FONT_SIZES
 
-def plotTotalCosts(figureNum=0):
+def plotTotalCosts(history: SystemHistory, figureNum=0):
 
   # Get series to be plotted
-  stepsSeries = SystemHistory().steps
-  actualCostsSeries = SystemHistory().totalCosts['Actual']
-  minCostsSeries = SystemHistory().totalCosts['Minimum']
+  stepsSeries = history.steps
+  actualCostsSeries = history.totalCosts['Actual']
+  minCostsSeries = history.totalCosts['Minimum']
   # How much actual costs are over minimum in %
   deltaCostSeries = [((actual - minimum)/minimum)*100 for (actual, minimum) in zip(actualCostsSeries, minCostsSeries)]
 
@@ -36,12 +36,12 @@ def plotTotalCosts(figureNum=0):
 
   plt.show()
 
-def plotIndividualCostsAbsolute(figureNum=0):
+def plotIndividualCostsAbsolute(history: SystemHistory, figureNum=0):
 
   # Get series to be plotted
-  stepsSeries = SystemHistory().steps
-  actualCosts = SystemHistory().actualCosts
-  optimalCosts = SystemHistory().costOptimalCosts
+  stepsSeries = history.steps
+  actualCosts = history.actualCosts
+  optimalCosts = history.costOptimalCosts
 
   plt.figure(figureNum)
 
@@ -65,12 +65,12 @@ def plotIndividualCostsAbsolute(figureNum=0):
 
   plt.show()
 
-def plotIndividualCostsRelative(figureNum=0):
+def plotIndividualCostsRelative(history: SystemHistory, figureNum=0):
 
   # Get series to be plotted
-  stepsSeries = SystemHistory().steps
-  actualCosts = SystemHistory().actualCosts
-  optimalCosts = SystemHistory().costOptimalCosts
+  stepsSeries = history.steps
+  actualCosts = history.actualCosts
+  optimalCosts = history.costOptimalCosts
 
   plt.figure(figureNum)
 

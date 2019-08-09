@@ -4,14 +4,14 @@ from dto import SystemHistory
 
 from .plot_constants import COLOR_PALETTE, FONT_SIZES
 
-def plotObservedPower(figureNum=0, shouldPlotAllLoads=False):
+def plotObservedPower(history: SystemHistory, figureNum=0, shouldPlotAllLoads=False):
 
   # Get series to be plotted
-  stepsSeries = SystemHistory().steps
-  loads = SystemHistory().loads
-  totalLoadSeries = SystemHistory().totalLoad
-  generators = SystemHistory().generators
-  totalPowerSeries = SystemHistory().totalPower
+  stepsSeries = history.steps
+  loads = history.loads
+  totalLoadSeries = history.totalLoad
+  generators = history.generators
+  totalPowerSeries = history.totalPower
 
   plt.figure(figureNum)
 

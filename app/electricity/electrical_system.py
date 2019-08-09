@@ -14,7 +14,8 @@ class ElectricalSystem:
     initialPower = sum([gen.getOutput() for gen in self.generators])
     minCost, minCostNodesPower, minCostNodesCost = CostCalculator.calculateMinimumCost(self.generators, initialPower)
 
-    SystemHistory().pushState(ElectricalState(
+    self.systemHistory = SystemHistory()
+    self.systemHistory.pushState(ElectricalState(
         totalPower=initialPower,
         totalLoad=sum([l.getLoad() for l in self.loads]),
         frequency=initialFrequency,
@@ -37,8 +38,8 @@ class ElectricalSystem:
 
     # 2. Calculate the next total power output
     zg = sum([gen.getOutput() for gen in self.generators]) # Total Secondary Action (Z) from all generators
-    totalPowerOld = SystemHistory().totalPower[-1] # Old Total Power (P_G_Old)
-    frequencyOld = SystemHistory().frequency[-1]
+    totalPowerOld = self.systemHistory.totalPower[-1] # Old Total Power (P_G_Old)
+    frequencyOld = self.systemHistory.frequency[-1]
     powerGeneratedNew = AreaDynamics.calculatePowerGeneratedNew(zg, totalPowerOld, frequencyOld)
 
     # 3. Calculate the next frequency
@@ -49,7 +50,7 @@ class ElectricalSystem:
     minCost, minCostNodesPower, minCostNodesCost = CostCalculator.calculateMinimumCost(self.generators, zg)
 
     # 5. Push the new state to system history
-    SystemHistory().pushState(ElectricalState(
+    self.systemHistory.pushState(ElectricalState(
         totalPower=powerGeneratedNew,
         totalLoad=sum([l.getLoad() for l in self.loads]),
         frequency=frequencyNew,
@@ -68,5 +69,5 @@ class ElectricalSystem:
     return [g.getId() for g in self.generators]
 
   def getCurrentDeltaF(self):
-    currentFrequency = SystemHistory().frequency[-1]
+    currentFrequency = self.systemHistory.frequency[-1]
     return AreaDynamics.getDeltaFrequency(currentFrequency)

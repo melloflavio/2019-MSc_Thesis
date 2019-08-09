@@ -1,9 +1,7 @@
 from typing import Dict, List, NamedTuple
-from singleton_decorator import singleton
 
 from .electrical_state import ElectricalState
 
-@singleton
 class SystemHistory(NamedTuple):
   steps: int = []
   totalPower: List[float] = []
