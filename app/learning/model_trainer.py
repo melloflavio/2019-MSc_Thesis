@@ -1,5 +1,3 @@
-# from pprint import pformat
-import json
 import tensorflow as tf
 import numpy as np
 
@@ -36,15 +34,19 @@ class ModelTrainer():
     with tf.Session() as tfSession:
       tfSession.run(tfInit)
 
+      print(f'TrainingModel: ', end='')
       for episodeIdx in range(_params.numEpisodes):
 
+        # Print progress every 5%
+        if (episodeIdx%(_params.numEpisodes/20) == 0):
+          print(f'{(episodeIdx/_params.numEpisodes)*100}% ', end='')
         # Clear values regarding episodes
         ModelTrainer.resetEpisodeState()
 
         for stepIdx in range(_params.maxSteps):
 
           experience = ModelTrainer.executeStep(tfSession)
-          print(f'e{episodeIdx}s{stepIdx}: {json.dumps(experience._asdict(), indent=2)}')
+          # print(f'e{episodeIdx}s{stepIdx}: {json.dumps(experience._asdict(), indent=2)}')
 
           # Update the model
           if (ModelTrainer.shouldUpdateModels(stepIdx)):
