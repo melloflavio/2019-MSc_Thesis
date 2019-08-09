@@ -1,6 +1,8 @@
 from typing import List, Dict, NamedTuple
 import numpy as np
 
+from .experience_buffer_dto import XpMiniBatch
+
 class LearningExperience(NamedTuple):
   originalState: float
   destinationState: float
@@ -47,4 +49,10 @@ class ExperienceBuffer():
     allAgentIds = allActions[0].keys()               # Get all agent ids from the first trace found (all steps should have the same actors, otherwise the consolidated actions would be misaligned)
     groupedActions = {agentId: [[action.get(agentId)] for action in allActions] for agentId in allAgentIds} # Create new dict, each key is the agentId, values are the list of actions said agent has taken in the trace
 
-    return (originalStates, destinationStates, groupedActions, rewards)
+    xpMiniBatch = XpMiniBatch(
+        originalStates=originalStates,
+        destinationStates=destinationStates,
+        groupedActions=groupedActions,
+        rewards=rewards,
+      )
+    return xpMiniBatch
