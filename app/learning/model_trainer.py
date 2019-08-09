@@ -11,6 +11,7 @@ from .learning_state import LearningState
 from .learning_params import LearningParams
 from .experience_buffer import ExperienceBuffer, LearningExperience
 from .critic_dto import CriticEstimateInput, CriticUpdateInput, CriticGradientInput
+from .actor_dto import ActorUpdateInput
 
 class ModelTrainer():
   @staticmethod
@@ -153,7 +154,17 @@ class ModelTrainer():
                 )
               allGradients.append(gradient)
 
-
+            for agentIdx, agent in enumerate(_model.allAgents):
+              agent.updateActor(
+                  tfSession=tfSession,
+                  inpt=ActorUpdateInput(
+                      state=originalStates,
+                      gradients=allGradients[agentIdx],
+                      ltsmInternalState=ModelTrainer.getEmptyLtsmState(),
+                      batchSize=_params.batchSize,
+                      traceLength=_params.traceSize,
+                    )
+                )
 
 
 

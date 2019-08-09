@@ -5,7 +5,7 @@ from .maddpg_actor import ActorMaddpg as Actor
 from .maddpg_critic import CriticMaddpg as Critic
 from .learning_params import LearningParams
 from .learning_state import LearningState
-from .actor_dto import ActionInput
+from .actor_dto import ActionInput, ActorUpdateInput
 from .critic_dto import CriticEstimateInput, CriticUpdateInput, CriticGradientInput
 
 class Agent():
@@ -90,3 +90,6 @@ class Agent():
         inpt=inpt,
     )
     return gradients
+
+  def updateActor(self, tfSession: tf.Session, inpt: ActorUpdateInput):
+    self.actor.updateModel(tfSession, inpt)

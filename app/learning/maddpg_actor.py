@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-from .actor_dto import ActionInput, ActionOutput
+from .actor_dto import ActionInput, ActionOutput, ActorUpdateInput
 from .learning_params import LearningParams
 
 _BATCH_SIZE = 32
@@ -124,3 +124,15 @@ class ActorMaddpg():
       )
 
     return (action, nextState)
+
+  def updateModel(self, tfSession: tf.Session, inpt: ActorUpdateInput):
+    tfSession.run(
+      self.upd,
+      feed_dict={
+          self.inputs: inpt.state,
+          self.criticGradient: inpt.gradients,
+          self.ltsmInternalState: inpt.ltsmInternalState,
+          self.batchSize: inpt.batchSize,
+          self.trainLength: inpt.traceLength,
+        }
+    )

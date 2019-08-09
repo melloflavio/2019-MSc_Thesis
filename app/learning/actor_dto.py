@@ -12,3 +12,11 @@ class ActionInput:
 class ActionOutput:
   action: float
   nextState: tuple
+
+@dataclass
+class ActorUpdateInput:
+  state: List[List[any]]
+  gradients: any
+  ltsmInternalState: tuple
+  batchSize: int
+  traceLength: int
