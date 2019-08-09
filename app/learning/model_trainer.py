@@ -45,30 +45,17 @@ class ModelTrainer():
         for stepIdx in range(_params.maxSteps):
 
           # Get all agents' actions
-          currentDeltaF = _episode.electricalSystem.getCurrentDeltaF()
-          allActions = [agent.runActorAction(tfSession, currentDeltaF) for agent in _model.allAgents]
-          allActions = [action[0, 0] + _model.epsilon * np.random.normal(0.0, 0.4) for action in allActions]
+          originalDeltaF = _episode.electricalSystem.getCurrentDeltaF()
+          allActions = ModelTrainer._01_calculateAllActorActions(tfSession, originalDeltaF)
 
           # Execute agents'actions (i.e. update the generators' power output)
-          agentIds = [agent.getId() for agent in _model.allAgents]
-          generatorUpdates = [NodePowerUpdate(
-              id_=agentId,
-              deltaPower=action
-            ) for (agentId, action) in zip(agentIds, allActions)]
-          _episode.electricalSystem.updateGenerators(generatorUpdates)
+          ModelTrainer._02_executeAllActorActions(allActions)
 
+          # Calculate the earned reward
           newDeltaF = _episode.electricalSystem.getCurrentDeltaF()
-          currentReward = 2**(10-abs(newDeltaF)) # TODO Calculate reward according to a given strategy
-          _episode.cummReward += currentReward
+          earnedReward = 2**(10-abs(newDeltaF)) # TODO Calculate reward according to a given strategy
 
-          experience = LearningExperience(
-              originalState     = currentDeltaF,
-              destinationState  = newDeltaF,
-              actions           = {agentId: action for (agentId, action) in zip(agentIds, allActions)},
-              reward            = currentReward,
-          )
-          _episode.experiences.append(experience)
-
+          experience = ModelTrainer._03_storeEpisodeExperience(originalDeltaF, newDeltaF,allActions, earnedReward)
           print(f'e{episodeIdx}s{stepIdx}: {json.dumps(experience._asdict(), indent=2)}')
 
           # Update the model
@@ -201,3 +188,32 @@ class ModelTrainer():
     lstmSize = LearningParams().nnShape.layer_00_ltsm
     emptyState = (np.zeros([batchSize, lstmSize]), ) * len(LearningState().model.allAgents)
     return emptyState
+
+  @staticmethod
+  def _01_calculateAllActorActions(tfSession: tf.Session, currentDeltaF):
+    _model = LearningState().model
+    allActions = [agent.runActorAction(tfSession, currentDeltaF) for agent in _model.allAgents]
+    allActions = [action[0, 0] + _model.epsilon * np.random.normal(0.0, 0.4) for action in allActions]
+    return allActions
+
+  @staticmethod
+  def _02_executeAllActorActions(allActions):
+    agentIds = [agent.getId() for agent in LearningState().model.allAgents]
+    generatorUpdates = [NodePowerUpdate(
+        id_=agentId,
+        deltaPower=action
+      ) for (agentId, action) in zip(agentIds, allActions)]
+    LearningState().episode.electricalSystem.updateGenerators(generatorUpdates)
+
+  @staticmethod
+  def _03_storeEpisodeExperience(originalDeltaF, newDeltaF, allActions, earnedReward):
+    agentIds = [agent.getId() for agent in LearningState().model.allAgents]
+    LearningState().episode.cummReward += earnedReward
+    experience = LearningExperience(
+        originalState     = originalDeltaF,
+        destinationState  = newDeltaF,
+        actions           = {agentId: action for (agentId, action) in zip(agentIds, allActions)},
+        reward            = earnedReward,
+    )
+    LearningState().episode.experiences.append(experience)
+    return experience
