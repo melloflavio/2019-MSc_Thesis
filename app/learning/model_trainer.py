@@ -3,8 +3,8 @@ import json
 import tensorflow as tf
 import numpy as np
 
-from electricity import ElectricalSystem
-from dto import NodePowerUpdate
+from electricity import ElectricalSystemFactory
+from dto import ElectricalSystemSpecs, NodePowerUpdate
 
 from .learning_agent import Agent
 from .learning_state import LearningState
@@ -15,12 +15,13 @@ from .actor_dto import ActorUpdateInput
 
 class ModelTrainer():
   @staticmethod
-  def trainAgents(electricalSystem: ElectricalSystem):
+  def trainAgents(electricalSystemSpecs: ElectricalSystemSpecs):
     # Initialize Learning State
     LearningState().initData(
-        allAgents=[Agent(_id) for _id in electricalSystem.getGeneratorIds()],
+        allAgents=[Agent(generator.id_) for generator in electricalSystemSpecs.generators],
         xpBuffer=ExperienceBuffer(),
         epsilon=LearningParams().epsilon,
+        electricalSystemSpecs=electricalSystemSpecs,
     )
 
     # alias for quicker access
@@ -44,7 +45,7 @@ class ModelTrainer():
         for stepIdx in range(_params.maxSteps):
 
           # Get all agents' actions
-          currentDeltaF = electricalSystem.getCurrentDeltaF()
+          currentDeltaF = _episode.electricalSystem.getCurrentDeltaF()
           allActions = [agent.runActorAction(tfSession, currentDeltaF) for agent in _model.allAgents]
           allActions = [action[0, 0] + _model.epsilon * np.random.normal(0.0, 0.4) for action in allActions]
 
@@ -54,9 +55,9 @@ class ModelTrainer():
               id_=agentId,
               deltaPower=action
             ) for (agentId, action) in zip(agentIds, allActions)]
-          electricalSystem.updateGenerators(generatorUpdates)
+          _episode.electricalSystem.updateGenerators(generatorUpdates)
 
-          newDeltaF = electricalSystem.getCurrentDeltaF()
+          newDeltaF = _episode.electricalSystem.getCurrentDeltaF()
           currentReward = 2**(10-abs(newDeltaF)) # TODO Calculate reward according to a given strategy
           _episode.cummReward += currentReward
 
@@ -189,6 +190,10 @@ class ModelTrainer():
     # Clear episode values
     LearningState().episode.cummReward = 0
     LearningState().episode.episodeBuffer = []
+
+    # Instantiate new slightly randomized electrical system
+    specs = LearningState().model.electricalSystemSpecs
+    LearningState().episode.electricalSystem = ElectricalSystemFactory.create(specs)
 
   @staticmethod
   def getEmptyLtsmState():

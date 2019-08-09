@@ -8,6 +8,7 @@ from .experience_buffer import ExperienceBuffer, LearningExperience
 class EpisodeState:
   cummReward: float
   experiences: List[LearningExperience]
+  electricalSystem: any
 
 @dataclass
 class ModelState:
@@ -15,6 +16,7 @@ class ModelState:
   xpBuffer: ExperienceBuffer
   cummRewardList: List[float]
   epsilon: float
+  electricalSystemSpecs: any
 
 @singleton
 @dataclass
@@ -22,14 +24,16 @@ class LearningState:
   episode: EpisodeState = None
   model: ModelState = None
 
-  def initData(self, allAgents, xpBuffer, epsilon):
+  def initData(self, allAgents, xpBuffer, epsilon, electricalSystemSpecs):
     self.episode = EpisodeState(
         cummReward=0,
         experiences=[],
+        electricalSystem=None,
     )
     self.model = ModelState(
         allAgents=allAgents,
         xpBuffer=xpBuffer,
         cummRewardList=[],
         epsilon=epsilon,
+        electricalSystemSpecs=electricalSystemSpecs,
     )
