@@ -3,6 +3,7 @@ import numpy as np
 
 from electricity import ElectricalSystemFactory
 from dto import ElectricalSystemSpecs, NodePowerUpdate
+from models import getPathForModel
 
 from .learning_agent import Agent
 from .learning_state import LearningState
@@ -14,7 +15,7 @@ from .actor_dto import ActorUpdateInput
 
 class ModelTrainer():
   @staticmethod
-  def trainAgents(electricalSystemSpecs: ElectricalSystemSpecs):
+  def trainAgents(electricalSystemSpecs: ElectricalSystemSpecs, modelName: str):
     # Initialize Learning State
     LearningState().initData(
         allAgents=[Agent(generator.id_) for generator in electricalSystemSpecs.generators],
@@ -59,6 +60,8 @@ class ModelTrainer():
         if len(_episode.experiences) >= 8:
             _model.xpBuffer.add(_episode.experiences)
 
+      # Save complete model in form of tensorflow session
+      ModelTrainer.saveModels(tfSession, modelName)
     return _model.allAgents
 
   @staticmethod
@@ -135,6 +138,12 @@ class ModelTrainer():
 
     # Update target actor and critic models for all agents
     ModelTrainer._11_updateTargetModels(tfSession)
+
+  @staticmethod
+  def saveModels(tfSession: tf.Session, modelName: str):
+    modelPath = getPathForModel(modelName)
+    saver = tf.train.Saver()
+    saver.save(tfSession, modelPath)
 
   @staticmethod
   def _01_calculateAllActorActions(tfSession: tf.Session, currentDeltaF):
