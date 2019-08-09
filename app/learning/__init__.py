@@ -4,3 +4,4 @@ from .learning_state import LearningState
 from .maddpg_actor import ActorMaddpg
 from .maddpg_critic import CriticMaddpg
 from .model_trainer import ModelTrainer
+from .model_tester import ModelTester

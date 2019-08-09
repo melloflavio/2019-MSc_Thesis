@@ -178,8 +178,8 @@ class ModelTrainer():
         if len(_episode.experiences) >= 8:
             _model.xpBuffer.add(_episode.experiences)
 
-    actors = {agent.getId(): agent.actor for agent in _model.allAgents}
-    return actors
+    agents = {agent.getId(): agent for agent in _model.allAgents}
+    return agents
 
   @staticmethod
   def resetEpisodeState():
