@@ -80,7 +80,7 @@ class ModelTrainer():
             ( originalStates,
               destinationStates,
               groupedActions,
-              rewards) = _model.xpBuffer.getSample(_params.batchSize, _params.traceSize)
+              rewards) = _model.xpBuffer.getSample(_params.batchSize, _params.traceLength)
 
             # Get Target Actors' Actions
             allTargetActions = [agent.getActorTargetAction(
@@ -104,7 +104,7 @@ class ModelTrainer():
                       actionsOthers=otherTargetActions,
                       ltsmInternalState=ModelTrainer.getEmptyLtsmState(),
                       batchSize=_params.batchSize,
-                      traceLength=_params.traceSize,
+                      traceLength=_params.traceLength,
                   )
               )
               # Update Targets
@@ -127,7 +127,7 @@ class ModelTrainer():
                       targetQs=targetQs,
                       ltsmInternalState=ModelTrainer.getEmptyLtsmState(),
                       batchSize=_params.batchSize,
-                      traceLength=_params.traceSize,
+                      traceLength=_params.traceLength,
                 ),
               )
 
@@ -150,7 +150,7 @@ class ModelTrainer():
                       actionsOthers=actionsOthers,
                       ltsmInternalState=ModelTrainer.getEmptyLtsmState(),
                       batchSize=_params.batchSize,
-                      traceLength=_params.traceSize,
+                      traceLength=_params.traceLength,
                   )
                 )
               allGradients.append(gradient)
@@ -163,7 +163,7 @@ class ModelTrainer():
                       gradients=allGradients[agentIdx],
                       ltsmInternalState=ModelTrainer.getEmptyLtsmState(),
                       batchSize=_params.batchSize,
-                      traceLength=_params.traceSize,
+                      traceLength=_params.traceLength,
                     )
                 )
 
