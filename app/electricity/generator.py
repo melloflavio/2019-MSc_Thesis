@@ -16,7 +16,15 @@ class Generator:
     return self.id_
 
   def updateOutput(self, deltaOutput) -> None:
-    self.output += deltaOutput
+    newOutput = self.output + deltaOutput
+
+    # Clamp output at min/max
+    if (newOutput > self.maxPower):
+      newOutput = self.maxPower
+    elif (newOutput < self.minPower):
+        newOutput = self.minPower
+
+    self.output = newOutput
 
   def getOutput(self) -> float:
     return self.output
