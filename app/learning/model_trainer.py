@@ -40,7 +40,9 @@ class ModelTrainer():
 
         # Print progress every 5%
         if (episodeIdx%(_params.numEpisodes/20) == 0):
-          print(f'{(episodeIdx/_params.numEpisodes)*100}% ', end='')
+          progressPrcent = round((episodeIdx/_params.numEpisodes)*100)
+          print(f'{progressPrcent}% ', end='')
+
         # Clear values regarding episodes
         ModelTrainer.resetEpisodeState()
 
@@ -68,17 +70,17 @@ class ModelTrainer():
   def executeStep(tfSession: tf.Session):
     _episode = LearningState().episode
     # Get all agents' actions
-    originalDeltaF = _episode.electricalSystem.getCurrentDeltaF()
-    allActions = ModelTrainer._01_calculateAllActorActions(tfSession, originalDeltaF)
+    deltaFreqOriginal = _episode.electricalSystem.getCurrentDeltaF()
+    allActions = ModelTrainer._01_calculateAllActorActions(tfSession, deltaFreqOriginal)
 
     # Execute agents'actions (i.e. update the generators' power output)
     ModelTrainer._02_executeAllActorActions(allActions)
 
     # Calculate the earned reward
-    newDeltaF = _episode.electricalSystem.getCurrentDeltaF()
-    earnedReward = 2**(10-abs(newDeltaF)) # TODO Calculate reward according to a given strategy
+    deltaFreqNew = _episode.electricalSystem.getCurrentDeltaF()
+    earnedReward = 2**(10-abs(deltaFreqNew)) # TODO Calculate reward according to a given strategy
 
-    experience = ModelTrainer._03_storeEpisodeExperience(originalDeltaF, newDeltaF,allActions, earnedReward)
+    experience = ModelTrainer._03_storeEpisodeExperience(deltaFreqOriginal, deltaFreqNew, allActions, earnedReward)
     return experience
 
   @staticmethod
