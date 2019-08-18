@@ -30,6 +30,9 @@ class ElectricalSystem:
             ]
         ))
 
+    # Start system with a blank update to calculate the change in frequency caused by the disturbance at t0
+    self.updateGenerators([])
+
   def updateGenerators(self, generatorsUpdates: List[NodePowerUpdate]):
     # 1. Update the power output for each generator
     for generatorUpdate in generatorsUpdates:
