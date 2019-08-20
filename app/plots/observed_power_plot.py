@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 
 from dto import SystemHistory
 
-from .plot_constants import COLOR_PALETTE, FONT_SIZES
+from .plot_constants import COLOR_PALETTE, FIG_SIZE, FONT_SIZES
 
 def plotObservedPower(history: SystemHistory, figureNum=0, shouldPlotAllLoads=False):
 
@@ -13,7 +13,7 @@ def plotObservedPower(history: SystemHistory, figureNum=0, shouldPlotAllLoads=Fa
   generators = history.generators
   totalPowerSeries = history.totalPower
 
-  plt.figure(figureNum)
+  plt.figure(figureNum, figsize=FIG_SIZE)
 
   # Declare colors to be used
   colorTotalLoad = COLOR_PALETTE[0]

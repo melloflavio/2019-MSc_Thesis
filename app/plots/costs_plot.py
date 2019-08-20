@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 
 from dto import SystemHistory
 
-from .plot_constants import COLOR_PALETTE, FONT_SIZES
+from .plot_constants import COLOR_PALETTE, FIG_SIZE, FONT_SIZES
 
 def plotTotalCosts(history: SystemHistory, figureNum=0):
 
@@ -13,14 +13,14 @@ def plotTotalCosts(history: SystemHistory, figureNum=0):
   # How much actual costs are over minimum in %
   deltaCostSeries = [((actual - minimum)/minimum)*100 for (actual, minimum) in zip(actualCostsSeries, minCostsSeries)]
 
-  plt.figure(figureNum)
+  plt.figure(figureNum, figsize=FIG_SIZE)
 
   # Declare colors to be used
   colorCostsActual = COLOR_PALETTE[0]
   colorCostsMinimum = COLOR_PALETTE[1]
   colorCostsDifference = COLOR_PALETTE[2]
 
-  fig, ax1 = plt.subplots()
+  fig, ax1 = plt.subplots(figsize=FIG_SIZE)
   ax2 = ax1.twinx()
   # Plot actual and minimum costs in main, left axis
   ax1.plot(stepsSeries, actualCostsSeries, color=colorCostsActual)
@@ -43,7 +43,7 @@ def plotIndividualCostsAbsolute(history: SystemHistory, figureNum=0):
   actualCosts = history.actualCosts
   optimalCosts = history.costOptimalCosts
 
-  plt.figure(figureNum)
+  plt.figure(figureNum, figsize=FIG_SIZE)
 
   legendFields = []
 
@@ -72,7 +72,7 @@ def plotIndividualCostsRelative(history: SystemHistory, figureNum=0):
   actualCosts = history.actualCosts
   optimalCosts = history.costOptimalCosts
 
-  plt.figure(figureNum)
+  plt.figure(figureNum, figsize=FIG_SIZE)
 
   legendFields = []
 

@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 
 from dto import ElectricalConstants, SystemHistory
 
-from .plot_constants import COLOR_PALETTE, FONT_SIZES
+from .plot_constants import COLOR_PALETTE, FIG_SIZE, FONT_SIZES
 
 def plotFrequency(history: SystemHistory, figureNum=0):
 
@@ -12,7 +12,7 @@ def plotFrequency(history: SystemHistory, figureNum=0):
   nominalFrequency = ElectricalConstants().nominalFrequency
   nominalSeries = [nominalFrequency] * len(stepsSeries)
 
-  plt.figure(figureNum)
+  plt.figure(figureNum, figsize=FIG_SIZE)
 
   # Declare colors to be used
   colorNominalFreq = COLOR_PALETTE[0]
