@@ -22,9 +22,13 @@ class Agent():
     self.actorTarget.createOpHolder(self.actor.networkParams, LearningParams().tau)
     self.criticTarget.createOpHolder(self.critic.networkParams, LearningParams().tau)
 
+    self.resetLtsmState()
+
+  def resetLtsmState(self):
     # Initial empty input state (must have size of LTSM)
     ltsmSize = LearningParams().nnShape.layer_00_ltsm
-    self.state = (np.zeros([1, ltsmSize]), np.zeros([1, ltsmSize]))
+    ltsmState = (np.zeros([1, ltsmSize]), np.zeros([1, ltsmSize]))
+    self.ltsmState = ltsmState
 
   def getId(self):
     return self._id
@@ -34,18 +38,18 @@ class Agent():
         tfSession=tfSession,
         actionIn=ActionInput(
             actorInput=[[currentDeltaF]],
-            ltsmInternalState=self.state,
+            ltsmInternalState=self.ltsmState,
             batchSize=1,
             traceLength=1,
         )
     )
 
-    self.state = nextState
+    self.ltsmState = nextState
 
     return action
 
   def predictActorAction(self, tfSession: tf.Session, currentDeltaF, ltsmState):
-    (action, nextState) = self.actor.getAction(
+    action = self.actor.getActionOnly(
         tfSession=tfSession,
         actionIn=ActionInput(
             actorInput=currentDeltaF,

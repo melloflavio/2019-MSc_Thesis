@@ -56,7 +56,7 @@ class ModelTrainer():
             ModelTrainer.runUpdateCycle(tfSession)
 
           # Update epsilom
-          _model.epsilon = _model.epsilon*0.99999 if _model.epsilon < 0.5 else _model.epsilon*0.999999 #TODO isolate epsilon decay & parametrize
+          _model.epsilon = _model.epsilon*0.9999 if _model.epsilon < 0.5 else _model.epsilon*0.99999 #TODO isolate epsilon decay & parametrize
 
         # Store episodes' experiences if they are large enough (disconsider espisodes that ended prematurely)
         if len(_episode.experiences) >= 8:
@@ -105,6 +105,10 @@ class ModelTrainer():
     # Instantiate new slightly randomized electrical system
     specs = LearningState().model.electricalSystemSpecs
     LearningState().episode.electricalSystem = ElectricalSystemFactory.create(specs)
+
+    # Refresh LTSM states for all actors
+    for agent in LearningState().model.allAgents:
+      agent.resetLtsmState()
 
   @staticmethod
   def getEmptyLtsmState():
