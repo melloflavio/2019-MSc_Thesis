@@ -16,6 +16,9 @@ from .actor_dto import ActorUpdateInput
 class ModelTrainer():
   @staticmethod
   def trainAgents(electricalSystemSpecs: ElectricalSystemSpecs, modelName: str):
+    # cLEARSClears existing TF graph
+    tf.reset_default_graph()
+
     # Initialize Learning State
     LearningState().initData(
         allAgents=[Agent(generator.id_) for generator in electricalSystemSpecs.generators],
@@ -192,11 +195,12 @@ class ModelTrainer():
   def _05_calculateTargetActionsForBatch(tfSession: tf.Session, xpBatch: XpMiniBatch):
     allAgents = LearningState().model.allAgents
     allTargetActions = [
-      agent.getActorTargetAction(
+      agent.peekActorTargetAction(
           tfSession=tfSession,
           state=xpBatch.destinationStates,
           ltsmState=ModelTrainer.getEmptyLtsmState(),
-        )[0] # method returns tuple (action, nextState) here we only want the action
+        )
+        # [0] # method returns tuple (action, nextState) here we only want the action
       for agent in allAgents]
 
     return allTargetActions
@@ -259,7 +263,7 @@ class ModelTrainer():
   def _08_calculateActorActionsForBatch(tfSession: tf.Session, xpBatch: XpMiniBatch):
     allAgents = LearningState().model.allAgents
 
-    allNewActions = [agent.predictActorAction(
+    allNewActions = [agent.peekActorAction(
                 tfSession=tfSession,
                 currentDeltaF=xpBatch.originalStates,
                 ltsmState=ModelTrainer.getEmptyLtsmState(),
@@ -288,7 +292,7 @@ class ModelTrainer():
               batchSize=batchSize,
               traceLength=traceLength,
           )
-        )
+      )
       allGradients.append(gradient)
     return allGradients
 
@@ -307,8 +311,8 @@ class ModelTrainer():
               ltsmInternalState=ModelTrainer.getEmptyLtsmState(),
               batchSize=batchSize,
               traceLength=traceLength,
-            )
-        )
+          )
+      )
 
   @staticmethod
   def _11_updateTargetModels(tfSession):

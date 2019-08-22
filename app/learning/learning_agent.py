@@ -22,6 +22,7 @@ class Agent():
     self.actorTarget.createOpHolder(self.actor.networkParams, LearningParams().tau)
     self.criticTarget.createOpHolder(self.critic.networkParams, LearningParams().tau)
 
+    self.ltsmState = None
     self.resetLtsmState()
 
   def resetLtsmState(self):
@@ -48,7 +49,7 @@ class Agent():
 
     return action
 
-  def predictActorAction(self, tfSession: tf.Session, currentDeltaF, ltsmState):
+  def peekActorAction(self, tfSession: tf.Session, currentDeltaF, ltsmState):
     action = self.actor.getActionOnly(
         tfSession=tfSession,
         actionIn=ActionInput(
@@ -61,8 +62,8 @@ class Agent():
 
     return action
 
-  def getActorTargetAction(self, tfSession: tf.Session, state, ltsmState):
-    (action, nextState) = self.actor.getAction(
+  def peekActorTargetAction(self, tfSession: tf.Session, state, ltsmState):
+    action = self.actorTarget.getActionOnly(
         tfSession=tfSession,
         actionIn=ActionInput(
             actorInput=state,
@@ -72,7 +73,7 @@ class Agent():
         )
     )
 
-    return action, nextState
+    return action
 
   def getTargetCriticEstimatedQ(self, tfSession: tf.Session, criticIn: CriticEstimateInput):
     estimatedQ = self.criticTarget.getEstimatedQ(
