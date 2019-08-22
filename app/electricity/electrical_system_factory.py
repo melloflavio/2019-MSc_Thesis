@@ -11,12 +11,12 @@ class ElectricalSystemFactory:
 
   @staticmethod
   def create(specs: ElectricalSystemSpecs):
-    allLoads = [Load(l.id_, ElectricalSystemFactory.applyNoise(l.basePower, specs.noiseLevel))
+    allLoads = [Load(l.id_, ElectricalSystemFactory.applyNoise(l.basePower, l.noiseLevel))
                 for l in specs.loads]
     allGenerators = [
         Generator(
             id_=g.id_,
-            initialOutput=ElectricalSystemFactory.applyNoise(g.basePower, specs.noiseLevel),
+            initialOutput=ElectricalSystemFactory.applyNoise(g.basePower, g.noiseLevel),
             costProfile=g.costProfile,
             minPower=g.minPower,
             maxPower=g.maxPower,
