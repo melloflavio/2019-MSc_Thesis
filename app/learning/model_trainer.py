@@ -42,7 +42,7 @@ class ModelTrainer():
       for episodeIdx in range(_params.numEpisodes):
 
         # Print progress every 5%
-        if (episodeIdx%(_params.numEpisodes/20) == 0):
+        if (episodeIdx%(_params.numEpisodes/100) == 0):
           progressPrcent = round((episodeIdx/_params.numEpisodes)*100)
           print(f'{progressPrcent}% ', end='')
 
