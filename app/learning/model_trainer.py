@@ -61,6 +61,11 @@ class ModelTrainer():
           # Update epsilom
           _model.epsilon = _model.epsilon*0.9999 if _model.epsilon < 0.5 else _model.epsilon*0.99999 #TODO isolate epsilon decay & parametrize
 
+          # End episode prematurely if things diverge too much
+          deltaFreq = _episode.electricalSystem.getCurrentDeltaF()
+          if abs(deltaFreq) > 50:
+            break
+
         # Store episodes' experiences if they are large enough (disconsider espisodes that ended prematurely)
         if len(_episode.experiences) >= 8:
             _model.xpBuffer.add(_episode.experiences)
