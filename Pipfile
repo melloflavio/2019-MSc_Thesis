@@ -16,6 +16,7 @@ singleton-decorator = "*"
 pydash = "*"
 scipy = "*"
 tensorflow = "*"
+dataclasses-json = "*"
 
 [requires]
 python_version = "3.7"
