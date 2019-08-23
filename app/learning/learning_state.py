@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import NamedTuple, List
+from typing import List
 from singleton_decorator import singleton
 
 from .experience_buffer import ExperienceBuffer, LearningExperience
@@ -17,6 +17,7 @@ class ModelState:
   cummRewardList: List[float]
   epsilon: float
   electricalSystemSpecs: any
+  allRewards: List[float]
 
 @singleton
 @dataclass
@@ -36,4 +37,5 @@ class LearningState:
         cummRewardList=[],
         epsilon=epsilon,
         electricalSystemSpecs=electricalSystemSpecs,
+        allRewards=[],
     )

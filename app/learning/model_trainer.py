@@ -47,7 +47,7 @@ class ModelTrainer():
           print(f'{progressPrcent}% ', end='')
 
         # Clear values regarding episodes
-        ModelTrainer.resetEpisodeState()
+        ModelTrainer.resetEpisodeState(episodeIdx)
 
         for stepIdx in range(_params.maxSteps):
 
@@ -101,7 +101,7 @@ class ModelTrainer():
     return shouldUpdate
 
   @staticmethod
-  def resetEpisodeState():
+  def resetEpisodeState(episodeIdx: int):
     # Push current reward to reward list
     if (LearningState().episode.cummReward is not None):
       LearningState().model.cummRewardList.append(LearningState().episode.cummReward)
@@ -113,6 +113,12 @@ class ModelTrainer():
     # Instantiate new slightly randomized electrical system
     specs = LearningState().model.electricalSystemSpecs
     LearningState().episode.electricalSystem = ElectricalSystemFactory.create(specs)
+
+    # Store a snapshop od the rewards every 10%
+    episodeRewardsList = [xp.reward for xp in LearningState().episode.experiences]
+    if (episodeIdx % (LearningParams().numEpisodes/10) == 0
+        and episodeRewardsList):
+      LearningState().model.allRewards.append(episodeRewardsList)
 
     # Refresh LTSM states for all actors
     for agent in LearningState().model.allAgents:
