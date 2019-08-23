@@ -108,7 +108,7 @@ class ModelTrainer():
 
     # Clear episode values
     LearningState().episode.cummReward = 0
-    LearningState().episode.episodeBuffer = []
+    LearningState().episode.experiences = []
 
     # Instantiate new slightly randomized electrical system
     specs = LearningState().model.electricalSystemSpecs
