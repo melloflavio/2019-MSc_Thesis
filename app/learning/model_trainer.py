@@ -66,8 +66,8 @@ class ModelTrainer():
           if abs(deltaFreq) > 50:
             break
 
-        # Store episodes' experiences if they are large enough (disconsider espisodes that ended prematurely)
-        if len(_episode.experiences) >= 8:
+        # Store episodes' experiences if they are large enough to have at least a single complete trace
+        if len(_episode.experiences) >= LearningParams().traceLength:
             _model.xpBuffer.add(_episode.experiences)
 
       # Save complete model in form of tensorflow session
@@ -95,7 +95,7 @@ class ModelTrainer():
   def shouldUpdateModels(stepIdx):
     numStoredEpisodes = LearningState().model.xpBuffer.numStoredEpisodes
     shouldUpdate = (
-      stepIdx % 4 == 0  # Every N steps
+      stepIdx % LearningParams().batchSize == 0  # Every N steps (same as batch size)
       and numStoredEpisodes > 0 # Starting from the second episode (must have at least one full episode in xp buffer)
      )
     return shouldUpdate
@@ -248,7 +248,7 @@ class ModelTrainer():
 
     for agentIdx, agent in enumerate(allAgents):
       agentActions = xpBatch.groupedActions.get(agent.getId())
-      actionsOthers = {agentId:xpBatch.groupedActions[agentId] for agentId in xpBatch.groupedActions if agentId != agent.getId()} # Remove this agent from list
+      actionsOthers = {agentId:xpBatch.groupedActions[agentId] for agentId in xpBatch.groupedActions.keys() if agentId != agent.getId()} # Remove this agent from list
       actionsOthers = [action for actionList in actionsOthers.values() for action in actionList] # Stack all actions in a single array
       targetQs = allCriticTargets[agentIdx]
       agent.updateCritic(
