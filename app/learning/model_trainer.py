@@ -38,7 +38,7 @@ class ModelTrainer():
     with tf.Session() as tfSession:
       tfSession.run(tfInit)
 
-      print(f'TrainingModel: ', end='')
+      print(f'Training model: {modelName} - ', end='')
       for episodeIdx in range(_params.numEpisodes):
 
         # Print progress every 5%
@@ -163,7 +163,8 @@ class ModelTrainer():
   def saveModels(tfSession: tf.Session, modelName: str):
     modelPath = getPathForModel(modelName)
     saver = tf.train.Saver()
-    saver.save(tfSession, modelPath)
+    savedPath = saver.save(tfSession, modelPath)
+    print(f'Model saved in path: {savedPath}')
 
   @staticmethod
   def _01_calculateAllActorActions(tfSession: tf.Session, currentDeltaF):

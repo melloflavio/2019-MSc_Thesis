@@ -3,21 +3,28 @@ import tensorflow as tf
 
 from electricity import ElectricalSystemFactory
 from dto import ElectricalSystemSpecs, NodePowerUpdate
+from models import getPathForModel
 
 from .learning_agent import Agent
 
 class ModelTester():
   @staticmethod
-  def testAgents(electricalSystemSpecs: ElectricalSystemSpecs, allAgents: List[Agent], stepsToTest: int = 500):
+  def testAgents(electricalSystemSpecs: ElectricalSystemSpecs, modelName: str, stepsToTest: int = 500):
+    # Clear existing graph
+    tf.reset_default_graph()
 
+    # Recreate the testing environment/TF variable placeholders
     elecSystem = ElectricalSystemFactory.create(electricalSystemSpecs)
-    allRewards = []
+    allAgents: List[Agent] = [Agent(generator.id_) for generator in electricalSystemSpecs.generators]
 
-    tfInit = tf.global_variables_initializer()
+    allRewards = [] # Used to plot reward history
+
+    tfSaver = tf.train.Saver() # Saver obj used to restore session
+    modelPath = getPathForModel(modelName)
 
     # Main TF loop
     with tf.Session() as tfSession:
-      tfSession.run(tfInit)
+      tfSaver.restore(tfSession, modelPath)
 
       # Test for 1000 steps
       for stepIdx in range(stepsToTest):
