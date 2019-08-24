@@ -10,46 +10,48 @@ class CriticMaddpg():
     # declared by this model reside in the tf.trainable_variables() list
     tfVarBeginIdx = len(tf.trainable_variables())
 
-    # Define the model (input-hidden layers-output)
-    self.state = tf.placeholder(shape=[None, 1], dtype=tf.float32)
-    self.action = tf.placeholder(shape=[None, 1], dtype=tf.float32)
-    self.actionOthers = tf.placeholder(shape=[None, 1], dtype=tf.float32)
-    self.inputs = tf.concat([self.state, self.action, self.actionOthers], axis=1)
+    with tf.name_scope(scope):
 
-    # LSTM to encode temporal information
-    self.batchSize = tf.placeholder(dtype=tf.int32, shape=[])   # batch size
-    self.traceLength = tf.placeholder(dtype=tf.int32)           # trace lentgth
-    rnnInput = tf.reshape(self.inputs, [self.batchSize, self.traceLength, 3])
+      # Define the model (input-hidden layers-output)
+      self.state = tf.placeholder(shape=[None, 1], dtype=tf.float32, name='state') # inherent state (deltaFreq)
+      self.action = tf.placeholder(shape=[None, 1], dtype=tf.float32, name='action') # action taken by actor of the same agent
+      self.actionOthers = tf.placeholder(shape=[None, 1], dtype=tf.float32, name='actions_others') # actions taken by actors of other agents
+      self.inputs = tf.concat([self.state, self.action, self.actionOthers], axis=1)
 
-    ltsmNumUnits = LearningParams().nnShape.layer_00_ltsm
-    ltsmCell = tf.contrib.rnn.BasicLSTMCell(num_units=ltsmNumUnits, state_is_tuple=True)
+      # LSTM to encode temporal information
+      self.batchSize = tf.placeholder(dtype=tf.int32, shape=[], name='batch_size')   # batch size
+      self.traceLength = tf.placeholder(dtype=tf.int32, name='trace_length')           # trace lentgth
+      rnnInput = tf.reshape(self.inputs, [self.batchSize, self.traceLength, 3])
 
-    self.ltsmInternalState = ltsmCell.zero_state(self.batchSize, tf.float32)
-    rnn, self.rnnState = tf.nn.dynamic_rnn(
-        inputs=rnnInput,
-        cell=ltsmCell,
-        dtype=tf.float32,
-        initial_state=self.ltsmInternalState,
-        scope=scope+'_rnn',
-        )
-    rnn = tf.reshape(rnn, shape=[-1, ltsmNumUnits])
+      ltsmNumUnits = LearningParams().nnShape.layer_00_ltsm
+      ltsmCell = tf.contrib.rnn.BasicLSTMCell(num_units=ltsmNumUnits, state_is_tuple=True)
 
-    # Stack MLP on top of LSTM
-    self.Q = CriticMaddpg._buildMlp(rnn) # Critic output is the estimated Q value
+      self.ltsmInternalState = ltsmCell.zero_state(self.batchSize, tf.float32)
+      rnn, self.rnnState = tf.nn.dynamic_rnn(
+          inputs=rnnInput,
+          cell=ltsmCell,
+          dtype=tf.float32,
+          initial_state=self.ltsmInternalState,
+          scope=scope+'_rnn',
+          )
+      rnn = tf.reshape(rnn, shape=[-1, ltsmNumUnits])
 
-    # Params relevant to this network
-    self.networkParams = tf.trainable_variables()[tfVarBeginIdx:]
+      # Stack MLP on top of LSTM
+      self.Q = CriticMaddpg._buildMlp(rnn) # Critic output is the estimated Q value
 
-    # Obtained from the target network (double architecture)
-    self.targetQ = tf.placeholder(tf.float32,  [None,  1])
+      # Params relevant to this network
+      self.networkParams = tf.trainable_variables()[tfVarBeginIdx:]
 
-    # Loss function and optimization of the critic
-    lossFn = tf.reduce_mean(tf.square(self.targetQ-self.Q))
-    optimizer = tf.train.AdamOptimizer(1e-4)
-    self.updateFn = optimizer.minimize(lossFn)
+      # Obtained from the target network (double architecture)
+      self.targetQ = tf.placeholder(tf.float32,  [None,  1], name='target_q')
 
-    # Get the gradient for the actor
-    self.criticGradientsFn = tf.gradients(self.Q, self.action)
+      # Loss function and optimization of the critic
+      lossFn = tf.reduce_mean(tf.square(self.targetQ-self.Q))
+      optimizer = tf.train.AdamOptimizer(1e-4)
+      self.updateFn = optimizer.minimize(lossFn)
+
+      # Get the gradient for the actor
+      self.criticGradientsFn = tf.gradients(self.Q, self.action)
 
   @staticmethod
   def _buildMlp(rnn):
@@ -60,26 +62,26 @@ class CriticMaddpg():
 
     #Layer 1
     l1_units = LearningParams().nnShape.layer_01_mlp_01
-    l1_bias = tf.Variable(initializer([1, l1_units]))
-    l1_weights = tf.Variable(initializer([ltsmNumUnits, l1_units]))
+    l1_bias = tf.Variable(initializer([1, l1_units]), name='l1_bias')
+    l1_weights = tf.Variable(initializer([ltsmNumUnits, l1_units]), name='l1_weights')
     layer_1 = tf.nn.relu(tf.matmul(rnn, l1_weights) + l1_bias)
 
      #Layer 2
     l2_units = LearningParams().nnShape.layer_02_mlp_02
-    l2_bias = tf.Variable(initializer([1, l2_units]))
-    l2_weights = tf.Variable(initializer([l1_units, l2_units]))
+    l2_bias = tf.Variable(initializer([1, l2_units]), name='l2_bias')
+    l2_weights = tf.Variable(initializer([l1_units, l2_units]), name='l2_weights')
     layer_2 = tf.nn.relu(tf.matmul(layer_1, l2_weights) + l2_bias)
 
     #Layer 3
     l3_units = LearningParams().nnShape.layer_03_mlp_03
-    l3_bias = tf.Variable(initializer([1, l3_units]))
-    l3_weights = tf.Variable(initializer([l2_units, l3_units]))
+    l3_bias = tf.Variable(initializer([1, l3_units]), name='l3_bias')
+    l3_weights = tf.Variable(initializer([l2_units, l3_units]), name='l3_weights')
     layer_3 = tf.nn.relu(tf.matmul(layer_2, l3_weights) + l3_bias)
 
     #Layer 4
     l4_units = LearningParams().nnShape.layer_04_mlp_04
-    l4_bias = tf.Variable(initializer([1, l4_units]))
-    l4_weights = tf.Variable(initializer([l3_units, l4_units]))
+    l4_bias = tf.Variable(initializer([1, l4_units]), name='l4_bias')
+    l4_weights = tf.Variable(initializer([l3_units, l4_units]), name='l4_weights')
     qValue = tf.matmul(layer_3, l4_weights)+l4_bias # Critic output is the estimated Q value
 
     return qValue
