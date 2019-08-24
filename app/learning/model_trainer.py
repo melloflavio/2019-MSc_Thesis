@@ -1,9 +1,10 @@
+import json
 import tensorflow as tf
 import numpy as np
 
 from electricity import ElectricalSystemFactory
 from dto import ElectricalSystemSpecs, NodePowerUpdate
-from models import getPathForModel
+from models import getPathForModel, getPathForParams
 
 from .learning_agent import Agent
 from .learning_state import LearningState
@@ -161,10 +162,19 @@ class ModelTrainer():
 
   @staticmethod
   def saveModels(tfSession: tf.Session, modelName: str):
+    #Save TF Models
     modelPath = getPathForModel(modelName)
     saver = tf.train.Saver()
     savedPath = saver.save(tfSession, modelPath)
     print(f'Model saved in path: {savedPath}')
+
+    # Dump LearningParams to a json file as means of keeping history of the params used for this model's training
+    paramsPath = getPathForParams(modelName)
+    paramsJsonObj = json.loads(LearningParams().to_json())
+    paramsJsonStr = json.dumps(paramsJsonObj, indent=4, sort_keys=True)
+    with open(paramsPath, 'w') as outFile:
+      outFile.write(paramsJsonStr)
+
 
   @staticmethod
   def _01_calculateAllActorActions(tfSession: tf.Session, currentDeltaF):

@@ -1,1 +1,1 @@
-from .model_paths import getPathForModel
+from .model_paths import getPathForModel, getPathForParams

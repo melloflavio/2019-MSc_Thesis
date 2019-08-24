@@ -1,7 +1,10 @@
-from typing import NamedTuple, Dict
+from dataclasses import dataclass
+from dataclasses_json import dataclass_json
 from singleton_decorator import singleton
 
-class NeuralNetworkShape(NamedTuple):
+@dataclass_json
+@dataclass
+class NeuralNetworkShape:
   layer_00_ltsm:   int # Initial LTSM layer
   layer_01_mlp_01: int # MLP Layer 1
   layer_02_mlp_02: int # MLP Layer 2
@@ -9,7 +12,9 @@ class NeuralNetworkShape(NamedTuple):
   layer_04_mlp_04: int # MLP Layer 4 (output layer)
 
 @singleton
-class LearningParams(NamedTuple):
+@dataclass_json
+@dataclass
+class LearningParams:
   gamma: float    = 0.9   # Gamma (Discount)
   tau: float      = 0.001 # Tau
   epsilon: float  = 0.99  # Epsilon
