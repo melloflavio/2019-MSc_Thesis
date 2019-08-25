@@ -74,3 +74,12 @@ class ElectricalSystem:
   def getCurrentDeltaF(self):
     currentFrequency = self.systemHistory.frequency[-1]
     return AreaDynamics.getDeltaFrequency(currentFrequency)
+
+  def getCostOptimalDiferential(self):
+    allCostDifferentials = {}
+    for id_ in self.getGeneratorIds():
+      actualCost = self.systemHistory.actualCosts.get(id_)[-1]
+      optimalCost = self.systemHistory.costOptimalCosts.get(id_)[-1]
+      costDifferential = actualCost/optimalCost - 1
+      allCostDifferentials[id_] = costDifferential
+    return allCostDifferentials
