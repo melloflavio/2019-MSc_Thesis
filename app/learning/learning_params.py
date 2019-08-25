@@ -2,6 +2,8 @@ from dataclasses import dataclass
 from dataclasses_json import dataclass_json
 from singleton_decorator import singleton
 
+from dto import EpsilonSpecs
+
 @dataclass_json
 @dataclass
 class NeuralNetworkShape:
@@ -17,7 +19,11 @@ class NeuralNetworkShape:
 class LearningParams:
   gamma: float    = 0.9   # Gamma (Discount)
   tau: float      = 0.001 # Tau
-  epsilon: float  = 0.99  # Epsilon
+  epsilonSpecs: EpsilonSpecs = EpsilonSpecs( # Epsilon explore/exploit control
+      thresholdProgress = 0.6, # % of steps where decay change should happen
+      thresholdValue = 0.5, # Value at which decay change would happen
+      finalValue = 0.0001, # Value at the end of the experiment
+  )
   numEpisodes: int   = 50000 # Number of learning episodes to run
   maxSteps: int      = 100   # Number of steps per learning episode
   traceLength: int  = 8     # Number of steps each sampled episode should contain

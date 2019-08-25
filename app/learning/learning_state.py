@@ -3,6 +3,7 @@ from typing import List
 from singleton_decorator import singleton
 
 from .experience_buffer import ExperienceBuffer, LearningExperience
+from .epsilon import Epsilon
 
 @dataclass
 class EpisodeState:
@@ -15,7 +16,7 @@ class ModelState:
   allAgents: List[any]
   xpBuffer: ExperienceBuffer
   cummRewardList: List[float]
-  epsilon: float
+  epsilon: Epsilon
   electricalSystemSpecs: any
   allRewards: List[float]
 

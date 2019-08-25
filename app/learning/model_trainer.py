@@ -13,18 +13,23 @@ from .experience_buffer import ExperienceBuffer, LearningExperience
 from .experience_buffer_dto import XpMiniBatch
 from .critic_dto import CriticEstimateInput, CriticUpdateInput, CriticGradientInput
 from .actor_dto import ActorUpdateInput
+from .epsilon import Epsilon
 
 class ModelTrainer():
   @staticmethod
   def trainAgents(electricalSystemSpecs: ElectricalSystemSpecs, modelName: str):
-    # cLEARSClears existing TF graph
+    # Clears existing TF graph
     tf.reset_default_graph()
 
     # Initialize Learning State
     LearningState().initData(
         allAgents=[Agent(generator.id_) for generator in electricalSystemSpecs.generators],
         xpBuffer=ExperienceBuffer(),
-        epsilon=LearningParams().epsilon,
+        epsilon=Epsilon(
+            specs=LearningParams().epsilonSpecs,
+            numEpisodes=LearningParams().numEpisodes,
+            stepsPerEpisode=LearningParams().maxSteps,
+        ),
         electricalSystemSpecs=electricalSystemSpecs,
     )
 
@@ -60,7 +65,7 @@ class ModelTrainer():
             ModelTrainer.runUpdateCycle(tfSession)
 
           # Update epsilom
-          _model.epsilon = _model.epsilon*0.9999 if _model.epsilon < 0.5 else _model.epsilon*0.99999 #TODO isolate epsilon decay & parametrize
+          _model.epsilon.decay()
 
           # End episode prematurely if things diverge too much
           deltaFreq = _episode.electricalSystem.getCurrentDeltaF()
@@ -180,7 +185,7 @@ class ModelTrainer():
   def _01_calculateAllActorActions(tfSession: tf.Session, currentDeltaF):
     _model = LearningState().model
     allActions = [agent.runActorAction(tfSession, currentDeltaF) for agent in _model.allAgents]
-    allActions = [action[0, 0] + _model.epsilon * np.random.normal(0.0, 0.4) for action in allActions]
+    allActions = [action[0, 0] + _model.epsilon.value * np.random.normal(0.0, 0.4) for action in allActions]
     return allActions
 
   @staticmethod
