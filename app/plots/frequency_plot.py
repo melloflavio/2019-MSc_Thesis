@@ -19,9 +19,9 @@ def plotFrequency(history: SystemHistory, figureNum=0):
   colorObservedFreq = COLOR_PALETTE[1]
 
   # Plot data
-  plt.plot(stepsSeries, nominalSeries, color=colorNominalFreq)
-  plt.plot(stepsSeries, frequencySeries, color=colorObservedFreq)
-  plt.legend(['Nominal', 'Observed'])
+  plt.plot(stepsSeries, nominalSeries, color=colorNominalFreq, label='Nominal')
+  plt.plot(stepsSeries, frequencySeries, color=colorObservedFreq, label='Observed')
+  plt.legend()
 
   plt.xlabel('Steps', fontsize=FONT_SIZES['AXIS_LABEL'])
   plt.ylabel('System Frequency (Hz)', fontsize=FONT_SIZES['AXIS_LABEL'])

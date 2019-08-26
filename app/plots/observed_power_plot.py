@@ -21,30 +21,24 @@ def plotObservedPower(history: SystemHistory, figureNum=0, shouldPlotAllLoads=Fa
   colorsIndividualNodes = COLOR_PALETTE[2:]
 
   # Plot total power/load data
-  plt.plot(stepsSeries, totalLoadSeries, color=colorTotalLoad)
-  plt.plot(stepsSeries, totalPowerSeries, color=colorTotalPower)
-  legendFields = ['Total Load', 'Total Power']
+  plt.plot(stepsSeries, totalLoadSeries, color=colorTotalLoad, label='Total Load')
+  plt.plot(stepsSeries, totalPowerSeries, color=colorTotalPower, label='Total Power')
 
   # Multiple scenarios involve a single load, so we make it optional to plot that single load
   if(shouldPlotAllLoads):
     for idx, loadId in enumerate(loads):
       # Since num loads is variable, colors may wrap around the palette
       loadColor = colorsIndividualNodes[idx % len(colorsIndividualNodes)]
-      loadLegend = loadId
       loadSeries = loads[loadId]
-      plt.plot(stepsSeries, loadSeries, color=loadColor, linestyle='--')
-      legendFields.append(loadLegend)
+      plt.plot(stepsSeries, loadSeries, color=loadColor, linestyle='--', label=f'{loadId}')
 
   for idx, generatorId in enumerate(generators):
     # Since num generators is variable, colors may wrap around the palette
     generatorColor = colorsIndividualNodes[idx % len(colorsIndividualNodes)]
-    generatorLegend = generatorId
     generatorSeries = generators[generatorId]
-    plt.plot(stepsSeries, generatorSeries, color=generatorColor)
-    legendFields.append(generatorLegend)
+    plt.plot(stepsSeries, generatorSeries, color=generatorColor, label=f'{generatorId}')
 
-
-  plt.legend(legendFields)
+  plt.legend()
   plt.xlabel('Steps', fontsize=FONT_SIZES['AXIS_LABEL'])
   plt.ylabel('Power (pu)', fontsize=FONT_SIZES['AXIS_LABEL'])
 
