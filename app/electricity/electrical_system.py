@@ -82,4 +82,6 @@ class ElectricalSystem:
       optimalCost = self.systemHistory.costOptimalCosts.get(id_)[-1]
       costDifferential = actualCost/optimalCost - 1
       allCostDifferentials[id_] = costDifferential
-    return allCostDifferentials
+
+    costDeviations = [abs(costDiff) for costDiff in allCostDifferentials.values()]
+    return sum(costDeviations)
