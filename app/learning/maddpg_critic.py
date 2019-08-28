@@ -8,19 +8,19 @@ class CriticMaddpg():
   def __init__(self, scope):
     # Number of trainable variables previously declared. Marks the point in which the variables
     # declared by this model reside in the tf.trainable_variables() list
-    tfVarBeginIdx = len(tf.trainable_variables())
+    tfVarBeginIdx = len(tf.compat.v1.trainable_variables())
 
     with tf.name_scope(scope):
 
       # Define the model (input-hidden layers-output)
-      self.state = tf.placeholder(shape=[None, 1], dtype=tf.float32, name='state') # inherent state (deltaFreq)
-      self.action = tf.placeholder(shape=[None, 1], dtype=tf.float32, name='action') # action taken by actor of the same agent
-      self.actionOthers = tf.placeholder(shape=[None, 1], dtype=tf.float32, name='actions_others') # actions taken by actors of other agents
+      self.state = tf.compat.v1.placeholder(shape=[None, 1], dtype=tf.float32, name='state') # inherent state (deltaFreq)
+      self.action = tf.compat.v1.placeholder(shape=[None, 1], dtype=tf.float32, name='action') # action taken by actor of the same agent
+      self.actionOthers = tf.compat.v1.placeholder(shape=[None, 1], dtype=tf.float32, name='actions_others') # actions taken by actors of other agents
       self.inputs = tf.concat([self.state, self.action, self.actionOthers], axis=1)
 
       # LSTM to encode temporal information
-      self.batchSize = tf.placeholder(dtype=tf.int32, shape=[], name='batch_size')   # batch size
-      self.traceLength = tf.placeholder(dtype=tf.int32, name='trace_length')           # trace lentgth
+      self.batchSize = tf.compat.v1.placeholder(dtype=tf.int32, shape=[], name='batch_size')   # batch size
+      self.traceLength = tf.compat.v1.placeholder(dtype=tf.int32, name='trace_length')           # trace lentgth
       rnnInput = tf.reshape(self.inputs, [self.batchSize, self.traceLength, 3])
 
       ltsmNumUnits = LearningParams().nnShape.layer_00_ltsm
@@ -40,14 +40,14 @@ class CriticMaddpg():
       self.Q = CriticMaddpg._buildMlp(rnn) # Critic output is the estimated Q value
 
       # Params relevant to this network
-      self.networkParams = tf.trainable_variables()[tfVarBeginIdx:]
+      self.networkParams = tf.compat.v1.trainable_variables()[tfVarBeginIdx:]
 
       # Obtained from the target network (double architecture)
-      self.targetQ = tf.placeholder(tf.float32,  [None,  1], name='target_q')
+      self.targetQ = tf.compat.v1.placeholder(tf.float32,  [None,  1], name='target_q')
 
       # Loss function and optimization of the critic
       lossFn = tf.reduce_mean(tf.square(self.targetQ-self.Q))
-      optimizer = tf.train.AdamOptimizer(1e-4)
+      optimizer = tf.compat.v1.train.AdamOptimizer(1e-4)
       self.updateFn = optimizer.minimize(lossFn)
 
       # Get the gradient for the actor
@@ -96,7 +96,7 @@ class CriticMaddpg():
           tf.multiply(params[i],  tau) + tf.multiply(self.networkParams[i],  1. - tau))
       self.updateNetworkParams[i] = assignAction
 
-  def getEstimatedQ(self, tfSession: tf.Session, criticIn: CriticEstimateInput) -> float:
+  def getEstimatedQ(self, tfSession: tf.compat.v1.Session, criticIn: CriticEstimateInput) -> float:
     estimatedQ = tfSession.run(
         self.Q,
         feed_dict={
@@ -111,7 +111,7 @@ class CriticMaddpg():
 
     return estimatedQ
 
-  def updateModel(self, tfSession: tf.Session, criticUpd: CriticUpdateInput):
+  def updateModel(self, tfSession: tf.compat.v1.Session, criticUpd: CriticUpdateInput):
     tfSession.run(
         self.updateFn,
         feed_dict={
@@ -125,7 +125,7 @@ class CriticMaddpg():
         }
       )
 
-  def calculateGradients(self, tfSession: tf.Session, inpt: CriticGradientInput):
+  def calculateGradients(self, tfSession: tf.compat.v1.Session, inpt: CriticGradientInput):
     gradients = tfSession.run(
       self.criticGradientsFn,
       feed_dict={
@@ -140,5 +140,5 @@ class CriticMaddpg():
     gradients = gradients[0]
     return gradients
 
-  def updateNetParams(self, tfSession: tf.Session):
+  def updateNetParams(self, tfSession: tf.compat.v1.Session):
     tfSession.run(self.updateNetworkParams)

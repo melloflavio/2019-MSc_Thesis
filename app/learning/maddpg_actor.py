@@ -10,16 +10,16 @@ class ActorMaddpg():
   def __init__(self, scope):
     # Number of trainable variables previously declared. Marks the point in which the variables
     # declared by this model reside in the tf.trainable_variables() list
-    tfVarBeginIdx = len(tf.trainable_variables())
+    tfVarBeginIdx = len(tf.compat.v1.trainable_variables())
 
     with tf.name_scope(scope):
 
       # Define the model (input-hidden layers-output)
-      self.inputs = tf.placeholder(shape=[None, 1], dtype=tf.float32, name='inputs')
+      self.inputs = tf.compat.v1.placeholder(shape=[None, 1], dtype=tf.float32, name='inputs')
 
       # LSTM to encode temporal information
-      self.batchSize = tf.placeholder(dtype=tf.int32, shape=[], name='batch_size')   # batch size
-      self.traceLength = tf.placeholder(dtype=tf.int32, name='trace_length')           # trace lentgth
+      self.batchSize = tf.compat.v1.placeholder(dtype=tf.int32, shape=[], name='batch_size')   # batch size
+      self.traceLength = tf.compat.v1.placeholder(dtype=tf.int32, name='trace_length')           # trace lentgth
       rnnInputs = tf.reshape(self.inputs, [self.batchSize, self.traceLength, 1])
 
       ltsmNumUnits = LearningParams().nnShape.layer_00_ltsm
@@ -39,20 +39,20 @@ class ActorMaddpg():
       self.action = ActorMaddpg._buildMlp(rnn)
 
       # Params relevant to this network
-      self.networkParams = tf.trainable_variables()[tfVarBeginIdx:]
+      self.networkParams = tf.compat.v1.trainable_variables()[tfVarBeginIdx:]
 
       # This gradient will be provided by the critic network
-      self.criticGradient = tf.placeholder(dtype=tf.float32, shape=[None, 1], name='critic_gradient')
+      self.criticGradient = tf.compat.v1.placeholder(dtype=tf.float32, shape=[None, 1], name='critic_gradient')
 
       # Take the gradients and combine
       unnormalizedActorGradients = tf.gradients(
                   self.action, self.networkParams, -self.criticGradient)
 
       # Normalize dividing by the size of the batch (gradients sum all over the batch)
-      self.actorGradients = list(map(lambda x: tf.div(x, _BATCH_SIZE), unnormalizedActorGradients))
+      self.actorGradients = list(map(lambda x: tf.divide(x, _BATCH_SIZE), unnormalizedActorGradients))
 
       # Optimization of the actor
-      self.optimizer = tf.train.AdamOptimizer(1e-4)
+      self.optimizer = tf.compat.v1.train.AdamOptimizer(1e-4)
       self.upd = self.optimizer.apply_gradients(zip(self.actorGradients, self.networkParams))
 
   @staticmethod
@@ -100,7 +100,7 @@ class ActorMaddpg():
           tf.multiply(params[i], tau) + tf.multiply(self.networkParams[i], 1. - tau))
       self.updateNetworkParams[i] = assignAction
 
-  def getAction(self, tfSession: tf.Session, actionIn: ActionInput) -> ActionOutput:
+  def getAction(self, tfSession: tf.compat.v1.Session, actionIn: ActionInput) -> ActionOutput:
     action, nextState = tfSession.run(
         [self.action, self.rnnState],
         feed_dict={
@@ -113,7 +113,7 @@ class ActorMaddpg():
 
     return (action, nextState)
 
-  def getActionOnly(self, tfSession: tf.Session, actionIn: ActionInput) -> ActionOutput:
+  def getActionOnly(self, tfSession: tf.compat.v1.Session, actionIn: ActionInput) -> ActionOutput:
     action = tfSession.run(
         self.action,
         feed_dict={
@@ -126,7 +126,7 @@ class ActorMaddpg():
 
     return action
 
-  def updateModel(self, tfSession: tf.Session, inpt: ActorUpdateInput):
+  def updateModel(self, tfSession: tf.compat.v1.Session, inpt: ActorUpdateInput):
     tfSession.run(
       self.upd,
       feed_dict={
@@ -138,5 +138,5 @@ class ActorMaddpg():
         }
     )
 
-  def updateNetParams(self, tfSession: tf.Session):
+  def updateNetParams(self, tfSession: tf.compat.v1.Session):
     tfSession.run(self.updateNetworkParams)

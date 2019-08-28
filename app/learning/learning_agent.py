@@ -34,7 +34,7 @@ class Agent():
   def getId(self):
     return self._id
 
-  def runActorAction(self, tfSession: tf.Session, currentDeltaF):
+  def runActorAction(self, tfSession: tf.compat.v1.Session, currentDeltaF):
     (action, nextState) = self.actor.getAction(
         tfSession=tfSession,
         actionIn=ActionInput(
@@ -49,7 +49,7 @@ class Agent():
 
     return action
 
-  def peekActorAction(self, tfSession: tf.Session, currentDeltaF, ltsmState):
+  def peekActorAction(self, tfSession: tf.compat.v1.Session, currentDeltaF, ltsmState):
     action = self.actor.getActionOnly(
         tfSession=tfSession,
         actionIn=ActionInput(
@@ -62,7 +62,7 @@ class Agent():
 
     return action
 
-  def peekActorTargetAction(self, tfSession: tf.Session, state, ltsmState):
+  def peekActorTargetAction(self, tfSession: tf.compat.v1.Session, state, ltsmState):
     action = self.actorTarget.getActionOnly(
         tfSession=tfSession,
         actionIn=ActionInput(
@@ -75,7 +75,7 @@ class Agent():
 
     return action
 
-  def getTargetCriticEstimatedQ(self, tfSession: tf.Session, criticIn: CriticEstimateInput):
+  def getTargetCriticEstimatedQ(self, tfSession: tf.compat.v1.Session, criticIn: CriticEstimateInput):
     estimatedQ = self.criticTarget.getEstimatedQ(
         tfSession=tfSession,
         criticIn=criticIn,
@@ -83,22 +83,22 @@ class Agent():
 
     return estimatedQ
 
-  def updateCritic(self, tfSession: tf.Session, criticUpd: CriticUpdateInput):
+  def updateCritic(self, tfSession: tf.compat.v1.Session, criticUpd: CriticUpdateInput):
     self.critic.updateModel(
         tfSession=tfSession,
         criticUpd=criticUpd,
     )
 
-  def calculateCriticGradients(self, tfSession: tf.Session, inpt: CriticGradientInput):
+  def calculateCriticGradients(self, tfSession: tf.compat.v1.Session, inpt: CriticGradientInput):
     gradients = self.critic.calculateGradients(
         tfSession=tfSession,
         inpt=inpt,
     )
     return gradients
 
-  def updateActor(self, tfSession: tf.Session, inpt: ActorUpdateInput):
+  def updateActor(self, tfSession: tf.compat.v1.Session, inpt: ActorUpdateInput):
     self.actor.updateModel(tfSession, inpt)
 
-  def updateTargetModels(self, tfSession: tf.Session):
+  def updateTargetModels(self, tfSession: tf.compat.v1.Session):
     self.actorTarget.updateNetParams(tfSession)
     self.criticTarget.updateNetParams(tfSession)

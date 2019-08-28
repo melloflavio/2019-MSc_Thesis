@@ -11,7 +11,7 @@ class ModelTester():
   @staticmethod
   def testAgents(electricalSystemSpecs: ElectricalSystemSpecs, modelName: str, stepsToTest: int = 500):
     # Clear existing graph
-    tf.reset_default_graph()
+    tf.compat.v1.reset_default_graph()
 
     # Recreate the testing environment/TF variable placeholders
     elecSystem = ElectricalSystemFactory.create(electricalSystemSpecs)
@@ -19,11 +19,11 @@ class ModelTester():
 
     allRewards = [] # Used to plot reward history
 
-    tfSaver = tf.train.Saver() # Saver obj used to restore session
+    tfSaver = tf.compat.v1.train.Saver() # Saver obj used to restore session
     modelPath = getPathForModel(modelName)
 
     # Main TF loop
-    with tf.Session() as tfSession:
+    with tf.compat.v1.Session() as tfSession:
       tfSaver.restore(tfSession, modelPath)
 
       # Test for 1000 steps

@@ -19,7 +19,7 @@ class ModelTrainer():
   @staticmethod
   def trainAgents(electricalSystemSpecs: ElectricalSystemSpecs, modelName: str):
     # Clears existing TF graph
-    tf.reset_default_graph()
+    tf.compat.v1.reset_default_graph()
 
     # Initialize Learning State
     LearningState().initData(
@@ -38,17 +38,17 @@ class ModelTrainer():
     _model = LearningState().model
     _params = LearningParams()
 
-    tfInit = tf.global_variables_initializer()
+    tfInit = tf.compat.v1.global_variables_initializer()
 
     # Main TF loop
-    with tf.Session() as tfSession:
+    with tf.compat.v1.Session() as tfSession:
       tfSession.run(tfInit)
 
       print(f'Training model: {modelName} - ', end='')
       for episodeIdx in range(_params.numEpisodes):
 
         # Print progress every 5%
-        if (episodeIdx%(_params.numEpisodes/100) == 0):
+        if (episodeIdx%(_params.numEpisodes*5/100) == 0):
           progressPrcent = round((episodeIdx/_params.numEpisodes)*100)
           print(f'{progressPrcent}% ', end='')
 
@@ -81,7 +81,7 @@ class ModelTrainer():
     return _model.allAgents
 
   @staticmethod
-  def executeStep(tfSession: tf.Session):
+  def executeStep(tfSession: tf.compat.v1.Session):
     _episode = LearningState().episode
     # Get all agents' actions
     deltaFreqOriginal = _episode.electricalSystem.getCurrentDeltaF()
@@ -139,7 +139,7 @@ class ModelTrainer():
     return emptyState
 
   @staticmethod
-  def runUpdateCycle(tfSession: tf.Session):
+  def runUpdateCycle(tfSession: tf.compat.v1.Session):
     """Updates all agents' models using experiences previously stored in the experience buffer"""
     # Sample the experience batch (mini batch)
     xpBatch = ModelTrainer._04_sampleTrainingExperienceMiniBatch()
@@ -166,10 +166,10 @@ class ModelTrainer():
     ModelTrainer._11_updateTargetModels(tfSession)
 
   @staticmethod
-  def saveModels(tfSession: tf.Session, modelName: str):
+  def saveModels(tfSession: tf.compat.v1.Session, modelName: str):
     #Save TF Models
     modelPath = getPathForModel(modelName)
-    saver = tf.train.Saver()
+    saver = tf.compat.v1.train.Saver()
     savedPath = saver.save(tfSession, modelPath)
     print(f'Model saved in path: {savedPath}')
 
@@ -182,7 +182,7 @@ class ModelTrainer():
 
 
   @staticmethod
-  def _01_calculateAllActorActions(tfSession: tf.Session, currentDeltaF):
+  def _01_calculateAllActorActions(tfSession: tf.compat.v1.Session, currentDeltaF):
     _model = LearningState().model
     allActions = [agent.runActorAction(tfSession, currentDeltaF) for agent in _model.allAgents]
     allActions = [action[0, 0] + _model.epsilon.value * np.random.normal(0.0, 0.4) for action in allActions]
@@ -219,7 +219,7 @@ class ModelTrainer():
     return xpBatch
 
   @staticmethod
-  def _05_calculateTargetActionsForBatch(tfSession: tf.Session, xpBatch: XpMiniBatch):
+  def _05_calculateTargetActionsForBatch(tfSession: tf.compat.v1.Session, xpBatch: XpMiniBatch):
     allAgents = LearningState().model.allAgents
     allTargetActions = [
       agent.peekActorTargetAction(
@@ -233,7 +233,7 @@ class ModelTrainer():
     return allTargetActions
 
   @staticmethod
-  def _06_calculateTargetQvalsForBatch(tfSession: tf.Session, xpBatch: XpMiniBatch, allTargetActions):
+  def _06_calculateTargetQvalsForBatch(tfSession: tf.compat.v1.Session, xpBatch: XpMiniBatch, allTargetActions):
     allAgents = LearningState().model.allAgents
     batchSize = LearningParams().batchSize
     traceLength = LearningParams().traceLength
@@ -263,7 +263,7 @@ class ModelTrainer():
     return allCriticTargets
 
   @staticmethod
-  def _07_updateCriticModelsForBatch(tfSession: tf.Session, xpBatch: XpMiniBatch, allCriticTargets):
+  def _07_updateCriticModelsForBatch(tfSession: tf.compat.v1.Session, xpBatch: XpMiniBatch, allCriticTargets):
     allAgents = LearningState().model.allAgents
     batchSize = LearningParams().batchSize
     traceLength = LearningParams().traceLength
@@ -287,7 +287,7 @@ class ModelTrainer():
       )
 
   @staticmethod
-  def _08_calculateActorActionsForBatch(tfSession: tf.Session, xpBatch: XpMiniBatch):
+  def _08_calculateActorActionsForBatch(tfSession: tf.compat.v1.Session, xpBatch: XpMiniBatch):
     allAgents = LearningState().model.allAgents
 
     allNewActions = [agent.peekActorAction(
@@ -299,7 +299,7 @@ class ModelTrainer():
     return allNewActions
 
   @staticmethod
-  def _09_calculateCriticGradientsForBatch(tfSession: tf.Session, xpBatch: XpMiniBatch, allNewActions):
+  def _09_calculateCriticGradientsForBatch(tfSession: tf.compat.v1.Session, xpBatch: XpMiniBatch, allNewActions):
     allAgents = LearningState().model.allAgents
     batchSize = LearningParams().batchSize
     traceLength = LearningParams().traceLength
@@ -324,7 +324,7 @@ class ModelTrainer():
     return allGradients
 
   @staticmethod
-  def _10_updateActorModelsForBatch(tfSession: tf.Session, xpBatch: XpMiniBatch, allGradients):
+  def _10_updateActorModelsForBatch(tfSession: tf.compat.v1.Session, xpBatch: XpMiniBatch, allGradients):
     allAgents = LearningState().model.allAgents
     batchSize = LearningParams().batchSize
     traceLength = LearningParams().traceLength
