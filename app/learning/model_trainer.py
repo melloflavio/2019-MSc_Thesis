@@ -17,20 +17,19 @@ from .epsilon import Epsilon
 
 class ModelTrainer():
   @staticmethod
-  def trainAgents(electricalSystemSpecs: ElectricalSystemSpecs, modelName: str):
+  def trainAgents():
     # Clears existing TF graph
     tf.compat.v1.reset_default_graph()
 
     # Initialize Learning State
     LearningState().initData(
-        allAgents=[Agent(generator.id_) for generator in electricalSystemSpecs.generators],
+        allAgents=[Agent(generator.id_) for generator in LearningParams().electricalSystemSpecs.generators],
         xpBuffer=ExperienceBuffer(),
         epsilon=Epsilon(
             specs=LearningParams().epsilonSpecs,
             numEpisodes=LearningParams().numEpisodes,
             stepsPerEpisode=LearningParams().maxSteps,
         ),
-        electricalSystemSpecs=electricalSystemSpecs,
     )
 
     # alias for quicker access
@@ -44,7 +43,7 @@ class ModelTrainer():
     with tf.compat.v1.Session() as tfSession:
       tfSession.run(tfInit)
 
-      print(f'Training model: {modelName} - ', end='')
+      print(f'Training model: {LearningParams().modelName} - ', end='')
       for episodeIdx in range(_params.numEpisodes):
 
         # Print progress every 5%
@@ -77,7 +76,7 @@ class ModelTrainer():
             _model.xpBuffer.add(_episode.experiences)
 
       # Save complete model in form of tensorflow session
-      ModelTrainer.saveModels(tfSession, modelName)
+      ModelTrainer.saveModels(tfSession)
     return _model.allAgents
 
   @staticmethod
@@ -117,7 +116,7 @@ class ModelTrainer():
     LearningState().episode.experiences = []
 
     # Instantiate new slightly randomized electrical system
-    specs = LearningState().model.electricalSystemSpecs
+    specs = LearningParams().electricalSystemSpecs
     LearningState().episode.electricalSystem = ElectricalSystemFactory.create(specs)
 
     # Store a snapshop od the rewards every 10%
@@ -166,7 +165,8 @@ class ModelTrainer():
     ModelTrainer._11_updateTargetModels(tfSession)
 
   @staticmethod
-  def saveModels(tfSession: tf.compat.v1.Session, modelName: str):
+  def saveModels(tfSession: tf.compat.v1.Session):
+    modelName = LearningParams().modelName
     #Save TF Models
     modelPath = getPathForModel(modelName)
     saver = tf.compat.v1.train.Saver()

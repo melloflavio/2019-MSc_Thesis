@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from dataclasses_json import dataclass_json
 from singleton_decorator import singleton
 
-from dto import EpsilonSpecs
+from dto import ElectricalSystemSpecs, EpsilonSpecs
 
 @dataclass_json
 @dataclass
@@ -17,6 +17,7 @@ class NeuralNetworkShape:
 @dataclass_json
 @dataclass
 class LearningParams:
+  electricalSystemSpecs: ElectricalSystemSpecs
   gamma: float    = 0.9   # Gamma (Discount)
   tau: float      = 0.001 # Tau
   epsilonSpecs: EpsilonSpecs = EpsilonSpecs( # Epsilon explore/exploit control
@@ -24,8 +25,8 @@ class LearningParams:
       thresholdValue = 0.5, # Value at which decay change would happen
       finalValue = 0.0001, # Value at the end of the experiment
   )
-  numEpisodes: int   = 50000 # Number of learning episodes to run
-  maxSteps: int      = 100   # Number of steps per learning episode
+  numEpisodes: int   = 1000 # Number of learning episodes to run
+  maxSteps: int      = 200   # Number of steps per learning episode
   traceLength: int  = 8     # Number of steps each sampled episode should contain
   batchSize: int  = 4     # Number of episodes sampled from experience buffer
   nnShape: NeuralNetworkShape = NeuralNetworkShape(
@@ -35,3 +36,4 @@ class LearningParams:
       layer_03_mlp_03 = 50,   # MLP Layer 3
       layer_04_mlp_04 = 1,   # MLP Layer 4 (output layer)
   )
+  modelName: str = 'DefaultModel'
