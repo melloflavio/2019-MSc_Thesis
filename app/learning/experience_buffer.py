@@ -1,11 +1,12 @@
 from typing import List, Dict, NamedTuple
 import numpy as np
+import pandas as pd
 
 from .experience_buffer_dto import XpMiniBatch
 
 class LearningExperience(NamedTuple):
-  originalState: float
-  destinationState: float
+  originalState: Dict[str, float]
+  destinationState: Dict[str, float]
   actions: Dict[str, float]
   reward: float
 
@@ -40,19 +41,25 @@ class ExperienceBuffer():
     return traceSteps
 
   def _formatSampleTraces(self, sampledTraces: List[List[LearningExperience]]):
-    originalStates: List[float] = [[xp.originalState] for trace in sampledTraces for xp in trace]
-    destinationStates: List[float] = [[xp.destinationState] for trace in sampledTraces for xp in trace]
+    originalStates: List[float] = self.consolidateDicts([xp.originalState for trace in sampledTraces for xp in trace])
+    destinationStates: List[float] = self.consolidateDicts([xp.destinationState for trace in sampledTraces for xp in trace])
+
     rewards: List[float] = [[xp.reward] for trace in sampledTraces for xp in trace]
 
-    # Group actions by agent. i.e. Transform a list of dictionaries into a dictionary of lists
-    allActions = [xp.actions for trace in sampledTraces for xp in trace] # Extract all actions from the sampled traces
-    allAgentIds = allActions[0].keys()               # Get all agent ids from the first trace found (all steps should have the same actors, otherwise the consolidated actions would be misaligned)
-    groupedActions = {agentId: [[action.get(agentId)] for action in allActions] for agentId in allAgentIds} # Create new dict, each key is the agentId, values are the list of actions said agent has taken in the trace
+    allActions = self.consolidateDicts([xp.actions for trace in sampledTraces for xp in trace]) # Extract all actions from the sampled traces
 
     xpMiniBatch = XpMiniBatch(
         originalStates=originalStates,
         destinationStates=destinationStates,
-        groupedActions=groupedActions,
+        allActions=allActions,
         rewards=rewards,
       )
     return xpMiniBatch
+
+  def consolidateDicts(self, dictList: List[Dict[str, float]]):
+    '''Consolidates a list of dictionaries into a single dictionary with lists for each key'''
+    # Turns [{a:1, b:2}, {a:3, b:4}, {a:5, b:6}]
+    # into {a:[1, 3, 5], b:[2, 4, 6]}
+    df = pd.DataFrame(dictList)
+    df = df.applymap(lambda x: [x]) # Wrap individual values in arrays
+    return df.to_dict(orient='list')

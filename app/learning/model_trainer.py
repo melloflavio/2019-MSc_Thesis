@@ -202,8 +202,8 @@ class ModelTrainer():
     agentIds = [agent.getId() for agent in LearningState().model.allAgents]
     LearningState().episode.cummReward += earnedReward
     experience = LearningExperience(
-        originalState     = originalDeltaF,
-        destinationState  = newDeltaF,
+        originalState     = {agentId: originalDeltaF for agentId in agentIds},
+        destinationState  = {agentId: newDeltaF for agentId in agentIds},
         actions           = {agentId: action for (agentId, action) in zip(agentIds, allActions)},
         reward            = earnedReward,
     )
@@ -224,10 +224,9 @@ class ModelTrainer():
     allTargetActions = [
       agent.peekActorTargetAction(
           tfSession=tfSession,
-          state=xpBatch.destinationStates,
+          state=xpBatch.destinationStates.get(agent.getId()),
           ltsmState=ModelTrainer.getEmptyLtsmState(),
         )
-        # [0] # method returns tuple (action, nextState) here we only want the action
       for agent in allAgents]
 
     return allTargetActions
@@ -247,7 +246,7 @@ class ModelTrainer():
       targetQ = agent.getTargetCriticEstimatedQ(
           tfSession=tfSession,
           criticIn=CriticEstimateInput(
-              state=xpBatch.destinationStates,
+              state=xpBatch.destinationStates.get(agent.getId()),
               actionActor=targetAction,
               actionsOthers=otherTargetActions,
               ltsmInternalState=ModelTrainer.getEmptyLtsmState(),
@@ -269,14 +268,14 @@ class ModelTrainer():
     traceLength = LearningParams().traceLength
 
     for agentIdx, agent in enumerate(allAgents):
-      agentActions = xpBatch.groupedActions.get(agent.getId())
-      actionsOthers = {agentId:xpBatch.groupedActions[agentId] for agentId in xpBatch.groupedActions.keys() if agentId != agent.getId()} # Remove this agent from list
+      agentActions = xpBatch.allActions.get(agent.getId())
+      actionsOthers = {agentId:xpBatch.allActions[agentId] for agentId in xpBatch.allActions.keys() if agentId != agent.getId()} # Remove this agent from list
       actionsOthers = [action for actionList in actionsOthers.values() for action in actionList] # Stack all actions in a single array
       targetQs = allCriticTargets[agentIdx]
       agent.updateCritic(
           tfSession=tfSession,
           criticUpd=CriticUpdateInput(
-              state=xpBatch.originalStates,
+              state=xpBatch.originalStates.get(agent.getId()),
               actionActor=agentActions,
               actionsOthers=actionsOthers,
               targetQs=targetQs,
@@ -292,7 +291,7 @@ class ModelTrainer():
 
     allNewActions = [agent.peekActorAction(
                 tfSession=tfSession,
-                currentDeltaF=xpBatch.originalStates,
+                currentDeltaF=xpBatch.originalStates.get(agent.getId()),
                 ltsmState=ModelTrainer.getEmptyLtsmState(),
               ) for agent in allAgents]
 
@@ -312,7 +311,7 @@ class ModelTrainer():
       gradient = agent.calculateCriticGradients(
           tfSession=tfSession,
           inpt=CriticGradientInput(
-              state=xpBatch.originalStates,
+              state=xpBatch.originalStates.get(agent.getId()),
               actionActor=agentActions,
               actionsOthers=actionsOthers,
               ltsmInternalState=ModelTrainer.getEmptyLtsmState(),
@@ -333,7 +332,7 @@ class ModelTrainer():
       agent.updateActor(
           tfSession=tfSession,
           inpt=ActorUpdateInput(
-              state=xpBatch.originalStates,
+              state=xpBatch.originalStates.get(agent.getId()),
               gradients=allGradients[agentIdx],
               ltsmInternalState=ModelTrainer.getEmptyLtsmState(),
               batchSize=batchSize,

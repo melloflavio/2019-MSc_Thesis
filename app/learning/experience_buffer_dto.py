@@ -5,5 +5,5 @@ from dataclasses import dataclass
 class XpMiniBatch:
   originalStates: List[List[float]]
   destinationStates: List[List[float]]
-  groupedActions: Dict[str, List[List[float]]]
+  allActions: Dict[str, List[List[float]]]
   rewards: List[List[float]]
