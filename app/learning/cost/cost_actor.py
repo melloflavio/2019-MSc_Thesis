@@ -1,7 +1,7 @@
 import tensorflow as tf
 
-from .actor_dto import ActionInput, ActionOutput, ActorUpdateInput
-from .learning_params import LearningParams
+from ..actor_dto import ActionInput, ActionOutput, ActorUpdateInput
+from ..learning_params import LearningParams
 
 _BATCH_SIZE = 32
 

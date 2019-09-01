@@ -7,13 +7,13 @@ from dto import ElectricalSystemSpecs, NodePowerUpdate
 from models import getPathForModel, getPathForParams
 
 from .cost_learning_agent import CostAgent as Agent
-from .learning_state import LearningState
-from .learning_params import LearningParams
-from .experience_buffer import ExperienceBuffer, LearningExperience
-from .experience_buffer_dto import XpMiniBatch
-from .critic_dto import CriticEstimateInput, CriticUpdateInput, CriticGradientInput
-from .actor_dto import ActorUpdateInput
-from .epsilon import Epsilon
+from ..learning_state import LearningState
+from ..learning_params import LearningParams
+from ..experience_buffer import ExperienceBuffer, LearningExperience
+from ..experience_buffer_dto import XpMiniBatch
+from ..critic_dto import CriticEstimateInput, CriticUpdateInput, CriticGradientInput
+from ..actor_dto import ActorUpdateInput
+from ..epsilon import Epsilon
 
 class CostModelTrainer():
   @staticmethod

@@ -1,7 +1,7 @@
 import tensorflow as tf
 
-from .learning_params import LearningParams
-from .critic_dto import CriticEstimateInput, CriticUpdateInput, CriticGradientInput
+from ..learning_params import LearningParams
+from ..critic_dto import CriticEstimateInput, CriticUpdateInput, CriticGradientInput
 
 class CostCriticMaddpg():
   """ Critic network that estimates the value of the maddpg algorithm"""
