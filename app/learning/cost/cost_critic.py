@@ -3,7 +3,7 @@ import tensorflow as tf
 from .learning_params import LearningParams
 from .critic_dto import CriticEstimateInput, CriticUpdateInput, CriticGradientInput
 
-class CriticMaddpg():
+class CostCriticMaddpg():
   """ Critic network that estimates the value of the maddpg algorithm"""
   def __init__(self, scope):
     # Number of trainable variables previously declared. Marks the point in which the variables
@@ -13,10 +13,11 @@ class CriticMaddpg():
     with tf.name_scope(scope):
 
       # Define the model (input-hidden layers-output)
-      self.state = tf.compat.v1.placeholder(shape=[None, 1], dtype=tf.float32, name='state') # inherent state (deltaFreq)
+      self.genOutput = tf.compat.v1.placeholder(shape=[None, 1], dtype=tf.float32, name='gen_output')
+      self.totalOutput = tf.compat.v1.placeholder(shape=[None, 1], dtype=tf.float32, name='total_output')
       self.action = tf.compat.v1.placeholder(shape=[None, 1], dtype=tf.float32, name='action') # action taken by actor of the same agent
       self.actionOthers = tf.compat.v1.placeholder(shape=[None, 1], dtype=tf.float32, name='actions_others') # actions taken by actors of other agents
-      self.inputs = tf.concat([self.state, self.action, self.actionOthers], axis=1)
+      self.inputs = tf.concat([self.genOutput, self.totalOutput, self.action, self.actionOthers], axis=1)
 
       # LSTM to encode temporal information
       numInputVars = self.inputs.get_shape()[1]
@@ -38,7 +39,7 @@ class CriticMaddpg():
       rnn = tf.reshape(rnn, shape=[-1, ltsmNumUnits])
 
       # Stack MLP on top of LSTM
-      self.Q = CriticMaddpg._buildMlp(rnn) # Critic output is the estimated Q value
+      self.Q = CostCriticMaddpg._buildMlp(rnn) # Critic output is the estimated Q value
 
       # Params relevant to this network
       self.networkParams = tf.compat.v1.trainable_variables()[tfVarBeginIdx:]
@@ -98,10 +99,19 @@ class CriticMaddpg():
       self.updateNetworkParams[i] = assignAction
 
   def getEstimatedQ(self, tfSession: tf.compat.v1.Session, criticIn: CriticEstimateInput) -> float:
+    # stateDic = {
+    #   genOutput
+    #   totalOutput
+    # }
+    # Unravel state into individual components
+    genOutput = [[s[0]['genOutput']]  for s in criticIn.state]
+    totalOutput = [[s[0]['totalOutput']] for s in criticIn.state]
+
     estimatedQ = tfSession.run(
         self.Q,
         feed_dict={
-            self.state: criticIn.state,
+            self.genOutput: genOutput,
+            self.totalOutput: totalOutput,
             self.action: criticIn.actionActor,
             self.actionOthers: criticIn.actionsOthers,
             self.traceLength: criticIn.traceLength,
@@ -113,10 +123,15 @@ class CriticMaddpg():
     return estimatedQ
 
   def updateModel(self, tfSession: tf.compat.v1.Session, criticUpd: CriticUpdateInput):
+    # Unravel state into individual components
+    genOutput = [[s[0]['genOutput']]  for s in criticUpd.state]
+    totalOutput = [[s[0]['totalOutput']] for s in criticUpd.state]
+
     tfSession.run(
         self.updateFn,
         feed_dict={
-            self.state: criticUpd.state,
+            self.genOutput: genOutput,
+            self.totalOutput: totalOutput,
             self.action: criticUpd.actionActor,
             self.actionOthers: criticUpd.actionsOthers,
             self.targetQ: criticUpd.targetQs,
@@ -127,10 +142,15 @@ class CriticMaddpg():
       )
 
   def calculateGradients(self, tfSession: tf.compat.v1.Session, inpt: CriticGradientInput):
+
+    genOutput = [[s[0]['genOutput']]  for s in inpt.state]
+    totalOutput = [[s[0]['totalOutput']] for s in inpt.state]
+
     gradients = tfSession.run(
       self.criticGradientsFn,
       feed_dict={
-            self.state: inpt.state,
+            self.genOutput: genOutput,
+            self.totalOutput: totalOutput,
             self.action: inpt.actionActor,
             self.actionOthers: inpt.actionsOthers,
             self.traceLength: inpt.traceLength,

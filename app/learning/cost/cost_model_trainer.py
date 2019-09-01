@@ -6,7 +6,7 @@ from electricity import ElectricalSystemFactory
 from dto import ElectricalSystemSpecs, NodePowerUpdate
 from models import getPathForModel, getPathForParams
 
-from .learning_agent import Agent
+from .cost_learning_agent import CostAgent as Agent
 from .learning_state import LearningState
 from .learning_params import LearningParams
 from .experience_buffer import ExperienceBuffer, LearningExperience
@@ -15,7 +15,7 @@ from .critic_dto import CriticEstimateInput, CriticUpdateInput, CriticGradientIn
 from .actor_dto import ActorUpdateInput
 from .epsilon import Epsilon
 
-class ModelTrainer():
+class CostModelTrainer():
   @staticmethod
   def trainAgents():
     # Clears existing TF graph
@@ -52,16 +52,16 @@ class ModelTrainer():
           print(f'{progressPrcent}% ', end='')
 
         # Clear values regarding episodes
-        ModelTrainer.resetEpisodeState(episodeIdx)
+        CostModelTrainer.resetEpisodeState(episodeIdx)
 
         for stepIdx in range(_params.maxSteps):
 
-          experience = ModelTrainer.executeStep(tfSession)
+          experience = CostModelTrainer.executeStep(tfSession)
           # print(f'e{episodeIdx}s{stepIdx}: {json.dumps(experience._asdict(), indent=2)}')
 
           # Update the model
-          if (ModelTrainer.shouldUpdateModels(stepIdx)):
-            ModelTrainer.runUpdateCycle(tfSession)
+          if (CostModelTrainer.shouldUpdateModels(stepIdx)):
+            CostModelTrainer.runUpdateCycle(tfSession)
 
           # Update epsilom
           _model.epsilon.decay()
@@ -77,24 +77,32 @@ class ModelTrainer():
 
       # Save complete model in form of tensorflow session
       print('100%')
-      ModelTrainer.saveModels(tfSession)
+      CostModelTrainer.saveModels(tfSession)
     return _model.allAgents
 
   @staticmethod
   def executeStep(tfSession: tf.compat.v1.Session):
     _episode = LearningState().episode
     # Get all agents' actions
-    deltaFreqOriginal = _episode.electricalSystem.getCurrentDeltaF()
-    allActions = ModelTrainer._01_calculateAllActorActions(tfSession, deltaFreqOriginal)
+    # deltaFreqOriginal = _episode.electricalSystem.getCurrentDeltaF()
+    generatorsOutputsOrigin = _episode.electricalSystem.getGeneratorsOutputs()
+    totalOutputOrigin = sum(generatorsOutputsOrigin.values())
+    allStatesOrigin = {actorId: {'genOutput': output, 'totalOutput':totalOutputOrigin} for actorId, output in generatorsOutputsOrigin.items()}
+    allActions = CostModelTrainer._01_calculateAllActorActions(tfSession, allStatesOrigin)
 
     # Execute agents'actions (i.e. update the generators' power output)
-    ModelTrainer._02_executeAllActorActions(allActions)
+    CostModelTrainer._02_executeAllActorActions(allActions)
 
     # Calculate the earned reward
-    deltaFreqNew = _episode.electricalSystem.getCurrentDeltaF()
-    earnedReward = 2**(10-abs(deltaFreqNew)) # TODO Calculate reward according to a given strategy
+    # deltaFreqNew = _episode.electricalSystem.getCurrentDeltaF()
+    generatorsOutputsDestination = _episode.electricalSystem.getGeneratorsOutputs()
+    totalOutputDestination = sum(generatorsOutputsDestination.values())
+    allStatesDestination = {actorId: {'genOutput': output, 'totalOutput':totalOutputDestination} for actorId, output in generatorsOutputsDestination.items()}
 
-    experience = ModelTrainer._03_storeEpisodeExperience(deltaFreqOriginal, deltaFreqNew, allActions, earnedReward)
+    costDifferential = _episode.electricalSystem.getCostOptimalDiferential()
+    earnedReward = 2**(10-abs(costDifferential)) # TODO Calculate reward according to a given strategy
+
+    experience = CostModelTrainer._03_storeEpisodeExperience(allStatesOrigin, allStatesDestination, allActions, earnedReward)
     return experience
 
   @staticmethod
@@ -142,28 +150,28 @@ class ModelTrainer():
   def runUpdateCycle(tfSession: tf.compat.v1.Session):
     """Updates all agents' models using experiences previously stored in the experience buffer"""
     # Sample the experience batch (mini batch)
-    xpBatch = ModelTrainer._04_sampleTrainingExperienceMiniBatch()
+    xpBatch = CostModelTrainer._04_sampleTrainingExperienceMiniBatch()
 
     # Get Target Actors' Actions
-    allTargetActions = ModelTrainer._05_calculateTargetActionsForBatch(tfSession, xpBatch)
+    allTargetActions = CostModelTrainer._05_calculateTargetActionsForBatch(tfSession, xpBatch)
 
     # Get Target Critics' Q Estimations
-    allCriticTargets = ModelTrainer._06_calculateTargetQvalsForBatch(tfSession, xpBatch, allTargetActions)
+    allCriticTargets = CostModelTrainer._06_calculateTargetQvalsForBatch(tfSession, xpBatch, allTargetActions)
 
     # Update the critic networks with the new Q's
-    ModelTrainer._07_updateCriticModelsForBatch(tfSession, xpBatch, allCriticTargets)
+    CostModelTrainer._07_updateCriticModelsForBatch(tfSession, xpBatch, allCriticTargets)
 
     # Calculate actions for all actors
-    allNewActions = ModelTrainer._08_calculateActorActionsForBatch(tfSession, xpBatch)
+    allNewActions = CostModelTrainer._08_calculateActorActionsForBatch(tfSession, xpBatch)
 
     # Calculate the critic's gradients from the estimated actions
-    allGradients = ModelTrainer._09_calculateCriticGradientsForBatch(tfSession, xpBatch, allNewActions)
+    allGradients = CostModelTrainer._09_calculateCriticGradientsForBatch(tfSession, xpBatch, allNewActions)
 
     # Update the actor models with the gradients calculated by the critics
-    ModelTrainer._10_updateActorModelsForBatch(tfSession, xpBatch, allGradients)
+    CostModelTrainer._10_updateActorModelsForBatch(tfSession, xpBatch, allGradients)
 
     # Update target actor and critic models for all agents
-    ModelTrainer._11_updateTargetModels(tfSession)
+    CostModelTrainer._11_updateTargetModels(tfSession)
 
   @staticmethod
   def saveModels(tfSession: tf.compat.v1.Session):
@@ -183,9 +191,9 @@ class ModelTrainer():
 
 
   @staticmethod
-  def _01_calculateAllActorActions(tfSession: tf.compat.v1.Session, currentDeltaF):
+  def _01_calculateAllActorActions(tfSession: tf.compat.v1.Session, allStates):
     _model = LearningState().model
-    allActions = [agent.runActorAction(tfSession, currentDeltaF) for agent in _model.allAgents]
+    allActions = [agent.runActorAction(tfSession, allStates.get(agent.getId())) for agent in _model.allAgents]
     allActions = [action[0, 0] + _model.epsilon.value * np.random.normal(0.0, 0.4) for action in allActions]
     return allActions
 
@@ -199,12 +207,12 @@ class ModelTrainer():
     LearningState().episode.electricalSystem.updateGenerators(generatorUpdates)
 
   @staticmethod
-  def _03_storeEpisodeExperience(originalDeltaF, newDeltaF, allActions, earnedReward):
+  def _03_storeEpisodeExperience(allStatesOrigin, allStatesDestination, allActions, earnedReward):
     agentIds = [agent.getId() for agent in LearningState().model.allAgents]
     LearningState().episode.cummReward += earnedReward
     experience = LearningExperience(
-        originalState     = {agentId: originalDeltaF for agentId in agentIds},
-        destinationState  = {agentId: newDeltaF for agentId in agentIds},
+        originalState     = allStatesOrigin,
+        destinationState  = allStatesDestination,
         actions           = {agentId: action for (agentId, action) in zip(agentIds, allActions)},
         reward            = earnedReward,
     )
@@ -226,7 +234,7 @@ class ModelTrainer():
       agent.peekActorTargetAction(
           tfSession=tfSession,
           state=xpBatch.destinationStates.get(agent.getId()),
-          ltsmState=ModelTrainer.getEmptyLtsmState(),
+          ltsmState=CostModelTrainer.getEmptyLtsmState(),
         )
       for agent in allAgents]
 
@@ -250,7 +258,7 @@ class ModelTrainer():
               state=xpBatch.destinationStates.get(agent.getId()),
               actionActor=targetAction,
               actionsOthers=otherTargetActions,
-              ltsmInternalState=ModelTrainer.getEmptyLtsmState(),
+              ltsmInternalState=CostModelTrainer.getEmptyLtsmState(),
               batchSize=batchSize,
               traceLength=traceLength,
           )
@@ -280,7 +288,7 @@ class ModelTrainer():
               actionActor=agentActions,
               actionsOthers=actionsOthers,
               targetQs=targetQs,
-              ltsmInternalState=ModelTrainer.getEmptyLtsmState(),
+              ltsmInternalState=CostModelTrainer.getEmptyLtsmState(),
               batchSize=batchSize,
               traceLength=traceLength,
         ),
@@ -293,7 +301,7 @@ class ModelTrainer():
     allNewActions = [agent.peekActorAction(
                 tfSession=tfSession,
                 currentDeltaF=xpBatch.originalStates.get(agent.getId()),
-                ltsmState=ModelTrainer.getEmptyLtsmState(),
+                ltsmState=CostModelTrainer.getEmptyLtsmState(),
               ) for agent in allAgents]
 
     return allNewActions
@@ -315,7 +323,7 @@ class ModelTrainer():
               state=xpBatch.originalStates.get(agent.getId()),
               actionActor=agentActions,
               actionsOthers=actionsOthers,
-              ltsmInternalState=ModelTrainer.getEmptyLtsmState(),
+              ltsmInternalState=CostModelTrainer.getEmptyLtsmState(),
               batchSize=batchSize,
               traceLength=traceLength,
           )
@@ -335,7 +343,7 @@ class ModelTrainer():
           inpt=ActorUpdateInput(
               state=xpBatch.originalStates.get(agent.getId()),
               gradients=allGradients[agentIdx],
-              ltsmInternalState=ModelTrainer.getEmptyLtsmState(),
+              ltsmInternalState=CostModelTrainer.getEmptyLtsmState(),
               batchSize=batchSize,
               traceLength=traceLength,
           )

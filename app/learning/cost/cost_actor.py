@@ -5,7 +5,7 @@ from .learning_params import LearningParams
 
 _BATCH_SIZE = 32
 
-class ActorMaddpg():
+class CostActorMaddpg():
   """ Actor network that estimates the policy of the maddpg algorithm"""
   def __init__(self, scope):
     # Number of trainable variables previously declared. Marks the point in which the variables
@@ -15,7 +15,10 @@ class ActorMaddpg():
     with tf.name_scope(scope):
 
       # Define the model (input-hidden layers-output)
-      self.inputs = tf.compat.v1.placeholder(shape=[None, 1], dtype=tf.float32, name='inputs')
+      # self.inputs = tf.compat.v1.placeholder(shape=[None, 1], dtype=tf.float32, name='inputs')
+      self.genOutput = tf.compat.v1.placeholder(shape=[None, 1], dtype=tf.float32, name='gen_output')
+      self.totalOutput = tf.compat.v1.placeholder(shape=[None, 1], dtype=tf.float32, name='total_output')
+      self.inputs = tf.concat([self.genOutput, self.totalOutput], axis=1)
 
       # LSTM to encode temporal information
       numInputVars = self.inputs.get_shape()[1]
@@ -37,7 +40,7 @@ class ActorMaddpg():
       rnn = tf.reshape(rnn, shape=[-1, ltsmNumUnits])
 
       # Stack on top of LSTM
-      self.action = ActorMaddpg._buildMlp(rnn)
+      self.action = CostActorMaddpg._buildMlp(rnn)
 
       # Params relevant to this network
       self.networkParams = tf.compat.v1.trainable_variables()[tfVarBeginIdx:]
@@ -102,10 +105,15 @@ class ActorMaddpg():
       self.updateNetworkParams[i] = assignAction
 
   def getAction(self, tfSession: tf.compat.v1.Session, actionIn: ActionInput) -> ActionOutput:
+    # Unravel state into individual components
+    genOutput = [[s[0]['genOutput']]  for s in actionIn.actorInput]
+    totalOutput = [[s[0]['totalOutput']] for s in actionIn.actorInput]
+
     action, nextState = tfSession.run(
         [self.action, self.rnnState],
         feed_dict={
-            self.inputs: actionIn.actorInput,
+            self.genOutput: genOutput,
+            self.totalOutput: totalOutput,
             self.ltsmInternalState: actionIn.ltsmInternalState,
             self.batchSize: actionIn.batchSize,
             self.traceLength: actionIn.traceLength,
@@ -115,10 +123,15 @@ class ActorMaddpg():
     return (action, nextState)
 
   def getActionOnly(self, tfSession: tf.compat.v1.Session, actionIn: ActionInput) -> ActionOutput:
+    # Unravel state into individual components
+    genOutput = [[s[0]['genOutput']]  for s in actionIn.actorInput]
+    totalOutput = [[s[0]['totalOutput']] for s in actionIn.actorInput]
+
     action = tfSession.run(
         self.action,
         feed_dict={
-            self.inputs: actionIn.actorInput,
+            self.genOutput: genOutput,
+            self.totalOutput: totalOutput,
             self.ltsmInternalState: actionIn.ltsmInternalState,
             self.batchSize: actionIn.batchSize,
             self.traceLength: actionIn.traceLength,
@@ -128,10 +141,14 @@ class ActorMaddpg():
     return action
 
   def updateModel(self, tfSession: tf.compat.v1.Session, inpt: ActorUpdateInput):
+    # Unravel state into individual components
+    genOutput = [[s[0]['genOutput']]  for s in inpt.state]
+    totalOutput = [[s[0]['totalOutput']] for s in inpt.state]
     tfSession.run(
       self.upd,
       feed_dict={
-          self.inputs: inpt.state,
+          self.genOutput: genOutput,
+          self.totalOutput: totalOutput,
           self.criticGradient: inpt.gradients,
           self.ltsmInternalState: inpt.ltsmInternalState,
           self.batchSize: inpt.batchSize,

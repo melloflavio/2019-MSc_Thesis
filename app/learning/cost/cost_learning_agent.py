@@ -1,14 +1,14 @@
 import tensorflow as tf
 import numpy as np
 
-from .maddpg_actor import ActorMaddpg as Actor
-from .maddpg_critic import CriticMaddpg as Critic
+from .cost_actor import CostActorMaddpg as Actor
+from .cost_critic import CostCriticMaddpg as Critic
 from .learning_params import LearningParams
 from .learning_state import LearningState
 from .actor_dto import ActionInput, ActorUpdateInput
 from .critic_dto import CriticEstimateInput, CriticUpdateInput, CriticGradientInput
 
-class Agent():
+class CostAgent():
   """Entity representing a single agent in the scenario to be learned. Contains the actors & critics associated with learning"""
 
   def __init__(self, _id):

@@ -5,9 +5,9 @@ from electricity import ElectricalSystemFactory
 from dto import ElectricalSystemSpecs, NodePowerUpdate
 from models import getPathForModel
 
-from .learning_agent import Agent
+from .cost_learning_agent import CostAgent as Agent
 
-class ModelTester():
+class CostModelTester():
   @staticmethod
   def testAgents(electricalSystemSpecs: ElectricalSystemSpecs, modelName: str, stepsToTest: int = 500):
     # Clear existing graph
@@ -29,8 +29,11 @@ class ModelTester():
       # Test for 1000 steps
       for stepIdx in range(stepsToTest):
         # Get all agents' actions
-        deltaFreqOriginal = elecSystem.getCurrentDeltaF()
-        allActions = [agent.runActorAction(tfSession, deltaFreqOriginal) for agent in allAgents]
+        # deltaFreqOriginal = elecSystem.getCurrentDeltaF()
+        generatorsOutputsOrigin = elecSystem.getGeneratorsOutputs()
+        totalOutputOrigin = sum(generatorsOutputsOrigin.values())
+        allStatesOrigin = {actorId: {'genOutput': output, 'totalOutput':totalOutputOrigin} for actorId, output in generatorsOutputsOrigin.items()}
+        allActions = [agent.runActorAction(tfSession, allStatesOrigin.get(agent.getId())) for agent in allAgents]
         allActions = [action[0, 0] for action in allActions]
 
         # Execute agents'actions (i.e. update the generators' power output)
@@ -41,8 +44,9 @@ class ModelTester():
           ) for (agentId, action) in zip(agentIds, allActions)]
         elecSystem.updateGenerators(generatorUpdates)
 
-        deltaFreqNew = elecSystem.getCurrentDeltaF()
-        earnedReward = 2**(10-abs(deltaFreqNew)) # TODO Calculate reward according to a given strategy
+        # deltaFreqNew = elecSystem.getCurrentDeltaF()
+        costDifferential = elecSystem.getCostOptimalDiferential()
+        earnedReward = 2**(10-abs(costDifferential)) # TODO Calculate reward according to a given strategy
         allRewards.append(earnedReward)
 
     return elecSystem, allRewards
