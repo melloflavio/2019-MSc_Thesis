@@ -19,9 +19,10 @@ class CriticMaddpg():
       self.inputs = tf.concat([self.state, self.action, self.actionOthers], axis=1)
 
       # LSTM to encode temporal information
+      numInputVars = self.inputs.get_shape()[1]
       self.batchSize = tf.compat.v1.placeholder(dtype=tf.int32, shape=[], name='batch_size')   # batch size
       self.traceLength = tf.compat.v1.placeholder(dtype=tf.int32, name='trace_length')           # trace lentgth
-      rnnInput = tf.reshape(self.inputs, [self.batchSize, self.traceLength, 3])
+      rnnInput = tf.reshape(self.inputs, [self.batchSize, self.traceLength, numInputVars])
 
       ltsmNumUnits = LearningParams().nnShape.layer_00_ltsm
       ltsmCell = tf.contrib.rnn.BasicLSTMCell(num_units=ltsmNumUnits, state_is_tuple=True)

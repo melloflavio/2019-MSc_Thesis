@@ -18,9 +18,10 @@ class ActorMaddpg():
       self.inputs = tf.compat.v1.placeholder(shape=[None, 1], dtype=tf.float32, name='inputs')
 
       # LSTM to encode temporal information
+      numInputVars = self.inputs.get_shape()[1]
       self.batchSize = tf.compat.v1.placeholder(dtype=tf.int32, shape=[], name='batch_size')   # batch size
       self.traceLength = tf.compat.v1.placeholder(dtype=tf.int32, name='trace_length')           # trace lentgth
-      rnnInputs = tf.reshape(self.inputs, [self.batchSize, self.traceLength, 1])
+      rnnInputs = tf.reshape(self.inputs, [self.batchSize, self.traceLength, numInputVars])
 
       ltsmNumUnits = LearningParams().nnShape.layer_00_ltsm
       ltsmCell = tf.contrib.rnn.BasicLSTMCell(num_units=ltsmNumUnits, state_is_tuple=True)

@@ -76,6 +76,7 @@ class ModelTrainer():
             _model.xpBuffer.add(_episode.experiences)
 
       # Save complete model in form of tensorflow session
+      print('100%')
       ModelTrainer.saveModels(tfSession)
     return _model.allAgents
 
