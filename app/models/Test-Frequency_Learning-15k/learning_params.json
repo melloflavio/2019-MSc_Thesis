@@ -1,0 +1,56 @@
+{
+    "batchSize": 4,
+    "electricalSystemSpecs": [
+        [
+            [
+                "L1",
+                3.0,
+                0.1
+            ]
+        ],
+        [
+            [
+                "G1",
+                1.5,
+                [
+                    0,
+                    0,
+                    1.0
+                ],
+                0.5,
+                2.0,
+                0
+            ],
+            [
+                "G2",
+                1.5,
+                [
+                    0,
+                    0,
+                    2.0
+                ],
+                0.5,
+                2.0,
+                0
+            ]
+        ]
+    ],
+    "epsilonSpecs": {
+        "finalValue": 0.0001,
+        "thresholdProgress": 0.6,
+        "thresholdValue": 0.5
+    },
+    "gamma": 0.9,
+    "maxSteps": 200,
+    "modelName": "Test-Frequency_Learning-15k",
+    "nnShape": {
+        "layer_00_ltsm": 100,
+        "layer_01_mlp_01": 1000,
+        "layer_02_mlp_02": 100,
+        "layer_03_mlp_03": 50,
+        "layer_04_mlp_04": 1
+    },
+    "numEpisodes": 15000,
+    "tau": 0.001,
+    "traceLength": 8
+}
