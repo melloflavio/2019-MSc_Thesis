@@ -67,8 +67,8 @@ class CostModelTrainer():
           _model.epsilon.decay()
 
           # End episode prematurely if things diverge too much
-          deltaFreq = _episode.electricalSystem.getCurrentDeltaF()
-          if abs(deltaFreq) > 50:
+          costDifferential = _episode.electricalSystem.getCostOptimalDiferential()
+          if abs(costDifferential) > 50:
             break
 
         # Store episodes' experiences if they are large enough to have at least a single complete trace
