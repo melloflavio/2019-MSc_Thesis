@@ -1,13 +1,14 @@
 from typing import List
 import scipy.optimize as opt
 
-from dto import CostProfile, NodeStateCost, NodeStatePower
+from dto import CostProfile, ElectricalConstants, NodeStateCost, NodeStatePower
 
 class CostCalculator:
 
   # Calculates the cost to output a given power with a given generator cost profile
   @staticmethod
   def calculateCost(power, costProfile: CostProfile) -> float:
+    power = power*ElectricalConstants().basePower # Convert the power from pu to MVA
     cost = costProfile.alpha + costProfile.beta*power + costProfile.gamma*(power**2)
     return cost
 

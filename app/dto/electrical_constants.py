@@ -8,3 +8,4 @@ class ElectricalConstants(NamedTuple):
   timeConstant: float     = 30          # timeConstant => Tg
   droop: float            = 0.1         # droop => Rd
   nominalFrequency: float = 50          # nominalFrequency = (f_nom or f_0)
+  basePower: float        = 100         # Convert between pu and MVA (MVA = basePower*pu)
