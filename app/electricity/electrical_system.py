@@ -79,6 +79,13 @@ class ElectricalSystem:
     genOutputs = {g.getId(): g.getOutput() for g in self.generators}
     return genOutputs
 
+  def getTotalCost(self):
+    totalCost = 0
+    for id_ in self.getGeneratorIds():
+      totalCost += self.systemHistory.actualCosts.get(id_)[-1]
+    return totalCost
+
+  # TODO - deprecate fn
   def getCostOptimalDiferential(self):
     allCostDifferentials = {}
     for id_ in self.getGeneratorIds():
