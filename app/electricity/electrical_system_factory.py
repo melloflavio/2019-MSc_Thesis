@@ -23,7 +23,12 @@ class ElectricalSystemFactory:
         ) for g in specs.generators]
     initialFrequency = ElectricalConstants().nominalFrequency
 
-    system = ElectricalSystem(initialFrequency, allLoads, allGenerators)
+    system = ElectricalSystem(
+      initialFrequency=initialFrequency,
+      loads=allLoads,
+      generators=allGenerators,
+      shouldTrackOptimalCost=specs.shouldTrackOptimalCost,
+      )
 
     return system
 
