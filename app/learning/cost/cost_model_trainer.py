@@ -16,8 +16,12 @@ from ..actor_dto import ActorUpdateInput
 from ..epsilon import Epsilon
 
 class CostModelTrainer():
+  _rewardFn = None
+  _initTotalZ = None
+
   @staticmethod
-  def trainAgents():
+  def trainAgents(rewardFn):
+    CostModelTrainer._rewardFn = rewardFn
     # Clears existing TF graph
     tf.compat.v1.reset_default_graph()
 
@@ -87,7 +91,8 @@ class CostModelTrainer():
     # deltaFreqOriginal = _episode.electricalSystem.getCurrentDeltaF()
     generatorsOutputsOrigin = _episode.electricalSystem.getGeneratorsOutputs()
     totalOutputOrigin = sum(generatorsOutputsOrigin.values())
-    allStatesOrigin = {actorId: {'genOutput': output, 'totalOutput':totalOutputOrigin} for actorId, output in generatorsOutputsOrigin.items()}
+    # allStatesOrigin = {actorId: {'genOutput': output, 'totalOutput':totalOutputOrigin} for actorId, output in generatorsOutputsOrigin.items()}
+    allStatesOrigin = {actorId: {'genOutput': output, 'totalOutput':CostModelTrainer._initTotalZ} for actorId, output in generatorsOutputsOrigin.items()}
     allActions = CostModelTrainer._01_calculateAllActorActions(tfSession, allStatesOrigin)
 
     # Execute agents'actions (i.e. update the generators' power output)
@@ -97,10 +102,15 @@ class CostModelTrainer():
     # deltaFreqNew = _episode.electricalSystem.getCurrentDeltaF()
     generatorsOutputsDestination = _episode.electricalSystem.getGeneratorsOutputs()
     totalOutputDestination = sum(generatorsOutputsDestination.values())
-    allStatesDestination = {actorId: {'genOutput': output, 'totalOutput':totalOutputDestination} for actorId, output in generatorsOutputsDestination.items()}
+    # allStatesDestination = {actorId: {'genOutput': output, 'totalOutput':totalOutputDestination} for actorId, output in generatorsOutputsDestination.items()}
+    allStatesDestination = {actorId: {'genOutput': output, 'totalOutput':CostModelTrainer._initTotalZ} for actorId, output in generatorsOutputsDestination.items()}
 
     costDifferential = _episode.electricalSystem.getCostOptimalDiferential()
-    earnedReward = 2**(10-abs(costDifferential)) # TODO Calculate reward according to a given strategy
+    totalCost = _episode.electricalSystem.getTotalCost()
+    # earnedReward = CostModelTrainer._rewardFn(CostModelTrainer._initTotalZ, totalOutputDestination, costDifferential)
+    earnedReward = CostModelTrainer._rewardFn(totalOutputOrigin=CostModelTrainer._initTotalZ, totalOutputDestination=totalOutputDestination, costDifferential=costDifferential, totalCost=totalCost)
+    # earnedReward = CostModelTrainer._rewardFn(totalOutputOrigin, totalOutputDestination, costDifferential)
+    # earnedReward = 2**(10-abs(costDifferential))  * (1 - abs(outputDifferential))# TODO Calculate reward according to a given strategy
 
     experience = CostModelTrainer._03_storeEpisodeExperience(allStatesOrigin, allStatesDestination, allActions, earnedReward)
     return experience
@@ -120,6 +130,12 @@ class CostModelTrainer():
     if (LearningState().episode.cummReward is not None):
       LearningState().model.cummRewardList.append(LearningState().episode.cummReward)
 
+    # Store a snapshop of the rewards every 10%
+    episodeRewardsList = [xp.reward for xp in LearningState().episode.experiences]
+    if (episodeIdx % (LearningParams().numEpisodes/10) == 0
+        and episodeRewardsList):
+      LearningState().model.allRewards.append(episodeRewardsList)
+
     # Clear episode values
     LearningState().episode.cummReward = 0
     LearningState().episode.experiences = []
@@ -128,15 +144,11 @@ class CostModelTrainer():
     specs = LearningParams().electricalSystemSpecs
     LearningState().episode.electricalSystem = ElectricalSystemFactory.create(specs)
 
-    # Store a snapshop od the rewards every 10%
-    episodeRewardsList = [xp.reward for xp in LearningState().episode.experiences]
-    if (episodeIdx % (LearningParams().numEpisodes/10) == 0
-        and episodeRewardsList):
-      LearningState().model.allRewards.append(episodeRewardsList)
-
     # Refresh LTSM states for all actors
     for agent in LearningState().model.allAgents:
       agent.resetLtsmState()
+
+    CostModelTrainer._initTotalZ = sum(LearningState().episode.electricalSystem.getGeneratorsOutputs().values())
 
   @staticmethod
   def getEmptyLtsmState():
