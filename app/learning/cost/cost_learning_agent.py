@@ -8,15 +8,17 @@ from ..learning_state import LearningState
 from ..actor_dto import ActionInput, ActorUpdateInput
 from ..critic_dto import CriticEstimateInput, CriticUpdateInput, CriticGradientInput
 
+_scopeSuffix='cost'
+
 class CostAgent():
   """Entity representing a single agent in the scenario to be learned. Contains the actors & critics associated with learning"""
 
   def __init__(self, _id):
     self._id = _id # Unique identifier of the agent
-    self.actor       = Actor(scope=f'{_id}_actor')
-    self.actorTarget = Actor(scope=f'{_id}_actor_target')
-    self.critic       = Critic(scope=f'{_id}_critic')
-    self.criticTarget = Critic(scope=f'{_id}_critic_target')
+    self.actor       = Actor(scope=f'{_scopeSuffix}_{_id}_actor')
+    self.actorTarget = Actor(scope=f'{_scopeSuffix}_{_id}_actor_target')
+    self.critic       = Critic(scope=f'{_scopeSuffix}_{_id}_critic')
+    self.criticTarget = Critic(scope=f'{_scopeSuffix}_{_id}_critic_target')
 
     # Create Op Holders for target networks
     self.actorTarget.createOpHolder(self.actor.networkParams, LearningParams().tau)
