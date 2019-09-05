@@ -7,6 +7,7 @@ from dto import ElectricalSystemSpecs, NodePowerUpdate
 from models import getPathForModel, getPathForParams
 
 from .cost_learning_agent import CostAgent as Agent
+from .cost_reward import costRewardFunction
 from ..learning_state import LearningState
 from ..learning_params import LearningParams
 from ..experience_buffer import ExperienceBuffer, LearningExperience
@@ -20,7 +21,7 @@ class CostModelTrainer():
   _initTotalZ = None
 
   @staticmethod
-  def trainAgents(rewardFn):
+  def trainAgents(rewardFn=costRewardFunction):
     CostModelTrainer._rewardFn = rewardFn
     # Clears existing TF graph
     tf.compat.v1.reset_default_graph()
@@ -88,10 +89,7 @@ class CostModelTrainer():
   def executeStep(tfSession: tf.compat.v1.Session):
     _episode = LearningState().episode
     # Get all agents' actions
-    # deltaFreqOriginal = _episode.electricalSystem.getCurrentDeltaF()
     generatorsOutputsOrigin = _episode.electricalSystem.getGeneratorsOutputs()
-    totalOutputOrigin = sum(generatorsOutputsOrigin.values())
-    # allStatesOrigin = {actorId: {'genOutput': output, 'totalOutput':totalOutputOrigin} for actorId, output in generatorsOutputsOrigin.items()}
     allStatesOrigin = {actorId: {'genOutput': output, 'totalOutput':CostModelTrainer._initTotalZ} for actorId, output in generatorsOutputsOrigin.items()}
     allActions = CostModelTrainer._01_calculateAllActorActions(tfSession, allStatesOrigin)
 
@@ -99,18 +97,12 @@ class CostModelTrainer():
     CostModelTrainer._02_executeAllActorActions(allActions)
 
     # Calculate the earned reward
-    # deltaFreqNew = _episode.electricalSystem.getCurrentDeltaF()
     generatorsOutputsDestination = _episode.electricalSystem.getGeneratorsOutputs()
     totalOutputDestination = sum(generatorsOutputsDestination.values())
-    # allStatesDestination = {actorId: {'genOutput': output, 'totalOutput':totalOutputDestination} for actorId, output in generatorsOutputsDestination.items()}
     allStatesDestination = {actorId: {'genOutput': output, 'totalOutput':CostModelTrainer._initTotalZ} for actorId, output in generatorsOutputsDestination.items()}
 
-    costDifferential = _episode.electricalSystem.getCostOptimalDiferential()
     totalCost = _episode.electricalSystem.getTotalCost()
-    # earnedReward = CostModelTrainer._rewardFn(CostModelTrainer._initTotalZ, totalOutputDestination, costDifferential)
-    earnedReward = CostModelTrainer._rewardFn(totalOutputOrigin=CostModelTrainer._initTotalZ, totalOutputDestination=totalOutputDestination, costDifferential=costDifferential, totalCost=totalCost)
-    # earnedReward = CostModelTrainer._rewardFn(totalOutputOrigin, totalOutputDestination, costDifferential)
-    # earnedReward = 2**(10-abs(costDifferential))  * (1 - abs(outputDifferential))# TODO Calculate reward according to a given strategy
+    earnedReward = CostModelTrainer._rewardFn(totalOutputTarget=CostModelTrainer._initTotalZ, totalOutputDestination=totalOutputDestination, totalCost=totalCost)
 
     experience = CostModelTrainer._03_storeEpisodeExperience(allStatesOrigin, allStatesDestination, allActions, earnedReward)
     return experience
