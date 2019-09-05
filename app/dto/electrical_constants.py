@@ -1,8 +1,10 @@
 from typing import NamedTuple
 from singleton_decorator import singleton
+from dataclasses import dataclass
 
 @singleton
-class ElectricalConstants(NamedTuple):
+@dataclass
+class ElectricalConstants:
   inertia: float          = 0.1         # inertia => M
   dampening: float        = 0.0160      # dampening => D
   timeConstant: float     = 30          # timeConstant => Tg
