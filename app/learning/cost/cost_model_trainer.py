@@ -102,9 +102,9 @@ class CostModelTrainer():
     allStatesDestination = {actorId: {'genOutput': output, 'totalOutput':CostModelTrainer._initTotalZ} for actorId, output in generatorsOutputsDestination.items()}
 
     totalCost = _episode.electricalSystem.getTotalCost()
-    earnedReward = CostModelTrainer._rewardFn(totalOutputTarget=CostModelTrainer._initTotalZ, totalOutputDestination=totalOutputDestination, totalCost=totalCost)
+    earnedReward, rewardComponents = CostModelTrainer._rewardFn(totalOutputTarget=CostModelTrainer._initTotalZ, totalOutputDestination=totalOutputDestination, totalCost=totalCost)
 
-    experience = CostModelTrainer._03_storeEpisodeExperience(allStatesOrigin, allStatesDestination, allActions, earnedReward)
+    experience = CostModelTrainer._03_storeEpisodeExperience(allStatesOrigin, allStatesDestination, allActions, earnedReward, rewardComponents)
     return experience
 
   @staticmethod
@@ -123,14 +123,14 @@ class CostModelTrainer():
       LearningState().model.cummRewardList.append(LearningState().episode.cummReward)
 
     # Store a snapshop of the rewards every 10%
-    episodeRewardsList = [xp.reward for xp in LearningState().episode.experiences]
-    if (episodeIdx % (LearningParams().numEpisodes/10) == 0
-        and episodeRewardsList):
-      LearningState().model.allRewards.append(episodeRewardsList)
+    episodeRewardDetails = LearningState().episode.allRewards
+    if (episodeIdx % (LearningParams().numEpisodes/10) == 0 and episodeRewardDetails):
+      LearningState().model.allRewards.append(episodeRewardDetails)
 
     # Clear episode values
     LearningState().episode.cummReward = 0
     LearningState().episode.experiences = []
+    LearningState().episode.allRewards=[]
 
     # Instantiate new slightly randomized electrical system
     specs = LearningParams().electricalSystemSpecs
@@ -211,9 +211,10 @@ class CostModelTrainer():
     LearningState().episode.electricalSystem.updateGenerators(generatorUpdates)
 
   @staticmethod
-  def _03_storeEpisodeExperience(allStatesOrigin, allStatesDestination, allActions, earnedReward):
+  def _03_storeEpisodeExperience(allStatesOrigin, allStatesDestination, allActions, earnedReward, rewardComponents):
     agentIds = [agent.getId() for agent in LearningState().model.allAgents]
     LearningState().episode.cummReward += earnedReward
+    LearningState().episode.allRewards.append(rewardComponents)
     experience = LearningExperience(
         originalState     = allStatesOrigin,
         destinationState  = allStatesDestination,
