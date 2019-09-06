@@ -10,6 +10,7 @@ class EpisodeState:
   cummReward: float
   experiences: List[LearningExperience]
   electricalSystem: any
+  allRewards: List[any]
 
 @dataclass
 class ModelState:
@@ -17,7 +18,7 @@ class ModelState:
   xpBuffer: ExperienceBuffer
   cummRewardList: List[float]
   epsilon: Epsilon
-  allRewards: List[float]
+  allRewards: List[any]
 
 @singleton
 @dataclass
@@ -30,6 +31,7 @@ class LearningState:
         cummReward=0,
         experiences=[],
         electricalSystem=None,
+        allRewards=[],
     )
     self.model = ModelState(
         allAgents=allAgents,
