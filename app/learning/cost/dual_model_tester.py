@@ -40,18 +40,21 @@ class DualModelTester():
     _tfSessions[FREQUENCY] = tf.compat.v1.Session(graph=tfGraphs[FREQUENCY])
     _tfSessions[COST] = tf.compat.v1.Session(graph=tfGraphs[COST])
 
+    tfSavers = {}
     # Recreate agents within each graph
     with tfGraphs[FREQUENCY].as_default():
       _allAgents[FREQUENCY]: List[Agent] = [Agent(id_) for id_ in generatorIds]
+      tfSavers[FREQUENCY] = tf.compat.v1.train.Saver()
     with tfGraphs[COST].as_default():
       _allAgents[COST]: List[CostAgent] = [CostAgent(id_) for id_ in generatorIds]
+      tfSavers[COST] = tf.compat.v1.train.Saver()
 
     # Restore TF sessions
-    tfSaver = tf.compat.v1.train.Saver() # Saver obj used to restore session
+
     modelPathFreq = getPathForModel(modelNameFreq)
-    tfSaver.restore(_tfSessions[FREQUENCY], modelPathFreq)
+    tfSavers[FREQUENCY].restore(_tfSessions[FREQUENCY], modelPathFreq)
     modelPathCost = getPathForModel(modelNameCost)
-    tfSaver.restore(_tfSessions[COST], modelPathCost)
+    tfSavers[COST].restore(_tfSessions[COST], modelPathCost)
 
   @staticmethod
   def testAgents(electricalSystemSpecs: ElectricalSystemSpecs, modelNameFreq: str, modelNameCost: str, rewardFnCost=costRewardFunction, stepsToTest: int = 500, frequencyWeight=0.7):
@@ -89,7 +92,8 @@ class DualModelTester():
       # Calculate earned rewards per objective
       # Frequency
       deltaFreqDestination = elecSystem.getCurrentDeltaF()
-      _allRewards[FREQUENCY].append(2**(10-abs(deltaFreqDestination))) # TODO Calculate reward according to a given strategy
+      freqReward=2**(10-abs(deltaFreqDestination))
+      _allRewards[FREQUENCY].append(freqReward) # TODO Calculate reward according to a given strategy
 
       # Cost
       generatorsOutputsDestination = elecSystem.getGeneratorsOutputs()
