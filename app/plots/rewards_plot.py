@@ -3,8 +3,6 @@ from typing import Dict, List
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from dto import SystemHistory
-
 from .plot_constants import COLOR_PALETTE, FIG_SIZE, FONT_SIZES
 
 def plotRewardComponents(rewardComponents: Dict[str, List[float]], figureNum=0):
