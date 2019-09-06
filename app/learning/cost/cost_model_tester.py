@@ -14,18 +14,18 @@ class CostModelTester():
     # Clear existing graph
     tf.compat.v1.reset_default_graph()
 
-    # Recreate the testing environment/TF variable placeholders
-    elecSystem = ElectricalSystemFactory.create(electricalSystemSpecs)
-    allAgents: List[Agent] = [Agent(generator.id_) for generator in electricalSystemSpecs.generators]
-    _initTotalZ = sum(elecSystem.getGeneratorsOutputs().values())
-
     allRewards = [] # Used to plot reward history
-
-    tfSaver = tf.compat.v1.train.Saver() # Saver obj used to restore session
-    modelPath = getPathForModel(modelName)
 
     # Main TF loop
     with tf.compat.v1.Session() as tfSession:
+      # Recreate the testing environment/TF variable placeholders
+      elecSystem = ElectricalSystemFactory.create(electricalSystemSpecs)
+      allAgents: List[Agent] = [Agent(generator.id_) for generator in electricalSystemSpecs.generators]
+      _initTotalZ = sum(elecSystem.getGeneratorsOutputs().values())
+
+      tfSaver = tf.compat.v1.train.Saver() # Saver obj used to restore session
+      modelPath = getPathForModel(modelName)
+
       tfSaver.restore(tfSession, modelPath)
 
       # Test for 1000 steps
