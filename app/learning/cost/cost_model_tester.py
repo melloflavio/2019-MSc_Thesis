@@ -50,7 +50,6 @@ class CostModelTester():
 
         totalCost = elecSystem.getTotalCost()
 
-        costDifferential = elecSystem.getCostOptimalDiferential()
         earnedReward = rewardFn(totalOutputTarget=_initTotalZ,  totalOutputDestination=totalOutputDestination, totalCost=totalCost)
         allRewards.append(earnedReward)
 
