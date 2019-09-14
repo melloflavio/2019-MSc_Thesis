@@ -1,10 +1,9 @@
 from .cost_frequency_actor import ActorCostFrequency
 from .cost_frequency_critic import CriticCostFrequency
 
-class ModelAdapterCostFrequency():
+from ..unified import ModelAdapter
 
-  def __init__(self, rewardFn=None):
-    self._rewardFn = rewardFn if rewardFn is not None else self._defaultRewardFunction.__func__
+class ModelAdapterCostFrequency(ModelAdapter):
 
   @property
   def SCOPE_PREFIX(self):

@@ -1,9 +1,10 @@
 import tensorflow as tf
+from abc import ABC, abstractmethod
 
 from ..learning_params import LearningParams
 from ..critic_dto import CriticEstimateInput, CriticUpdateInput, CriticGradientInput
 
-class Critic():
+class Critic(ABC):
   """ Critic network that estimates the value of the maddpg algorithm"""
   def __init__(self, scope):
     # Number of trainable variables previously declared. Marks the point in which the variables
@@ -152,26 +153,15 @@ class Critic():
   def updateNetParams(self, tfSession: tf.compat.v1.Session):
     tfSession.run(self.updateNetworkParams)
 
-# Begin Abstract Methods
+  #############################
+  # Begin Abstract Methods
+  #############################
+
+  @abstractmethod
   def _declareStateTensors(self):
-    self.genOutput = tf.compat.v1.placeholder(shape=[None, 1], dtype=tf.float32, name='gen_output')
-    self.totalOutput = tf.compat.v1.placeholder(shape=[None, 1], dtype=tf.float32, name='total_output')
-    self.deltaFreq = tf.compat.v1.placeholder(shape=[None, 1], dtype=tf.float32, name='delta_freq')
+    pass
 
-    return [self.genOutput, self.totalOutput, self.deltaFreq]
-
+  @abstractmethod
   def _unravelStateToFeedDict(self, state):
     '''Transform state list into feed dictionary including all individual tensors for each state component'''
-    # State is wrapped much in the same way as other inputs, inside nested arrays
-    ## TODO simplify understanding of unravelling
-    genOutput = [[s[0]['genOutput']]  for s in state]
-    totalOutput = [[s[0]['totalOutput']] for s in state]
-    deltaFreq = [[s[0]['deltaFreq']] for s in state]
-
-    partialFeedDict = {
-      self.deltaFreq: deltaFreq,
-      self.genOutput: genOutput,
-      self.totalOutput: totalOutput,
-    }
-
-    return partialFeedDict
+    pass
