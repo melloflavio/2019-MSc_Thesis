@@ -1,4 +1,6 @@
 from abc import ABC, abstractmethod
+from .actor import Actor
+from .critic import Critic
 
 class ModelAdapter(ABC):
 
@@ -8,17 +10,17 @@ class ModelAdapter(ABC):
 
   @property
   @abstractmethod
-  def SCOPE_PREFIX(self):
+  def SCOPE_PREFIX(self) -> str:
     pass
 
   @property
   @abstractmethod
-  def Actor(self):
+  def Actor(self) -> Actor:
     pass
 
   @property
   @abstractmethod
-  def Critic(self):
+  def Critic(self) -> Critic:
     pass
 
   @classmethod
@@ -30,7 +32,6 @@ class ModelAdapter(ABC):
   def shouldStopEarly(self, elecSystem):
     pass
 
-  ## TODO enforce typing
   @abstractmethod
   def observeStates(self, elecSystem):
     pass

@@ -6,6 +6,7 @@ from electricity import ElectricalSystemFactory
 from dto import ElectricalSystemSpecs, NodePowerUpdate
 from models import getPathForModel, getPathForParams
 
+from .model_adapter import ModelAdapter
 from .learning_agent import Agent
 from ..learning_state import LearningState
 from ..learning_params import LearningParams
@@ -16,9 +17,8 @@ from ..actor_dto import ActorUpdateInput
 from ..epsilon import Epsilon
 
 class ModelTrainer():
-  _modelAdapter = None
-  def __init__(self, modelAdapter):
-    self._modelAdapter = modelAdapter
+  def __init__(self, modelAdapter: ModelAdapter):
+    self._modelAdapter: ModelAdapter = modelAdapter
 
   def trainAgents(self):
     # Clears existing TF graph
