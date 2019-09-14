@@ -16,4 +16,4 @@ class GeneratorSpecs(NamedTuple):
 class ElectricalSystemSpecs(NamedTuple):
   loads: List[LoadSpecs]
   generators: List[GeneratorSpecs]
-  shouldTrackOptimalCost: bool = False # Optimal cost calculation is computationally costly, if not using data in training it speeds up to not track it
+  shouldTrackOptimalCost: bool = True # Optimal cost calculation is computationally costly, if not using data in training it speeds up to not track it
