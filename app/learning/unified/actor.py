@@ -15,11 +15,8 @@ class Actor():
     with tf.name_scope(scope):
 
       # Define the model (input-hidden layers-output)
-      # self.inputs = tf.compat.v1.placeholder(shape=[None, 1], dtype=tf.float32, name='inputs')
-      self.genOutput = tf.compat.v1.placeholder(shape=[None, 1], dtype=tf.float32, name='gen_output')
-      self.totalOutput = tf.compat.v1.placeholder(shape=[None, 1], dtype=tf.float32, name='total_output')
-      self.deltaFreq = tf.compat.v1.placeholder(shape=[None, 1], dtype=tf.float32, name='delta_freq')
-      self.inputs = tf.concat([self.deltaFreq, self.genOutput, self.totalOutput], axis=1)
+      stateTensors = self._declareStateTensors()
+      self.inputs = tf.concat(stateTensors, axis=1)
 
       # LSTM to encode temporal information
       numInputVars = self.inputs.get_shape()[1]
@@ -54,6 +51,9 @@ class Actor():
                   self.action, self.networkParams, -self.criticGradient)
 
       # Normalize dividing by the size of the batch (gradients sum all over the batch)
+      ## TODO replace hardcoded total batch steps
+      # self.totalBatchSteps = tf.multiply(self.batchSize, self.traceLength)
+      # self.actorGradients = list(map(lambda x: tf.divide(x, self.totalBatchSteps), unnormalizedActorGradients))
       self.actorGradients = list(map(lambda x: tf.divide(x, _BATCH_SIZE), unnormalizedActorGradients))
 
       # Optimization of the actor
@@ -106,16 +106,12 @@ class Actor():
 
   def getAction(self, tfSession: tf.compat.v1.Session, actionIn: ActionInput) -> ActionOutput:
     # Unravel state into individual components
-    genOutput = [[s[0]['genOutput']]  for s in actionIn.actorInput]
-    totalOutput = [[s[0]['totalOutput']] for s in actionIn.actorInput]
-    deltaFreq = [[s[0]['deltaFreq']] for s in actionIn.actorInput]
+    stateDict = self._unravelStateToFeedDict(actionIn.actorInput)
 
     action, nextState = tfSession.run(
         [self.action, self.rnnState],
         feed_dict={
-            self.deltaFreq: deltaFreq,
-            self.genOutput: genOutput,
-            self.totalOutput: totalOutput,
+            **stateDict,
             self.ltsmInternalState: actionIn.ltsmInternalState,
             self.batchSize: actionIn.batchSize,
             self.traceLength: actionIn.traceLength,
@@ -126,16 +122,12 @@ class Actor():
 
   def getActionOnly(self, tfSession: tf.compat.v1.Session, actionIn: ActionInput) -> ActionOutput:
     # Unravel state into individual components
-    genOutput = [[s[0]['genOutput']]  for s in actionIn.actorInput]
-    totalOutput = [[s[0]['totalOutput']] for s in actionIn.actorInput]
-    deltaFreq = [[s[0]['deltaFreq']] for s in actionIn.actorInput]
+    stateDict = self._unravelStateToFeedDict(actionIn.actorInput)
 
     action = tfSession.run(
         self.action,
         feed_dict={
-            self.deltaFreq: deltaFreq,
-            self.genOutput: genOutput,
-            self.totalOutput: totalOutput,
+            **stateDict,
             self.ltsmInternalState: actionIn.ltsmInternalState,
             self.batchSize: actionIn.batchSize,
             self.traceLength: actionIn.traceLength,
@@ -146,15 +138,11 @@ class Actor():
 
   def updateModel(self, tfSession: tf.compat.v1.Session, inpt: ActorUpdateInput):
     # Unravel state into individual components
-    genOutput = [[s[0]['genOutput']]  for s in inpt.state]
-    totalOutput = [[s[0]['totalOutput']] for s in inpt.state]
-    deltaFreq = [[s[0]['deltaFreq']] for s in inpt.state]
+    stateDict = self._unravelStateToFeedDict(inpt.state)
     tfSession.run(
       self.upd,
       feed_dict={
-          self.deltaFreq: deltaFreq,
-          self.genOutput: genOutput,
-          self.totalOutput: totalOutput,
+          **stateDict,
           self.criticGradient: inpt.gradients,
           self.ltsmInternalState: inpt.ltsmInternalState,
           self.batchSize: inpt.batchSize,
@@ -164,3 +152,27 @@ class Actor():
 
   def updateNetParams(self, tfSession: tf.compat.v1.Session):
     tfSession.run(self.updateNetworkParams)
+
+# Begin Abstract Methods
+  def _declareStateTensors(self):
+    self.genOutput = tf.compat.v1.placeholder(shape=[None, 1], dtype=tf.float32, name='gen_output')
+    self.totalOutput = tf.compat.v1.placeholder(shape=[None, 1], dtype=tf.float32, name='total_output')
+    self.deltaFreq = tf.compat.v1.placeholder(shape=[None, 1], dtype=tf.float32, name='delta_freq')
+
+    return [self.genOutput, self.totalOutput, self.deltaFreq]
+
+  def _unravelStateToFeedDict(self, state):
+    '''Transform state list into feed dictionary including all individual tensors for each state component'''
+    # State is wrapped much in the same way as other inputs, inside nested arrays
+    ## TODO simplify understanding of unravelling
+    genOutput = [[s[0]['genOutput']]  for s in state]
+    totalOutput = [[s[0]['totalOutput']] for s in state]
+    deltaFreq = [[s[0]['deltaFreq']] for s in state]
+
+    partialFeedDict = {
+      self.deltaFreq: deltaFreq,
+      self.genOutput: genOutput,
+      self.totalOutput: totalOutput,
+    }
+
+    return partialFeedDict

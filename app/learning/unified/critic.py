@@ -13,12 +13,10 @@ class Critic():
     with tf.name_scope(scope):
 
       # Define the model (input-hidden layers-output)
-      self.genOutput = tf.compat.v1.placeholder(shape=[None, 1], dtype=tf.float32, name='gen_output')
-      self.totalOutput = tf.compat.v1.placeholder(shape=[None, 1], dtype=tf.float32, name='total_output')
+      stateTensors = self._declareStateTensors()
       self.action = tf.compat.v1.placeholder(shape=[None, 1], dtype=tf.float32, name='action') # action taken by actor of the same agent
       self.actionOthers = tf.compat.v1.placeholder(shape=[None, 1], dtype=tf.float32, name='actions_others') # actions taken by actors of other agents
-      self.deltaFreq = tf.compat.v1.placeholder(shape=[None, 1], dtype=tf.float32, name='delta_freq')
-      self.inputs = tf.concat([self.deltaFreq, self.genOutput, self.totalOutput, self.action, self.actionOthers], axis=1)
+      self.inputs = tf.concat([*stateTensors, self.action, self.actionOthers], axis=1)
 
       # LSTM to encode temporal information
       numInputVars = self.inputs.get_shape()[1]
@@ -99,21 +97,13 @@ class Critic():
       self.updateNetworkParams[i] = assignAction
 
   def getEstimatedQ(self, tfSession: tf.compat.v1.Session, criticIn: CriticEstimateInput) -> float:
-    # stateDic = {
-    #   genOutput
-    #   totalOutput
-    # }
     # Unravel state into individual components
-    genOutput = [[s[0]['genOutput']]  for s in criticIn.state]
-    totalOutput = [[s[0]['totalOutput']] for s in criticIn.state]
-    deltaFreq = [[s[0]['deltaFreq']] for s in criticIn.state]
+    stateDict = self._unravelStateToFeedDict(criticIn.state)
 
     estimatedQ = tfSession.run(
         self.Q,
         feed_dict={
-            self.deltaFreq: deltaFreq,
-            self.genOutput: genOutput,
-            self.totalOutput: totalOutput,
+            **stateDict,
             self.action: criticIn.actionActor,
             self.actionOthers: criticIn.actionsOthers,
             self.traceLength: criticIn.traceLength,
@@ -126,16 +116,12 @@ class Critic():
 
   def updateModel(self, tfSession: tf.compat.v1.Session, criticUpd: CriticUpdateInput):
     # Unravel state into individual components
-    genOutput = [[s[0]['genOutput']]  for s in criticUpd.state]
-    totalOutput = [[s[0]['totalOutput']] for s in criticUpd.state]
-    deltaFreq = [[s[0]['deltaFreq']] for s in criticUpd.state]
+    stateDict = self._unravelStateToFeedDict(criticUpd.state)
 
     tfSession.run(
         self.updateFn,
         feed_dict={
-            self.deltaFreq: deltaFreq,
-            self.genOutput: genOutput,
-            self.totalOutput: totalOutput,
+            **stateDict,
             self.action: criticUpd.actionActor,
             self.actionOthers: criticUpd.actionsOthers,
             self.targetQ: criticUpd.targetQs,
@@ -147,16 +133,12 @@ class Critic():
 
   def calculateGradients(self, tfSession: tf.compat.v1.Session, inpt: CriticGradientInput):
 
-    genOutput = [[s[0]['genOutput']]  for s in inpt.state]
-    totalOutput = [[s[0]['totalOutput']] for s in inpt.state]
-    deltaFreq = [[s[0]['deltaFreq']] for s in inpt.state]
+    stateDict = self._unravelStateToFeedDict(inpt.state)
 
     gradients = tfSession.run(
       self.criticGradientsFn,
       feed_dict={
-            self.deltaFreq: deltaFreq,
-            self.genOutput: genOutput,
-            self.totalOutput: totalOutput,
+            **stateDict,
             self.action: inpt.actionActor,
             self.actionOthers: inpt.actionsOthers,
             self.traceLength: inpt.traceLength,
@@ -169,3 +151,27 @@ class Critic():
 
   def updateNetParams(self, tfSession: tf.compat.v1.Session):
     tfSession.run(self.updateNetworkParams)
+
+# Begin Abstract Methods
+  def _declareStateTensors(self):
+    self.genOutput = tf.compat.v1.placeholder(shape=[None, 1], dtype=tf.float32, name='gen_output')
+    self.totalOutput = tf.compat.v1.placeholder(shape=[None, 1], dtype=tf.float32, name='total_output')
+    self.deltaFreq = tf.compat.v1.placeholder(shape=[None, 1], dtype=tf.float32, name='delta_freq')
+
+    return [self.genOutput, self.totalOutput, self.deltaFreq]
+
+  def _unravelStateToFeedDict(self, state):
+    '''Transform state list into feed dictionary including all individual tensors for each state component'''
+    # State is wrapped much in the same way as other inputs, inside nested arrays
+    ## TODO simplify understanding of unravelling
+    genOutput = [[s[0]['genOutput']]  for s in state]
+    totalOutput = [[s[0]['totalOutput']] for s in state]
+    deltaFreq = [[s[0]['deltaFreq']] for s in state]
+
+    partialFeedDict = {
+      self.deltaFreq: deltaFreq,
+      self.genOutput: genOutput,
+      self.totalOutput: totalOutput,
+    }
+
+    return partialFeedDict
