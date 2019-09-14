@@ -1,13 +1,11 @@
 import tensorflow as tf
 from abc import ABC, abstractmethod
 
-from ..actor_dto import ActionInput, ActionOutput, ActorUpdateInput
-from ..learning_params import LearningParams
+from .learning_params import LearningParams
+from .critic_dto import CriticEstimateInput, CriticUpdateInput, CriticGradientInput
 
-_BATCH_SIZE = 32
-
-class Actor(ABC):
-  """ Actor network that estimates the policy of the maddpg algorithm"""
+class Critic(ABC):
+  """ Critic network that estimates the value of the maddpg algorithm"""
   def __init__(self, scope):
     # Number of trainable variables previously declared. Marks the point in which the variables
     # declared by this model reside in the tf.trainable_variables() list
@@ -17,20 +15,22 @@ class Actor(ABC):
 
       # Define the model (input-hidden layers-output)
       stateTensors = self._declareStateTensors()
-      self.inputs = tf.concat(stateTensors, axis=1)
+      self.action = tf.compat.v1.placeholder(shape=[None, 1], dtype=tf.float32, name='action') # action taken by actor of the same agent
+      self.actionOthers = tf.compat.v1.placeholder(shape=[None, 1], dtype=tf.float32, name='actions_others') # actions taken by actors of other agents
+      self.inputs = tf.concat([*stateTensors, self.action, self.actionOthers], axis=1)
 
       # LSTM to encode temporal information
       numInputVars = self.inputs.get_shape()[1]
       self.batchSize = tf.compat.v1.placeholder(dtype=tf.int32, shape=[], name='batch_size')   # batch size
       self.traceLength = tf.compat.v1.placeholder(dtype=tf.int32, name='trace_length')           # trace lentgth
-      rnnInputs = tf.reshape(self.inputs, [self.batchSize, self.traceLength, numInputVars])
+      rnnInput = tf.reshape(self.inputs, [self.batchSize, self.traceLength, numInputVars])
 
       ltsmNumUnits = LearningParams().nnShape.layer_00_ltsm
       ltsmCell = tf.contrib.rnn.BasicLSTMCell(num_units=ltsmNumUnits, state_is_tuple=True)
 
       self.ltsmInternalState = ltsmCell.zero_state(self.batchSize, tf.float32)
       rnn, self.rnnState = tf.nn.dynamic_rnn(
-          inputs=rnnInputs,
+          inputs=rnnInput,
           cell=ltsmCell,
           dtype=tf.float32,
           initial_state=self.ltsmInternalState,
@@ -38,28 +38,22 @@ class Actor(ABC):
           )
       rnn = tf.reshape(rnn, shape=[-1, ltsmNumUnits])
 
-      # Stack on top of LSTM
-      self.action = self._buildMlp(rnn)
+      # Stack MLP on top of LSTM
+      self.Q = self._buildMlp(rnn) # Critic output is the estimated Q value
 
       # Params relevant to this network
       self.networkParams = tf.compat.v1.trainable_variables()[tfVarBeginIdx:]
 
-      # This gradient will be provided by the critic network
-      self.criticGradient = tf.compat.v1.placeholder(dtype=tf.float32, shape=[None, 1], name='critic_gradient')
+      # Obtained from the target network (double architecture)
+      self.targetQ = tf.compat.v1.placeholder(tf.float32,  [None,  1], name='target_q')
 
-      # Take the gradients and combine
-      unnormalizedActorGradients = tf.gradients(
-                  self.action, self.networkParams, -self.criticGradient)
+      # Loss function and optimization of the critic
+      lossFn = tf.reduce_mean(tf.square(self.targetQ-self.Q))
+      optimizer = tf.compat.v1.train.AdamOptimizer(1e-4)
+      self.updateFn = optimizer.minimize(lossFn)
 
-      # Normalize dividing by the size of the batch (gradients sum all over the batch)
-      ## TODO replace hardcoded total batch steps
-      # self.totalBatchSteps = tf.multiply(self.batchSize, self.traceLength)
-      # self.actorGradients = list(map(lambda x: tf.divide(x, self.totalBatchSteps), unnormalizedActorGradients))
-      self.actorGradients = list(map(lambda x: tf.divide(x, _BATCH_SIZE), unnormalizedActorGradients))
-
-      # Optimization of the actor
-      self.optimizer = tf.compat.v1.train.AdamOptimizer(1e-4)
-      self.upd = self.optimizer.apply_gradients(zip(self.actorGradients, self.networkParams))
+      # Get the gradient for the actor
+      self.criticGradientsFn = tf.gradients(self.Q, self.action)
 
   def _buildMlp(self, rnn):
     # Perform Xavier initialization of weights
@@ -73,7 +67,7 @@ class Actor(ABC):
     l1_weights = tf.Variable(initializer([ltsmNumUnits, l1_units]), name='l1_weights')
     layer_1 = tf.nn.relu(tf.matmul(rnn, l1_weights) + l1_bias)
 
-    #Layer 2
+     #Layer 2
     l2_units = LearningParams().nnShape.layer_02_mlp_02
     l2_bias = tf.Variable(initializer([1, l2_units]), name='l2_bias')
     l2_weights = tf.Variable(initializer([l1_units, l2_units]), name='l2_weights')
@@ -89,11 +83,9 @@ class Actor(ABC):
     l4_units = LearningParams().nnShape.layer_04_mlp_04
     l4_bias = tf.Variable(initializer([1, l4_units]), name='l4_bias')
     l4_weights = tf.Variable(initializer([l3_units, l4_units]), name='l4_weights')
-    actionUnscaled = tf.nn.tanh(tf.matmul(layer_3, l4_weights) + l4_bias)
+    qValue = tf.matmul(layer_3, l4_weights)+l4_bias # Critic output is the estimated Q value
 
-    action = tf.multiply(actionUnscaled, 0.1)
-
-    return action
+    return qValue
 
   def createOpHolder(self, params, tau):
     """ Use target network op holder if needed"""
@@ -102,54 +94,61 @@ class Actor(ABC):
 
     for i in range(networkParamSize):
       assignAction = self.networkParams[i].assign(
-          tf.multiply(params[i], tau) + tf.multiply(self.networkParams[i], 1. - tau))
+          tf.multiply(params[i],  tau) + tf.multiply(self.networkParams[i],  1. - tau))
       self.updateNetworkParams[i] = assignAction
 
-  def getAction(self, tfSession: tf.compat.v1.Session, actionIn: ActionInput) -> ActionOutput:
+  def getEstimatedQ(self, tfSession: tf.compat.v1.Session, criticIn: CriticEstimateInput) -> float:
     # Unravel state into individual components
-    stateDict = self._unravelStateToFeedDict(actionIn.actorInput)
+    stateDict = self._unravelStateToFeedDict(criticIn.state)
 
-    action, nextState = tfSession.run(
-        [self.action, self.rnnState],
+    estimatedQ = tfSession.run(
+        self.Q,
         feed_dict={
             **stateDict,
-            self.ltsmInternalState: actionIn.ltsmInternalState,
-            self.batchSize: actionIn.batchSize,
-            self.traceLength: actionIn.traceLength,
+            self.action: criticIn.actionActor,
+            self.actionOthers: criticIn.actionsOthers,
+            self.traceLength: criticIn.traceLength,
+            self.batchSize: criticIn.batchSize,
+            self.ltsmInternalState: criticIn.ltsmInternalState,
         }
       )
 
-    return (action, nextState)
+    return estimatedQ
 
-  def getActionOnly(self, tfSession: tf.compat.v1.Session, actionIn: ActionInput) -> ActionOutput:
+  def updateModel(self, tfSession: tf.compat.v1.Session, criticUpd: CriticUpdateInput):
     # Unravel state into individual components
-    stateDict = self._unravelStateToFeedDict(actionIn.actorInput)
+    stateDict = self._unravelStateToFeedDict(criticUpd.state)
 
-    action = tfSession.run(
-        self.action,
+    tfSession.run(
+        self.updateFn,
         feed_dict={
             **stateDict,
-            self.ltsmInternalState: actionIn.ltsmInternalState,
-            self.batchSize: actionIn.batchSize,
-            self.traceLength: actionIn.traceLength,
+            self.action: criticUpd.actionActor,
+            self.actionOthers: criticUpd.actionsOthers,
+            self.targetQ: criticUpd.targetQs,
+            self.traceLength: criticUpd.traceLength,
+            self.batchSize: criticUpd.batchSize,
+            self.ltsmInternalState: criticUpd.ltsmInternalState,
         }
-    )
+      )
 
-    return action
+  def calculateGradients(self, tfSession: tf.compat.v1.Session, inpt: CriticGradientInput):
 
-  def updateModel(self, tfSession: tf.compat.v1.Session, inpt: ActorUpdateInput):
-    # Unravel state into individual components
     stateDict = self._unravelStateToFeedDict(inpt.state)
-    tfSession.run(
-      self.upd,
+
+    gradients = tfSession.run(
+      self.criticGradientsFn,
       feed_dict={
-          **stateDict,
-          self.criticGradient: inpt.gradients,
-          self.ltsmInternalState: inpt.ltsmInternalState,
-          self.batchSize: inpt.batchSize,
-          self.traceLength: inpt.traceLength,
+            **stateDict,
+            self.action: inpt.actionActor,
+            self.actionOthers: inpt.actionsOthers,
+            self.traceLength: inpt.traceLength,
+            self.batchSize: inpt.batchSize,
+            self.ltsmInternalState: inpt.ltsmInternalState,
         }
     )
+    gradients = gradients[0]
+    return gradients
 
   def updateNetParams(self, tfSession: tf.compat.v1.Session):
     tfSession.run(self.updateNetworkParams)

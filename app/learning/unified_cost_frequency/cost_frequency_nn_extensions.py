@@ -1,6 +1,7 @@
 import tensorflow as tf
 
-from ..unified import Actor, Critic
+from ..actor import Actor
+from ..critic import Critic
 
 class NnExtensionCostFrequency():
   def _declareStateTensors(self):

@@ -1,11 +1,12 @@
 import tensorflow as tf
+from abc import ABC, abstractmethod
 
 from .actor_dto import ActionInput, ActionOutput, ActorUpdateInput
 from .learning_params import LearningParams
 
 _BATCH_SIZE = 32
 
-class ActorMaddpg():
+class Actor(ABC):
   """ Actor network that estimates the policy of the maddpg algorithm"""
   def __init__(self, scope):
     # Number of trainable variables previously declared. Marks the point in which the variables
@@ -15,7 +16,8 @@ class ActorMaddpg():
     with tf.name_scope(scope):
 
       # Define the model (input-hidden layers-output)
-      self.inputs = tf.compat.v1.placeholder(shape=[None, 1], dtype=tf.float32, name='inputs')
+      stateTensors = self._declareStateTensors()
+      self.inputs = tf.concat(stateTensors, axis=1)
 
       # LSTM to encode temporal information
       numInputVars = self.inputs.get_shape()[1]
@@ -37,7 +39,7 @@ class ActorMaddpg():
       rnn = tf.reshape(rnn, shape=[-1, ltsmNumUnits])
 
       # Stack on top of LSTM
-      self.action = ActorMaddpg._buildMlp(rnn)
+      self.action = self._buildMlp(rnn)
 
       # Params relevant to this network
       self.networkParams = tf.compat.v1.trainable_variables()[tfVarBeginIdx:]
@@ -50,14 +52,16 @@ class ActorMaddpg():
                   self.action, self.networkParams, -self.criticGradient)
 
       # Normalize dividing by the size of the batch (gradients sum all over the batch)
+      ## TODO replace hardcoded total batch steps
+      # self.totalBatchSteps = tf.multiply(self.batchSize, self.traceLength)
+      # self.actorGradients = list(map(lambda x: tf.divide(x, self.totalBatchSteps), unnormalizedActorGradients))
       self.actorGradients = list(map(lambda x: tf.divide(x, _BATCH_SIZE), unnormalizedActorGradients))
 
       # Optimization of the actor
       self.optimizer = tf.compat.v1.train.AdamOptimizer(1e-4)
       self.upd = self.optimizer.apply_gradients(zip(self.actorGradients, self.networkParams))
 
-  @staticmethod
-  def _buildMlp(rnn):
+  def _buildMlp(self, rnn):
     # Perform Xavier initialization of weights
     initializer = tf.contrib.layers.xavier_initializer()
 
@@ -102,10 +106,13 @@ class ActorMaddpg():
       self.updateNetworkParams[i] = assignAction
 
   def getAction(self, tfSession: tf.compat.v1.Session, actionIn: ActionInput) -> ActionOutput:
+    # Unravel state into individual components
+    stateDict = self._unravelStateToFeedDict(actionIn.actorInput)
+
     action, nextState = tfSession.run(
         [self.action, self.rnnState],
         feed_dict={
-            self.inputs: actionIn.actorInput,
+            **stateDict,
             self.ltsmInternalState: actionIn.ltsmInternalState,
             self.batchSize: actionIn.batchSize,
             self.traceLength: actionIn.traceLength,
@@ -115,10 +122,13 @@ class ActorMaddpg():
     return (action, nextState)
 
   def getActionOnly(self, tfSession: tf.compat.v1.Session, actionIn: ActionInput) -> ActionOutput:
+    # Unravel state into individual components
+    stateDict = self._unravelStateToFeedDict(actionIn.actorInput)
+
     action = tfSession.run(
         self.action,
         feed_dict={
-            self.inputs: actionIn.actorInput,
+            **stateDict,
             self.ltsmInternalState: actionIn.ltsmInternalState,
             self.batchSize: actionIn.batchSize,
             self.traceLength: actionIn.traceLength,
@@ -128,10 +138,12 @@ class ActorMaddpg():
     return action
 
   def updateModel(self, tfSession: tf.compat.v1.Session, inpt: ActorUpdateInput):
+    # Unravel state into individual components
+    stateDict = self._unravelStateToFeedDict(inpt.state)
     tfSession.run(
       self.upd,
       feed_dict={
-          self.inputs: inpt.state,
+          **stateDict,
           self.criticGradient: inpt.gradients,
           self.ltsmInternalState: inpt.ltsmInternalState,
           self.batchSize: inpt.batchSize,
@@ -141,3 +153,16 @@ class ActorMaddpg():
 
   def updateNetParams(self, tfSession: tf.compat.v1.Session):
     tfSession.run(self.updateNetworkParams)
+
+  #############################
+  # Begin Abstract Methods
+  #############################
+
+  @abstractmethod
+  def _declareStateTensors(self):
+    pass
+
+  @abstractmethod
+  def _unravelStateToFeedDict(self, state):
+    '''Transform state list into feed dictionary including all individual tensors for each state component'''
+    pass

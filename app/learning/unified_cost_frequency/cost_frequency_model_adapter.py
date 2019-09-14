@@ -1,6 +1,6 @@
 from .cost_frequency_nn_extensions import ActorCostFrequency, CriticCostFrequency
 
-from ..unified import ModelAdapter
+from ..model_adapter import ModelAdapter
 
 class ModelAdapterCostFrequency(ModelAdapter):
 
