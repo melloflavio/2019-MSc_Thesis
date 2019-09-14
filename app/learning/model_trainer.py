@@ -83,19 +83,20 @@ class ModelTrainer():
     return _model.allAgents
 
   def executeStep(self, tfSession: tf.compat.v1.Session):
-    _episode = LearningState().episode
+    elecSystem = LearningState().episode.electricalSystem
+    allAgents = LearningState().model.allAgents
     # Get all agents' actions
-    allStatesOrigin = self._modelAdapter.observeStates(_episode.electricalSystem)
+    allStatesOrigin = self._modelAdapter.observeStates(elecSystem=elecSystem, allAgents=allAgents)
     allActions = self._01_calculateAllActorActions(tfSession, allStatesOrigin)
 
     # Execute agents'actions (i.e. update the generators' power output)
     self._02_executeAllActorActions(allActions)
 
     # Calculate the earned reward
-    earnedReward, rewardComponents = self._modelAdapter.calculateReward(_episode.electricalSystem)
+    earnedReward, rewardComponents = self._modelAdapter.calculateReward(elecSystem)
 
     # Store experience
-    allStatesDestination = self._modelAdapter.observeStates(_episode.electricalSystem)
+    allStatesDestination = self._modelAdapter.observeStates(elecSystem=elecSystem, allAgents=allAgents)
     experience = self._03_storeEpisodeExperience(allStatesOrigin, allStatesDestination, allActions, earnedReward, rewardComponents)
     return experience
 

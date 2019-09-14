@@ -1,1 +1,0 @@
-from .cost_frequency_model_adapter import ModelAdapterCostFrequency

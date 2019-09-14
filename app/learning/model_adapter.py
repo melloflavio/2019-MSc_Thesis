@@ -34,7 +34,7 @@ class ModelAdapter(ABC):
     pass
 
   @abstractmethod
-  def observeStates(self, elecSystem):
+  def observeStates(self, elecSystem, allAgents):
     pass
 
   @abstractmethod

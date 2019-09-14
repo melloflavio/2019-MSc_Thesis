@@ -1,0 +1,1 @@
+from .model_adapter_frequency import ModelAdapterFrequency

@@ -1,6 +1,6 @@
-from .cost_frequency_nn_extensions import ActorCostFrequency, CriticCostFrequency
-
 from ..model_adapter import ModelAdapter
+
+from .nn_extensions_cost_frequency import ActorCostFrequency, CriticCostFrequency
 
 class ModelAdapterCostFrequency(ModelAdapter):
 
@@ -31,7 +31,7 @@ class ModelAdapterCostFrequency(ModelAdapter):
     return shouldStop
 
   ## TODO enforce typing
-  def observeStates(self, elecSystem):
+  def observeStates(self, elecSystem, allAgents):
     deltaFreq = elecSystem.getCurrentDeltaF()
     generatorsOutputs = elecSystem.getGeneratorsOutputs()
     totalOutput = sum(generatorsOutputs.values())
