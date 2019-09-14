@@ -1,4 +1,5 @@
 import tensorflow as tf
+import numpy as np
 from abc import ABC, abstractmethod
 
 from .learning_params import LearningParams
@@ -16,8 +17,8 @@ class Critic(ABC):
       # Define the model (input-hidden layers-output)
       stateTensors = self._declareStateTensors()
       self.action = tf.compat.v1.placeholder(shape=[None, 1], dtype=tf.float32, name='action') # action taken by actor of the same agent
-      self.actionOthers = tf.compat.v1.placeholder(shape=[None, 1], dtype=tf.float32, name='actions_others') # actions taken by actors of other agents
-      self.inputs = tf.concat([*stateTensors, self.action, self.actionOthers], axis=1)
+      self.actionOthers = self.declareActionOthersTensors()
+      self.inputs = tf.concat([*stateTensors, self.action, *self.actionOthers], axis=1)
 
       # LSTM to encode temporal information
       numInputVars = self.inputs.get_shape()[1]
@@ -100,13 +101,14 @@ class Critic(ABC):
   def getEstimatedQ(self, tfSession: tf.compat.v1.Session, criticIn: CriticEstimateInput, ltsmState) -> float:
     # Unravel state into individual components
     stateDict = self._unravelStateToFeedDict(criticIn.state)
+    actionsOthersDict = self.unravelActionOthersInputToFeedDict(criticIn)
 
     estimatedQ = tfSession.run(
         self.Q,
         feed_dict={
             **stateDict,
+            **actionsOthersDict,
             self.action: criticIn.actionActor,
-            self.actionOthers: criticIn.actionsOthers,
             self.traceLength: criticIn.traceLength,
             self.batchSize: criticIn.batchSize,
             self.ltsmInternalState: ltsmState,
@@ -118,13 +120,14 @@ class Critic(ABC):
   def updateModel(self, tfSession: tf.compat.v1.Session, criticUpd: CriticUpdateInput, ltsmState):
     # Unravel state into individual components
     stateDict = self._unravelStateToFeedDict(criticUpd.state)
+    actionsOthersDict = self.unravelActionOthersInputToFeedDict(criticUpd)
 
     tfSession.run(
         self.updateFn,
         feed_dict={
             **stateDict,
+            **actionsOthersDict,
             self.action: criticUpd.actionActor,
-            self.actionOthers: criticUpd.actionsOthers,
             self.targetQ: criticUpd.targetQs,
             self.traceLength: criticUpd.traceLength,
             self.batchSize: criticUpd.batchSize,
@@ -136,12 +139,14 @@ class Critic(ABC):
 
     stateDict = self._unravelStateToFeedDict(inpt.state)
 
+    actionsOthersDict = self.unravelActionOthersInputToFeedDict(inpt)
+
     gradients = tfSession.run(
       self.criticGradientsFn,
       feed_dict={
             **stateDict,
+            **actionsOthersDict,
             self.action: inpt.actionActor,
-            self.actionOthers: inpt.actionsOthers,
             self.traceLength: inpt.traceLength,
             self.batchSize: inpt.batchSize,
             self.ltsmInternalState: ltsmState,
@@ -152,6 +157,32 @@ class Critic(ABC):
 
   def updateNetParams(self, tfSession: tf.compat.v1.Session):
     tfSession.run(self.updateNetworkParams)
+
+  def declareActionOthersTensors(self):
+    numAgents = len(LearningParams().electricalSystemSpecs.generators)
+
+    actionOthers = []
+    for i in range(numAgents - 1): # -1 since this agent is one of the list
+      tensorName = f'actions_others_{i}'
+      actionOtherTensor = tf.compat.v1.placeholder(shape=[None, 1], dtype=tf.float32, name=tensorName) # actions taken by actors of other agents
+      actionOthers.append(actionOtherTensor)
+    return actionOthers
+
+  def unravelActionOthersInputToFeedDict(self, inpt):
+    numAgents = len(LearningParams().electricalSystemSpecs.generators)
+
+    actionOthersValues = inpt.actionsOthers
+    batchSize = inpt.batchSize
+    traceLength = inpt.traceLength
+
+    reshapedActions = np.reshape(actionOthersValues, (-1, batchSize * traceLength))
+
+    actionsOthersDict = {
+      tensor: [[a] for a in actions]
+      for tensor, actions in zip(self.actionOthers, reshapedActions)
+    }
+
+    return actionsOthersDict
 
   #############################
   # Begin Abstract Methods
