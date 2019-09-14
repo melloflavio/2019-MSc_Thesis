@@ -86,24 +86,17 @@ class ModelTrainer():
   def executeStep(self, tfSession: tf.compat.v1.Session):
     _episode = LearningState().episode
     # Get all agents' actions
-    deltaFreqOriginal = _episode.electricalSystem.getCurrentDeltaF()
-    generatorsOutputsOrigin = _episode.electricalSystem.getGeneratorsOutputs()
-    totalOutputOrigin = sum(generatorsOutputsOrigin.values())
-    allStatesOrigin = {actorId: {'genOutput': output, 'totalOutput':totalOutputOrigin, 'deltaFreq':deltaFreqOriginal} for actorId, output in generatorsOutputsOrigin.items()}
+    allStatesOrigin = self._observeStates(_episode.electricalSystem)
     allActions = self._01_calculateAllActorActions(tfSession, allStatesOrigin)
 
     # Execute agents'actions (i.e. update the generators' power output)
     self._02_executeAllActorActions(allActions)
 
     # Calculate the earned reward
-    deltaFreqDestination = _episode.electricalSystem.getCurrentDeltaF()
-    generatorsOutputsDestination = _episode.electricalSystem.getGeneratorsOutputs()
-    totalOutputDestination = sum(generatorsOutputsDestination.values())
-    allStatesDestination = {actorId: {'genOutput': output, 'totalOutput':totalOutputDestination, 'deltaFreq':deltaFreqDestination} for actorId, output in generatorsOutputsDestination.items()}
+    earnedReward, rewardComponents = self._calculateReward(_episode.electricalSystem)
 
-    totalCost = _episode.electricalSystem.getTotalCost()
-    earnedReward, rewardComponents = self._rewardFn(deltaFreq=deltaFreqDestination, totalCost=totalCost)
-
+    # Store experience
+    allStatesDestination = self._observeStates(_episode.electricalSystem)
     experience = self._03_storeEpisodeExperience(allStatesOrigin, allStatesDestination, allActions, earnedReward, rewardComponents)
     return experience
 
@@ -351,3 +344,17 @@ class ModelTrainer():
     costDifferential = elecSystem.getCostOptimalDiferential()
     shouldStop = abs(costDifferential) > 50
     return shouldStop
+
+  ## TODO enforce typing
+  def _observeStates(self, elecSystem):
+    deltaFreqOriginal = elecSystem.getCurrentDeltaF()
+    generatorsOutputsOrigin = elecSystem.getGeneratorsOutputs()
+    totalOutputOrigin = sum(generatorsOutputsOrigin.values())
+    allStatesOrigin = {actorId: {'genOutput': output, 'totalOutput':totalOutputOrigin, 'deltaFreq':deltaFreqOriginal} for actorId, output in generatorsOutputsOrigin.items()}
+    return allStatesOrigin
+
+  def _calculateReward(self, elecSystem):
+    deltaFreq = elecSystem.getCurrentDeltaF()
+    totalCost = elecSystem.getTotalCost()
+    earnedReward, rewardComponents = self._rewardFn(deltaFreq=deltaFreq, totalCost=totalCost)
+    return earnedReward, rewardComponents
