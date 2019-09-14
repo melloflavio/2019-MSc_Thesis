@@ -8,7 +8,7 @@ from models import getPathForModel
 from .reward import rewardFunction
 from .learning_agent import Agent
 
-class CostModelTester():
+class ModelTester():
   @staticmethod
   def testAgents(electricalSystemSpecs: ElectricalSystemSpecs, modelName: str, rewardFn=rewardFunction, stepsToTest: int = 500):
     # Clear existing graph

@@ -40,7 +40,7 @@ class Critic():
       rnn = tf.reshape(rnn, shape=[-1, ltsmNumUnits])
 
       # Stack MLP on top of LSTM
-      self.Q = CostCriticMaddpg._buildMlp(rnn) # Critic output is the estimated Q value
+      self.Q = self._buildMlp(rnn) # Critic output is the estimated Q value
 
       # Params relevant to this network
       self.networkParams = tf.compat.v1.trainable_variables()[tfVarBeginIdx:]
@@ -56,8 +56,7 @@ class Critic():
       # Get the gradient for the actor
       self.criticGradientsFn = tf.gradients(self.Q, self.action)
 
-  @staticmethod
-  def _buildMlp(rnn):
+  def _buildMlp(self, rnn):
     # Perform Xavier initialization of weights
     initializer = tf.contrib.layers.xavier_initializer()
 

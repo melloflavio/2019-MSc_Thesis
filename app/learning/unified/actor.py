@@ -41,7 +41,7 @@ class Actor():
       rnn = tf.reshape(rnn, shape=[-1, ltsmNumUnits])
 
       # Stack on top of LSTM
-      self.action = CostActorMaddpg._buildMlp(rnn)
+      self.action = self._buildMlp(rnn)
 
       # Params relevant to this network
       self.networkParams = tf.compat.v1.trainable_variables()[tfVarBeginIdx:]
@@ -60,8 +60,7 @@ class Actor():
       self.optimizer = tf.compat.v1.train.AdamOptimizer(1e-4)
       self.upd = self.optimizer.apply_gradients(zip(self.actorGradients, self.networkParams))
 
-  @staticmethod
-  def _buildMlp(rnn):
+  def _buildMlp(self, rnn):
     # Perform Xavier initialization of weights
     initializer = tf.contrib.layers.xavier_initializer()
 
