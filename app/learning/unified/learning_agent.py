@@ -13,12 +13,12 @@ _scopeSuffix='cost'
 class Agent():
   """Entity representing a single agent in the scenario to be learned. Contains the actors & critics associated with learning"""
 
-  def __init__(self, _id):
+  def __init__(self, _id, modelAdapter):
     self._id = _id # Unique identifier of the agent
-    self.actor       = Actor(scope=f'{_scopeSuffix}_{_id}_actor')
-    self.actorTarget = Actor(scope=f'{_scopeSuffix}_{_id}_actor_target')
-    self.critic       = Critic(scope=f'{_scopeSuffix}_{_id}_critic')
-    self.criticTarget = Critic(scope=f'{_scopeSuffix}_{_id}_critic_target')
+    self.actor       = modelAdapter.Actor(scope=f'{modelAdapter.SCOPE_PREFIX}_{_id}_actor')
+    self.actorTarget = modelAdapter.Actor(scope=f'{modelAdapter.SCOPE_PREFIX}_{_id}_actor_target')
+    self.critic       = modelAdapter.Critic(scope=f'{modelAdapter.SCOPE_PREFIX}_{_id}_critic')
+    self.criticTarget = modelAdapter.Critic(scope=f'{modelAdapter.SCOPE_PREFIX}_{_id}_critic_target')
 
     # Create Op Holders for target networks
     self.actorTarget.createOpHolder(self.actor.networkParams, LearningParams().tau)

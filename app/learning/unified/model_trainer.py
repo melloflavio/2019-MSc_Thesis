@@ -7,7 +7,6 @@ from dto import ElectricalSystemSpecs, NodePowerUpdate
 from models import getPathForModel, getPathForParams
 
 from .learning_agent import Agent
-from .reward import rewardFunction
 from ..learning_state import LearningState
 from ..learning_params import LearningParams
 from ..experience_buffer import ExperienceBuffer, LearningExperience
@@ -17,9 +16,9 @@ from ..actor_dto import ActorUpdateInput
 from ..epsilon import Epsilon
 
 class ModelTrainer():
-  _rewardFn = None
-  def __init__(self, rewardFn=rewardFunction):
-    self._rewardFn = rewardFn
+  _modelAdapter = None
+  def __init__(self, modelAdapter):
+    self._modelAdapter = modelAdapter
 
   def trainAgents(self):
     # Clears existing TF graph
@@ -27,7 +26,7 @@ class ModelTrainer():
 
     # Initialize Learning State
     LearningState().initData(
-        allAgents=[Agent(generator.id_) for generator in LearningParams().electricalSystemSpecs.generators],
+        allAgents=[Agent(generator.id_, self._modelAdapter) for generator in LearningParams().electricalSystemSpecs.generators],
         xpBuffer=ExperienceBuffer(),
         epsilon=Epsilon(
             specs=LearningParams().epsilonSpecs,
@@ -71,7 +70,7 @@ class ModelTrainer():
           _model.epsilon.decay()
 
           # End episode prematurely if things diverge too much
-          if (self._shouldStopEarly(_episode.electricalSystem)):
+          if (self._modelAdapter.shouldStopEarly(_episode.electricalSystem)):
             break
 
         # Store episodes' experiences if they are large enough to have at least a single complete trace
@@ -86,17 +85,17 @@ class ModelTrainer():
   def executeStep(self, tfSession: tf.compat.v1.Session):
     _episode = LearningState().episode
     # Get all agents' actions
-    allStatesOrigin = self._observeStates(_episode.electricalSystem)
+    allStatesOrigin = self._modelAdapter.observeStates(_episode.electricalSystem)
     allActions = self._01_calculateAllActorActions(tfSession, allStatesOrigin)
 
     # Execute agents'actions (i.e. update the generators' power output)
     self._02_executeAllActorActions(allActions)
 
     # Calculate the earned reward
-    earnedReward, rewardComponents = self._calculateReward(_episode.electricalSystem)
+    earnedReward, rewardComponents = self._modelAdapter.calculateReward(_episode.electricalSystem)
 
     # Store experience
-    allStatesDestination = self._observeStates(_episode.electricalSystem)
+    allStatesDestination = self._modelAdapter.observeStates(_episode.electricalSystem)
     experience = self._03_storeEpisodeExperience(allStatesOrigin, allStatesDestination, allActions, earnedReward, rewardComponents)
     return experience
 
@@ -340,21 +339,21 @@ class ModelTrainer():
       agent.updateTargetModels(tfSession)
 
 ### BEGIN ABSTRACT METHODS
-  def _shouldStopEarly(self, elecSystem):
-    costDifferential = elecSystem.getCostOptimalDiferential()
-    shouldStop = abs(costDifferential) > 50
-    return shouldStop
+  # def _shouldStopEarly(self, elecSystem):
+  #   costDifferential = elecSystem.getCostOptimalDiferential()
+  #   shouldStop = abs(costDifferential) > 50
+  #   return shouldStop
 
   ## TODO enforce typing
-  def _observeStates(self, elecSystem):
-    deltaFreqOriginal = elecSystem.getCurrentDeltaF()
-    generatorsOutputsOrigin = elecSystem.getGeneratorsOutputs()
-    totalOutputOrigin = sum(generatorsOutputsOrigin.values())
-    allStatesOrigin = {actorId: {'genOutput': output, 'totalOutput':totalOutputOrigin, 'deltaFreq':deltaFreqOriginal} for actorId, output in generatorsOutputsOrigin.items()}
-    return allStatesOrigin
+  # def _observeStates(self, elecSystem):
+  #   deltaFreqOriginal = elecSystem.getCurrentDeltaF()
+  #   generatorsOutputsOrigin = elecSystem.getGeneratorsOutputs()
+  #   totalOutputOrigin = sum(generatorsOutputsOrigin.values())
+  #   allStatesOrigin = {actorId: {'genOutput': output, 'totalOutput':totalOutputOrigin, 'deltaFreq':deltaFreqOriginal} for actorId, output in generatorsOutputsOrigin.items()}
+  #   return allStatesOrigin
 
-  def _calculateReward(self, elecSystem):
-    deltaFreq = elecSystem.getCurrentDeltaF()
-    totalCost = elecSystem.getTotalCost()
-    earnedReward, rewardComponents = self._rewardFn(deltaFreq=deltaFreq, totalCost=totalCost)
-    return earnedReward, rewardComponents
+  # def _calculateReward(self, elecSystem):
+  #   deltaFreq = elecSystem.getCurrentDeltaF()
+  #   totalCost = elecSystem.getTotalCost()
+  #   earnedReward, rewardComponents = self._rewardFn(deltaFreq=deltaFreq, totalCost=totalCost)
+  #   return earnedReward, rewardComponents
