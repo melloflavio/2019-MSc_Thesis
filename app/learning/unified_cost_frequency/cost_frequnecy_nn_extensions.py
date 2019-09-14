@@ -1,8 +1,8 @@
 import tensorflow as tf
 
-from ..unified import Actor
+from ..unified import Actor, Critic
 
-class ActorCostFrequency(Actor):
+class NnExtensionCostFrequency():
   def _declareStateTensors(self):
     self.genOutput = tf.compat.v1.placeholder(shape=[None, 1], dtype=tf.float32, name='gen_output')
     self.totalOutput = tf.compat.v1.placeholder(shape=[None, 1], dtype=tf.float32, name='total_output')
@@ -25,3 +25,11 @@ class ActorCostFrequency(Actor):
     }
 
     return partialFeedDict
+
+# Dual inheritance ensures both actor and critic process the state the exact same way
+# Order of inheritance matters to ensure the newly minted class satisfies the Abstract conditions
+class ActorCostFrequency(NnExtensionCostFrequency, Actor):
+  pass
+
+class CriticCostFrequency(NnExtensionCostFrequency, Critic):
+  pass
