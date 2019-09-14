@@ -24,9 +24,12 @@ class ModelTrainer():
     # Clears existing TF graph
     tf.compat.v1.reset_default_graph()
 
+    allGenerators = LearningParams().electricalSystemSpecs.generators
+    allAgents = [Agent(generator.id_, self._modelAdapter) for generator in allGenerators]
+
     # Initialize Learning State
     LearningState().initData(
-        allAgents=[Agent(generator.id_, self._modelAdapter) for generator in LearningParams().electricalSystemSpecs.generators],
+        allAgents=allAgents,
         xpBuffer=ExperienceBuffer(),
         epsilon=Epsilon(
             specs=LearningParams().epsilonSpecs,
@@ -134,16 +137,7 @@ class ModelTrainer():
 
     # Refresh LTSM states for all actors
     for agent in LearningState().model.allAgents:
-      agent.resetLtsmState()
-
-    # self._initTotalZ = sum(LearningState().episode.electricalSystem.getGeneratorsOutputs().values())
-
-  def getEmptyLtsmState(self):
-    """Generates an empty training state"""
-    batchSize = LearningParams().batchSize
-    lstmSize = LearningParams().nnShape.layer_00_ltsm
-    emptyState = (np.zeros([batchSize, lstmSize]), ) * len(LearningState().model.allAgents)
-    return emptyState
+      agent.resetAllLtsmStates()
 
   def runUpdateCycle(self, tfSession: tf.compat.v1.Session):
     """Updates all agents' models using experiences previously stored in the experience buffer"""
@@ -227,7 +221,6 @@ class ModelTrainer():
       agent.peekActorTargetAction(
           tfSession=tfSession,
           state=xpBatch.destinationStates.get(agent.getId()),
-          ltsmState=self.getEmptyLtsmState(),
         )
       for agent in allAgents]
 
@@ -250,7 +243,6 @@ class ModelTrainer():
               state=xpBatch.destinationStates.get(agent.getId()),
               actionActor=targetAction,
               actionsOthers=otherTargetActions,
-              ltsmInternalState=self.getEmptyLtsmState(),
               batchSize=batchSize,
               traceLength=traceLength,
           )
@@ -279,7 +271,6 @@ class ModelTrainer():
               actionActor=agentActions,
               actionsOthers=actionsOthers,
               targetQs=targetQs,
-              ltsmInternalState=self.getEmptyLtsmState(),
               batchSize=batchSize,
               traceLength=traceLength,
         ),
@@ -291,7 +282,6 @@ class ModelTrainer():
     allNewActions = [agent.peekActorAction(
                 tfSession=tfSession,
                 currentDeltaF=xpBatch.originalStates.get(agent.getId()),
-                ltsmState=self.getEmptyLtsmState(),
               ) for agent in allAgents]
 
     return allNewActions
@@ -312,7 +302,6 @@ class ModelTrainer():
               state=xpBatch.originalStates.get(agent.getId()),
               actionActor=agentActions,
               actionsOthers=actionsOthers,
-              ltsmInternalState=self.getEmptyLtsmState(),
               batchSize=batchSize,
               traceLength=traceLength,
           )
@@ -331,7 +320,6 @@ class ModelTrainer():
           inpt=ActorUpdateInput(
               state=xpBatch.originalStates.get(agent.getId()),
               gradients=allGradients[agentIdx],
-              ltsmInternalState=self.getEmptyLtsmState(),
               batchSize=batchSize,
               traceLength=traceLength,
           )

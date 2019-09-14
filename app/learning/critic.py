@@ -97,7 +97,7 @@ class Critic(ABC):
           tf.multiply(params[i],  tau) + tf.multiply(self.networkParams[i],  1. - tau))
       self.updateNetworkParams[i] = assignAction
 
-  def getEstimatedQ(self, tfSession: tf.compat.v1.Session, criticIn: CriticEstimateInput) -> float:
+  def getEstimatedQ(self, tfSession: tf.compat.v1.Session, criticIn: CriticEstimateInput, ltsmState) -> float:
     # Unravel state into individual components
     stateDict = self._unravelStateToFeedDict(criticIn.state)
 
@@ -109,13 +109,13 @@ class Critic(ABC):
             self.actionOthers: criticIn.actionsOthers,
             self.traceLength: criticIn.traceLength,
             self.batchSize: criticIn.batchSize,
-            self.ltsmInternalState: criticIn.ltsmInternalState,
+            self.ltsmInternalState: ltsmState,
         }
       )
 
     return estimatedQ
 
-  def updateModel(self, tfSession: tf.compat.v1.Session, criticUpd: CriticUpdateInput):
+  def updateModel(self, tfSession: tf.compat.v1.Session, criticUpd: CriticUpdateInput, ltsmState):
     # Unravel state into individual components
     stateDict = self._unravelStateToFeedDict(criticUpd.state)
 
@@ -128,11 +128,11 @@ class Critic(ABC):
             self.targetQ: criticUpd.targetQs,
             self.traceLength: criticUpd.traceLength,
             self.batchSize: criticUpd.batchSize,
-            self.ltsmInternalState: criticUpd.ltsmInternalState,
+            self.ltsmInternalState: ltsmState,
         }
       )
 
-  def calculateGradients(self, tfSession: tf.compat.v1.Session, inpt: CriticGradientInput):
+  def calculateGradients(self, tfSession: tf.compat.v1.Session, inpt: CriticGradientInput, ltsmState):
 
     stateDict = self._unravelStateToFeedDict(inpt.state)
 
@@ -144,7 +144,7 @@ class Critic(ABC):
             self.actionOthers: inpt.actionsOthers,
             self.traceLength: inpt.traceLength,
             self.batchSize: inpt.batchSize,
-            self.ltsmInternalState: inpt.ltsmInternalState,
+            self.ltsmInternalState: ltsmState,
         }
     )
     gradients = gradients[0]

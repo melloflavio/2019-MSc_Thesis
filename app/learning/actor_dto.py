@@ -17,6 +17,5 @@ class ActionOutput:
 class ActorUpdateInput:
   state: List[List[any]]
   gradients: any
-  ltsmInternalState: tuple
   batchSize: int
   traceLength: int

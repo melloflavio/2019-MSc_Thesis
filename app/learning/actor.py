@@ -137,7 +137,7 @@ class Actor(ABC):
 
     return action
 
-  def updateModel(self, tfSession: tf.compat.v1.Session, inpt: ActorUpdateInput):
+  def updateModel(self, tfSession: tf.compat.v1.Session, inpt: ActorUpdateInput, ltsmState):
     # Unravel state into individual components
     stateDict = self._unravelStateToFeedDict(inpt.state)
     tfSession.run(
@@ -145,9 +145,9 @@ class Actor(ABC):
       feed_dict={
           **stateDict,
           self.criticGradient: inpt.gradients,
-          self.ltsmInternalState: inpt.ltsmInternalState,
           self.batchSize: inpt.batchSize,
           self.traceLength: inpt.traceLength,
+          self.ltsmInternalState: ltsmState,
         }
     )
 
