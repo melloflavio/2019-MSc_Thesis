@@ -38,8 +38,8 @@ def plotObservedPower(history: SystemHistory, figureNum=0, shouldPlotAllLoads=Fa
     generatorSeries = generators[generatorId]
     plt.plot(stepsSeries, generatorSeries, color=generatorColor, label=f'{generatorId}')
 
-  totalSecondary = [sum (perGenOutput) for perGenOutput in zip(*generators.values())]
-  plt.plot(stepsSeries, totalSecondary, color=colorTotalPower, label='Total Secondary Ouput', linestyle='--')
+  # totalSecondary = [sum (perGenOutput) for perGenOutput in zip(*generators.values())]
+  # plt.plot(stepsSeries, totalSecondary, color=colorTotalPower, label='Total Secondary Ouput', linestyle='--')
 
   plt.legend()
   plt.xlabel('Steps', fontsize=FONT_SIZES['AXIS_LABEL'])
