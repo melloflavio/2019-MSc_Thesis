@@ -1,8 +1,8 @@
 import tensorflow as tf
 import numpy as np
 
-from .cost_freq_actor import CostActorMaddpg as Actor
-from .cost_freq_critic import CostCriticMaddpg as Critic
+from .actor import Actor
+from .critic import Critic
 from ..learning_params import LearningParams
 from ..learning_state import LearningState
 from ..actor_dto import ActionInput, ActorUpdateInput
@@ -10,7 +10,7 @@ from ..critic_dto import CriticEstimateInput, CriticUpdateInput, CriticGradientI
 
 _scopeSuffix='cost'
 
-class CostAgent():
+class Agent():
   """Entity representing a single agent in the scenario to be learned. Contains the actors & critics associated with learning"""
 
   def __init__(self, _id):

@@ -3,7 +3,7 @@ import tensorflow as tf
 from ..learning_params import LearningParams
 from ..critic_dto import CriticEstimateInput, CriticUpdateInput, CriticGradientInput
 
-class CostCriticMaddpg():
+class Critic():
   """ Critic network that estimates the value of the maddpg algorithm"""
   def __init__(self, scope):
     # Number of trainable variables previously declared. Marks the point in which the variables

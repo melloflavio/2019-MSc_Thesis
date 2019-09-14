@@ -5,7 +5,7 @@ from ..learning_params import LearningParams
 
 _BATCH_SIZE = 32
 
-class CostActorMaddpg():
+class Actor():
   """ Actor network that estimates the policy of the maddpg algorithm"""
   def __init__(self, scope):
     # Number of trainable variables previously declared. Marks the point in which the variables

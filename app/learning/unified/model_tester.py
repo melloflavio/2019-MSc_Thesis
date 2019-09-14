@@ -5,12 +5,12 @@ from electricity import ElectricalSystemFactory
 from dto import ElectricalSystemSpecs, NodePowerUpdate
 from models import getPathForModel
 
-from .cost_freq_reward import costRewardFunction
-from .cost_freq_learning_agent import CostAgent as Agent
+from .reward import rewardFunction
+from .learning_agent import Agent
 
 class CostModelTester():
   @staticmethod
-  def testAgents(electricalSystemSpecs: ElectricalSystemSpecs, modelName: str, rewardFn=costRewardFunction, stepsToTest: int = 500):
+  def testAgents(electricalSystemSpecs: ElectricalSystemSpecs, modelName: str, rewardFn=rewardFunction, stepsToTest: int = 500):
     # Clear existing graph
     tf.compat.v1.reset_default_graph()
 

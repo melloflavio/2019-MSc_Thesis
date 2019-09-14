@@ -6,8 +6,8 @@ from electricity import ElectricalSystemFactory
 from dto import ElectricalSystemSpecs, NodePowerUpdate
 from models import getPathForModel, getPathForParams
 
-from .cost_freq_learning_agent import CostAgent as Agent
-from .cost_freq_reward import costRewardFunction
+from .learning_agent import Agent
+from .reward import rewardFunction
 from ..learning_state import LearningState
 from ..learning_params import LearningParams
 from ..experience_buffer import ExperienceBuffer, LearningExperience
@@ -21,7 +21,7 @@ class CostModelTrainer():
   # _initTotalZ = None
 
   @staticmethod
-  def trainAgents(rewardFn=costRewardFunction):
+  def trainAgents(rewardFn=rewardFunction):
     CostModelTrainer._rewardFn = rewardFn
     # Clears existing TF graph
     tf.compat.v1.reset_default_graph()
@@ -43,9 +43,6 @@ class CostModelTrainer():
     _params = LearningParams()
 
     tfInit = tf.compat.v1.global_variables_initializer()
-    # cfg = tf.ConfigProto(allow_soft_placement=True )
-    # cfg.gpu_options.allow_growth = True
-    # cfg.log_device_placement = True
 
     # Main TF loop
     with tf.compat.v1.Session() as tfSession:
