@@ -1,4 +1,4 @@
-from .nn_extensions import ActorCostFrequency, CriticCostFrequency
+from .cost_frequency_nn_extensions import ActorCostFrequency, CriticCostFrequency
 
 from ..unified import ModelAdapter
 
