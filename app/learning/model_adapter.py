@@ -38,5 +38,10 @@ class ModelAdapter(ABC):
     pass
 
   @abstractmethod
+  def storePreactionStateReward(self, elecSystem):
+    '''Stores state values which may be used later to calcluate reward. Called before system executes actions.'''
+    pass
+
+  @abstractmethod
   def calculateReward(self, elecSystem):
     pass

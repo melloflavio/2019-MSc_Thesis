@@ -85,6 +85,10 @@ class ModelTrainer():
   def executeStep(self, tfSession: tf.compat.v1.Session):
     elecSystem = LearningState().episode.electricalSystem
     allAgents = LearningState().model.allAgents
+
+    # Stores pre action state to be used in calculating reward
+    self._modelAdapter.storePreactionStateReward(elecSystem)
+
     # Get all agents' actions
     allStatesOrigin = self._modelAdapter.observeStates(elecSystem=elecSystem, allAgents=allAgents)
     allActions = self._01_calculateAllActorActions(tfSession, allStatesOrigin)

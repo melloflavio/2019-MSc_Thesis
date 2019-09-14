@@ -37,6 +37,10 @@ class ModelAdapterFrequency(ModelAdapter):
       } for agent in allAgents}
     return allStates
 
+  def storePreactionStateReward(self, elecSystem):
+    '''Stores state values which may be used later to calcluate reward. Called before system executes actions.'''
+    pass
+
   def calculateReward(self, elecSystem):
     deltaFreq = elecSystem.getCurrentDeltaF()
     earnedReward, rewardComponents = self._rewardFn(deltaFreq=deltaFreq)

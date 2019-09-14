@@ -42,6 +42,10 @@ class ModelAdapterCostFrequency(ModelAdapter):
       } for actorId, output in generatorsOutputs.items()}
     return allStates
 
+  def storePreactionStateReward(self, elecSystem):
+    '''Stores state values which may be used later to calcluate reward. Called before system executes actions.'''
+    pass
+
   def calculateReward(self, elecSystem):
     deltaFreq = elecSystem.getCurrentDeltaF()
     totalCost = elecSystem.getTotalCost()
