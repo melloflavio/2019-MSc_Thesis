@@ -27,6 +27,7 @@ class LearningParams:
   )
   numEpisodes: int   = 1000 # Number of learning episodes to run
   maxSteps: int      = 200   # Number of steps per learning episode
+  bufferSize: int = 100  # Experience Buffer Size
   traceLength: int  = 8     # Number of steps each sampled episode should contain
   batchSize: int  = 4     # Number of episodes sampled from experience buffer
   nnShape: NeuralNetworkShape = NeuralNetworkShape(

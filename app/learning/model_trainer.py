@@ -30,7 +30,7 @@ class ModelTrainer():
     # Initialize Learning State
     LearningState().initData(
         allAgents=allAgents,
-        xpBuffer=ExperienceBuffer(),
+        xpBuffer=ExperienceBuffer(bufferSize=LearningParams().bufferSize),
         epsilon=Epsilon(
             specs=LearningParams().epsilonSpecs,
             numEpisodes=LearningParams().numEpisodes,
