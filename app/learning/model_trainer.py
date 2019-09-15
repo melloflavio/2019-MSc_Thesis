@@ -110,7 +110,8 @@ class ModelTrainer():
   def shouldUpdateModels(self, stepIdx):
     numStoredEpisodes = LearningState().model.xpBuffer.numStoredEpisodes
     shouldUpdate = (
-      stepIdx % LearningParams().batchSize == 0  # Every N steps (same as batch size)
+      stepIdx % LearningParams().updateInterval == 0  # Every 4 steps
+      and stepIdx > LearningParams().batchSize  # Start traning with at least one whole batch
       and numStoredEpisodes > 0 # Starting from the second episode (must have at least one full episode in xp buffer)
      )
     return shouldUpdate
