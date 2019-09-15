@@ -33,7 +33,7 @@ class ModelTester():
       # Test for 1000 steps
       for stepIdx in range(stepsToTest):
         # Get all agents' actions
-        allStatesOrigin = self._modelAdapter.observeStates(elecSystem)
+        allStatesOrigin = self._modelAdapter.observeStates(elecSystem=elecSystem, allAgents=allAgents)
 
         allActions = [agent.runActorAction(tfSession, allStatesOrigin.get(agent.getId())) for agent in allAgents]
         allActions = [action[0, 0] for action in allActions]

@@ -330,23 +330,3 @@ class ModelTrainer():
 
     for agent in allAgents:
       agent.updateTargetModels(tfSession)
-
-### BEGIN ABSTRACT METHODS
-  # def _shouldStopEarly(self, elecSystem):
-  #   costDifferential = elecSystem.getCostOptimalDiferential()
-  #   shouldStop = abs(costDifferential) > 50
-  #   return shouldStop
-
-  ## TODO enforce typing
-  # def _observeStates(self, elecSystem):
-  #   deltaFreqOriginal = elecSystem.getCurrentDeltaF()
-  #   generatorsOutputsOrigin = elecSystem.getGeneratorsOutputs()
-  #   totalOutputOrigin = sum(generatorsOutputsOrigin.values())
-  #   allStatesOrigin = {actorId: {'genOutput': output, 'totalOutput':totalOutputOrigin, 'deltaFreq':deltaFreqOriginal} for actorId, output in generatorsOutputsOrigin.items()}
-  #   return allStatesOrigin
-
-  # def _calculateReward(self, elecSystem):
-  #   deltaFreq = elecSystem.getCurrentDeltaF()
-  #   totalCost = elecSystem.getTotalCost()
-  #   earnedReward, rewardComponents = self._rewardFn(deltaFreq=deltaFreq, totalCost=totalCost)
-  #   return earnedReward, rewardComponents
