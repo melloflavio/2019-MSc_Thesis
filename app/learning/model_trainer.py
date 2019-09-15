@@ -44,6 +44,11 @@ class ModelTrainer():
     _params = LearningParams()
 
     tfInit = tf.compat.v1.global_variables_initializer()
+    # Used in CUDA
+    # tfConfig = tf.compat.v1.ConfigProto()
+    # tfConfig.gpu_options.allow_growth=True
+    # # tfConfig.log_device_placement=True
+    # with tf.compat.v1.Session(config=tfConfig) as tfSession:
 
     # Main TF loop
     with tf.compat.v1.Session() as tfSession:
