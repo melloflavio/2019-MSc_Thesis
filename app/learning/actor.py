@@ -35,6 +35,7 @@ class Actor(ABC):
           dtype=tf.float32,
           initial_state=self.ltsmInternalState,
           scope=scope+'_rnn',
+          swap_memory=True,
           )
       rnn = tf.reshape(rnn, shape=[-1, ltsmNumUnits])
 
