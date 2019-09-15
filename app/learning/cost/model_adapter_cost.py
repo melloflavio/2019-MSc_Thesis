@@ -7,7 +7,7 @@ class ModelAdapterCost(ModelAdapter):
 
   @property
   def SCOPE_PREFIX(self):
-    return 'cost_freq'
+    return 'cost'
 
   @property
   def Actor(self):
