@@ -63,6 +63,10 @@ class ModelTesterActionComposition():
       tfSavers[modelType].restore(self._tfSessions[modelType], modelPath)
 
   def testAgents(self, electricalSystemSpecs: ElectricalSystemSpecs, modelNameFreq: str, modelNameCost: str, rewardFnCost=costRewardFunction, stepsToTest: int = 500, frequencyWeight=0.7):
+    self._actionWeights = {
+      FREQUENCY: frequencyWeight,
+      COST: 1 - frequencyWeight,
+    }
 
     # Recreate simulation environment
     elecSystem = ElectricalSystemFactory.create(electricalSystemSpecs)
@@ -84,35 +88,58 @@ class ModelTesterActionComposition():
 
     for stepIdx in range(stepsToTest):
       # Get all agents' actions
-      allActions = {}
-      for modelType in MODEL_TYPES:
-        self._modelAdapters[modelType].storePreActionStateReward(elecSystem) # Store preaction state
-        modelAgents = self._allAgents[modelType]
-        modelStates = self._modelAdapters[modelType].observeStates(elecSystem=elecSystem, allAgents=modelAgents) # Observe states
-        modelActions = [agent.runActorAction(tfSession, modelStates.get(agent.getId())) for agent in modelAgents] # Calculate actions
-        modelActions = [action[0, 0] for action in modelActions]
-        allActions[modelType] = modelActions
+      allActions = self.calculateAllActions(elecSystem)
 
-      # Combine actions
-      costWeight = 1 - frequencyWeight
-      actionsCombined = [frequencyWeight*actionFreq + costWeight*actionCost for (actionFreq, actionCost) in zip(allActions[FREQUENCY], allActions[COST])]
-
-      # Execute agents'actions (i.e. update the generators' power output)
-      agentIds = [agent.getId() for agent in self._allAgents[FREQUENCY]] # Both agent collections have the same ids...
-      generatorUpdates = [NodePowerUpdate(
-          id_=agentId,
-          deltaPower=action
-        ) for (agentId, action) in zip(agentIds, actionsCombined)]
-      elecSystem.updateGenerators(generatorUpdates)
+      # Run all actions
+      self.executeAllActions(allActions, elecSystem)
 
       # Calculate earned rewards per objective
-      for modelType in MODEL_TYPES:
-        earnedReward, rewardComponents = self._modelAdapters[modelType].calculateReward(elecSystem)
-        self._allRewards[modelType].append(earnedReward)
-        self._allRewardComponents[modelType].append(rewardComponents)
+      self.calculateRewards(elecSystem)
 
     # Close tf sessions after using them
     for tfSession in self._tfSessions.values():
       tfSession.close()
 
     return elecSystem, self._allRewards, self._allRewardComponents
+
+  def calculateAllActions(self, elecSystem):
+    allActions = {}
+    for modelType in MODEL_TYPES:
+      modelAgents = self._allAgents[modelType]
+      tfSession = self._tfSessions[modelType]
+      modelAdapter = self._modelAdapters[modelType]
+
+      modelAdapter.storePreActionStateReward(elecSystem) # Store preaction state
+      modelStates = modelAdapter.observeStates(elecSystem=elecSystem, allAgents=modelAgents) # Observe states
+      modelActions = [agent.runActorAction(tfSession, modelStates.get(agent.getId())) for agent in modelAgents] # Calculate actions
+      modelActions = [action[0, 0] for action in modelActions]
+      allActions[modelType] = modelActions
+
+    return allActions
+
+  def executeAllActions(self, allActions, elecSystem):
+    # Combine actions
+    allActionsCombined = []
+    for actionIdx in range(allActions[FREQUENCY]):
+      totalAction = 0
+      for modelType in MODEL_TYPES:
+        action = allActions[modelType][actionIdx]
+        weightedAction = self._actionWeights[modelType]*action
+        totalAction += weightedAction
+      allActionsCombined.append(totalAction)
+
+    # actionsCombined = [frequencyWeight*actionFreq + costWeight*actionCost for (actionFreq, actionCost) in zip(allActions[FREQUENCY], allActions[COST])]
+
+    # Execute agents'actions (i.e. update the generators' power output)
+    agentIds = [agent.getId() for agent in self._allAgents[FREQUENCY]] # Both agent collections have the same ids...
+    generatorUpdates = [NodePowerUpdate(
+        id_=agentId,
+        deltaPower=action
+      ) for (agentId, action) in zip(agentIds, allActionsCombined)]
+    elecSystem.updateGenerators(generatorUpdates)
+
+  def calculateRewards(self, elecSystem):
+    for modelType in MODEL_TYPES:
+        earnedReward, rewardComponents = self._modelAdapters[modelType].calculateReward(elecSystem)
+        self._allRewards[modelType].append(earnedReward)
+        self._allRewardComponents[modelType].append(rewardComponents)
