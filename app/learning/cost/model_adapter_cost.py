@@ -20,8 +20,8 @@ class ModelAdapterCost(ModelAdapter):
 
   @classmethod
   def _defaultRewardFunction(totalCost, outputDifferential):
-    scaledCost = totalCost/(10000*100.0) # Scale down cost to levels near the ones found in output differential (e.g. 10 */ 10)
-    costComponent = 2**(-1*(totalCost**2)*200)
+    scaledCost = totalCost/(100000.0) # Scale down cost to levels near the ones found in output differential (e.g. 0.1 */ 0.01)
+    costComponent = 2**(-1*(scaledCost**2)*200)
     outputComponent = 2**(-1*(outputDifferential**2)*500)
     earnedReward = costComponent*outputComponent
 
