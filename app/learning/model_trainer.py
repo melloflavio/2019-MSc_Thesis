@@ -95,7 +95,7 @@ class ModelTrainer():
     allAgents = LearningState().model.allAgents
 
     # Stores pre action state to be used in calculating reward
-    self._modelAdapter.storePreactionStateReward(elecSystem)
+    self._modelAdapter.storePreActionStateReward(elecSystem)
 
     # Get all agents' actions
     allStatesOrigin = self._modelAdapter.observeStates(elecSystem=elecSystem, allAgents=allAgents)
@@ -144,6 +144,11 @@ class ModelTrainer():
     # Refresh LTSM states for all actors
     for agent in LearningState().model.allAgents:
       agent.resetAllLtsmStates()
+
+    self._modelAdapter.storeInitialState(
+      elecSystem=LearningState().episode.electricalSystem,
+      allAgents=LearningState().model.allAgents
+    )
 
   def runUpdateCycle(self, tfSession: tf.compat.v1.Session):
     """Updates all agents' models using experiences previously stored in the experience buffer"""

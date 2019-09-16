@@ -34,11 +34,16 @@ class ModelAdapter(ABC):
     pass
 
   @abstractmethod
+  def storeInitialState(self, elecSystem, allAgents):
+    """Stores initial state. May be used for reward and future state observations"""
+    pass
+
+  @abstractmethod
   def observeStates(self, elecSystem, allAgents):
     pass
 
   @abstractmethod
-  def storePreactionStateReward(self, elecSystem):
+  def storePreActionStateReward(self, elecSystem):
     '''Stores state values which may be used later to calcluate reward. Called before system executes actions.'''
     pass
 

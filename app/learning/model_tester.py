@@ -19,6 +19,10 @@ class ModelTester():
     # Recreate the testing environment/TF variable placeholders
     elecSystem = ElectricalSystemFactory.create(electricalSystemSpecs)
     allAgents: List[Agent] = [Agent(generator.id_, self._modelAdapter) for generator in electricalSystemSpecs.generators]
+    self._modelAdapter.storeInitialState(
+      elecSystem=elecSystem,
+      allAgents=allAgents,
+    )
     # _initTotalZ = sum(elecSystem.getGeneratorsOutputs().values())
 
     allRewards = [] # Used to plot reward history

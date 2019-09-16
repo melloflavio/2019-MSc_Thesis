@@ -3,7 +3,8 @@ from ..model_adapter import ModelAdapter
 from .nn_extensions_cost import ActorCost, CriticCost
 
 class ModelAdapterCost(ModelAdapter):
-  _totalOutputOrigin = None
+  _rewardTotalOutputOrigin = None
+  _initialOutput = None
 
   @property
   def SCOPE_PREFIX(self):
@@ -31,28 +32,38 @@ class ModelAdapterCost(ModelAdapter):
     shouldStop = abs(costDifferential) > 50
     return shouldStop
 
+  def storeInitialState(self, elecSystem, allAgents):
+    """Stores initial state. May be used for reward and future state observations"""
+    generatorsOutputs = elecSystem.getGeneratorsOutputs()
+    totalOutput = sum(generatorsOutputs.values())
+    self._initialOutput = totalOutput
+
   ## TODO enforce typing
   def observeStates(self, elecSystem, allAgents):
     generatorsOutputs = elecSystem.getGeneratorsOutputs()
     totalOutput = sum(generatorsOutputs.values())
     allStates = {actorId: {
       'genOutput': output,
-      'totalOutput':totalOutput,
+      'totalOutput':self._initialOutput,
       } for actorId, output in generatorsOutputs.items()}
     return allStates
 
-  def storePreactionStateReward(self, elecSystem):
+  def storePreActionStateReward(self, elecSystem):
     '''Stores state values which may be used later to calcluate reward. Called before system executes actions.'''
     generatorsOutputs = elecSystem.getGeneratorsOutputs()
     totalOutput = sum(generatorsOutputs.values())
-    self._totalOutputOrigin = totalOutput
+    self._rewardTotalOutputOrigin = totalOutput
 
   def calculateReward(self, elecSystem):
     totalCost = elecSystem.getTotalCost()
 
+    # If initial output is tracked, the reward is for training/testing, thus compared against the initial output
+    # Otherwise, it is for execution and thus compared against the output prior to taking the step
+    totalOutputOrigin = self._initialOutput
+
     generatorsOutputs = elecSystem.getGeneratorsOutputs()
     totalOutputDestination = sum(generatorsOutputs.values())
-    outputDifferential = (totalOutputDestination - self._totalOutputOrigin)/self._totalOutputOrigin
+    outputDifferential = (totalOutputDestination - totalOutputOrigin)/totalOutputOrigin
 
     earnedReward, rewardComponents = self._rewardFn(totalCost=totalCost, outputDifferential=outputDifferential)
     return earnedReward, rewardComponents

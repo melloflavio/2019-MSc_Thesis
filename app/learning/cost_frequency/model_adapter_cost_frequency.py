@@ -30,6 +30,10 @@ class ModelAdapterCostFrequency(ModelAdapter):
     shouldStop = abs(costDifferential) > 50
     return shouldStop
 
+  def storeInitialState(self, elecSystem, allAgents):
+    """Stores initial state. May be used for reward and future state observations"""
+    pass
+
   ## TODO enforce typing
   def observeStates(self, elecSystem, allAgents):
     deltaFreq = elecSystem.getCurrentDeltaF()
@@ -42,7 +46,7 @@ class ModelAdapterCostFrequency(ModelAdapter):
       } for actorId, output in generatorsOutputs.items()}
     return allStates
 
-  def storePreactionStateReward(self, elecSystem):
+  def storePreActionStateReward(self, elecSystem):
     '''Stores state values which may be used later to calcluate reward. Called before system executes actions.'''
     pass
 
