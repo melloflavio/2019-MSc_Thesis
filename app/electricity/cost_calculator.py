@@ -39,21 +39,28 @@ class CostCalculator:
     constraints.append({'type': 'eq', 'fun': lambda x: sum(x) - totalPower})
 
     # Every generator must have output >= 0 (sanity check)
-    constraints.extend([{'type': 'ineq', 'fun': lambda x: x[i]} for i in generatorIndexes])
+    # constraints.extend([{'type': 'ineq', 'fun': lambda x: x[i]} for i in generatorIndexes])
 
-    # Outputs must respect each generators maximum capacity
-    constraints.extend([{
-        'type': 'ineq',
-        'fun': lambda x: - x[idx] + generator.getMaxPower()
-        } for idx, generator in enumerate(allGenerators)
-      ])
+    # # Outputs must respect each generators maximum capacity
+    # constraints.extend([{
+    #     'type': 'ineq',
+    #     'fun': lambda x: - x[idx] + generator.getMaxPower()
+    #     } for idx, generator in enumerate(allGenerators)
+    #   ])
 
-    # Outputs must respect each generators minimum capacity
-    constraints.extend([{
-        'type': 'ineq',
-        'fun': lambda x: x[idx] - generator.getMinPower()
-        } for idx, generator in enumerate(allGenerators)
-      ])
+    # # Outputs must respect each generators minimum capacity
+    # constraints.extend([{
+    #     'type': 'ineq',
+    #     'fun': lambda x: x[idx] - generator.getMinPower()
+    #     } for idx, generator in enumerate(allGenerators)
+    #   ])
+
+    # # Outputs must respect each generators minimum capacity
+    # constraints.extend([{
+    #     'type': 'ineq',
+    #     'fun': lambda x: x[idx] - generator.getMinPower()
+    #     } for idx, generator in enumerate(allGenerators)
+    #   ])
 
     return constraints
 
@@ -69,11 +76,16 @@ class CostCalculator:
     # Generate all relevant contraints
     constraints = CostCalculator._generateConstraints(allGenerators, totalPower)
 
+    # Generate limits for minimum and maximum outputs for all generators
+    bounds = [(generator.getMinPower(), generator.getMaxPower()) for generator in allGenerators]
+
     results = opt.minimize(
         objective,
         initialGuess,
         constraints=constraints,
-        # options={'maxiter':20, 'disp':True}
+        method='SLSQP',
+        bounds=bounds,
+        # options={'maxiter':2000, 'disp':True}
         )
 
     minCost = results.fun
