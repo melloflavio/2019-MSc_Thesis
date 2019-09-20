@@ -1,22 +1,22 @@
-from typing import Dict, List, NamedTuple
-from singleton_decorator import singleton
+from dataclasses import dataclass, field
+from typing import Dict, List
 
-from .state import State
+from .electrical_state import ElectricalState
 
-@singleton
-class SystemHistory(NamedTuple):
-  steps: int = []
-  totalPower: List[float] = []
-  totalLoad: List[float] = []
-  frequency: List[float] = []
-  generators: Dict[str, List[float]] = {}
-  loads: Dict[str, List[float]] = {}
-  actualCosts: Dict[str, List[float]] = {}
-  costOptimalCosts: Dict[str, List[float]] = {}
-  costOptimalPowers: Dict[str, List[float]] = {}
-  totalCosts: Dict[str, List[float]] = {}
+@dataclass
+class SystemHistory:
+  steps: int = field(default_factory=list)
+  totalPower: List[float] = field(default_factory=list)
+  totalLoad: List[float] = field(default_factory=list)
+  frequency: List[float] = field(default_factory=list)
+  generators: Dict[str, List[float]] = field(default_factory=dict)
+  loads: Dict[str, List[float]] = field(default_factory=dict)
+  actualCosts: Dict[str, List[float]] = field(default_factory=dict)
+  costOptimalCosts: Dict[str, List[float]] = field(default_factory=dict)
+  costOptimalPowers: Dict[str, List[float]] = field(default_factory=dict)
+  totalCosts: Dict[str, List[float]] = field(default_factory=dict)
 
-  def pushState(self, state: State):
+  def pushState(self, state: ElectricalState):
     self.totalPower.append(state.totalPower)
     self.totalLoad.append(state.totalLoad)
     self.frequency.append(state.frequency)

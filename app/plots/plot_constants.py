@@ -17,3 +17,5 @@ FONT_SIZES = {
     'TITLE': 14,
     'AXIS_LABEL': 12,
 }
+
+FIG_SIZE = (20,10)
