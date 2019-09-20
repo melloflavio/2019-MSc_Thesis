@@ -15,9 +15,16 @@ from .critic_dto import CriticEstimateInput, CriticUpdateInput, CriticGradientIn
 from .actor_dto import ActorUpdateInput
 from .epsilon import Epsilon
 
+def defaulRewardFn(deltaFreq):
+  earnedReward = 2**(10-abs(deltaFreq))
+  return earnedReward
+
 class ModelTrainer():
+  _rewardFn = None
+
   @staticmethod
-  def trainAgents():
+  def trainAgents(rewardFn=defaulRewardFn):
+    ModelTrainer._rewardFn = rewardFn
     # Clears existing TF graph
     tf.compat.v1.reset_default_graph()
 
@@ -92,7 +99,7 @@ class ModelTrainer():
 
     # Calculate the earned reward
     deltaFreqNew = _episode.electricalSystem.getCurrentDeltaF()
-    earnedReward = 2**(10-abs(deltaFreqNew)) # TODO Calculate reward according to a given strategy
+    earnedReward = ModelTrainer._rewardFn(deltaFreqNew)
 
     experience = ModelTrainer._03_storeEpisodeExperience(deltaFreqOriginal, deltaFreqNew, allActions, earnedReward)
     return experience
