@@ -6,16 +6,24 @@ from dto import ElectricalSystemSpecs, NodePowerUpdate
 from models import getPathForModel
 
 from .learning_agent import Agent
+from .model_adapter import ModelAdapter
 
 class ModelTester():
-  @staticmethod
-  def testAgents(electricalSystemSpecs: ElectricalSystemSpecs, modelName: str, stepsToTest: int = 500):
+  def __init__(self, modelAdapter: ModelAdapter):
+    self._modelAdapter: ModelAdapter = modelAdapter
+
+  def testAgents(self, electricalSystemSpecs: ElectricalSystemSpecs, modelName: str, stepsToTest: int = 500):
     # Clear existing graph
     tf.compat.v1.reset_default_graph()
 
     # Recreate the testing environment/TF variable placeholders
     elecSystem = ElectricalSystemFactory.create(electricalSystemSpecs)
-    allAgents: List[Agent] = [Agent(generator.id_) for generator in electricalSystemSpecs.generators]
+    allAgents: List[Agent] = [Agent(generator.id_, self._modelAdapter) for generator in electricalSystemSpecs.generators]
+    self._modelAdapter.storeInitialState(
+      elecSystem=elecSystem,
+      allAgents=allAgents,
+    )
+    # _initTotalZ = sum(elecSystem.getGeneratorsOutputs().values())
 
     allRewards = [] # Used to plot reward history
 
@@ -29,8 +37,9 @@ class ModelTester():
       # Test for 1000 steps
       for stepIdx in range(stepsToTest):
         # Get all agents' actions
-        deltaFreqOriginal = elecSystem.getCurrentDeltaF()
-        allActions = [agent.runActorAction(tfSession, deltaFreqOriginal) for agent in allAgents]
+        allStatesOrigin = self._modelAdapter.observeStates(elecSystem=elecSystem, allAgents=allAgents)
+
+        allActions = [agent.runActorAction(tfSession, allStatesOrigin.get(agent.getId())) for agent in allAgents]
         allActions = [action[0, 0] for action in allActions]
 
         # Execute agents'actions (i.e. update the generators' power output)
@@ -41,8 +50,8 @@ class ModelTester():
           ) for (agentId, action) in zip(agentIds, allActions)]
         elecSystem.updateGenerators(generatorUpdates)
 
-        deltaFreqNew = elecSystem.getCurrentDeltaF()
-        earnedReward = 2**(10-abs(deltaFreqNew)) # TODO Calculate reward according to a given strategy
+        # Calculate reward
+        earnedReward, rewardComponents = self._modelAdapter.calculateReward(elecSystem)
         allRewards.append(earnedReward)
 
     return elecSystem, allRewards

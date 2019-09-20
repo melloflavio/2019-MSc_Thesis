@@ -1,8 +1,8 @@
 import tensorflow as tf
 import numpy as np
 
-from .maddpg_actor import ActorMaddpg as Actor
-from .maddpg_critic import CriticMaddpg as Critic
+from .actor import Actor
+from .critic import Critic
 from .learning_params import LearningParams
 from .learning_state import LearningState
 from .actor_dto import ActionInput, ActorUpdateInput
@@ -11,25 +11,37 @@ from .critic_dto import CriticEstimateInput, CriticUpdateInput, CriticGradientIn
 class Agent():
   """Entity representing a single agent in the scenario to be learned. Contains the actors & critics associated with learning"""
 
-  def __init__(self, _id):
+  def __init__(self, _id, modelAdapter):
     self._id = _id # Unique identifier of the agent
-    self.actor       = Actor(scope=f'{_id}_actor')
-    self.actorTarget = Actor(scope=f'{_id}_actor_target')
-    self.critic       = Critic(scope=f'{_id}_critic')
-    self.criticTarget = Critic(scope=f'{_id}_critic_target')
+    self.actor       = modelAdapter.Actor(scope=f'{modelAdapter.SCOPE_PREFIX}_{_id}_actor')
+    self.actorTarget = modelAdapter.Actor(scope=f'{modelAdapter.SCOPE_PREFIX}_{_id}_actor_target')
+    self.critic       = modelAdapter.Critic(scope=f'{modelAdapter.SCOPE_PREFIX}_{_id}_critic')
+    self.criticTarget = modelAdapter.Critic(scope=f'{modelAdapter.SCOPE_PREFIX}_{_id}_critic_target')
 
     # Create Op Holders for target networks
     self.actorTarget.createOpHolder(self.actor.networkParams, LearningParams().tau)
     self.criticTarget.createOpHolder(self.critic.networkParams, LearningParams().tau)
 
-    self.ltsmState = None
-    self.resetLtsmState()
+    # Init execution and training LTSM states
+    self._ltsmStateExecution = None
+    self._ltsmStateTraining = None
 
-  def resetLtsmState(self):
-    # Initial empty input state (must have size of LTSM)
-    ltsmSize = LearningParams().nnShape.layer_00_ltsm
-    ltsmState = (np.zeros([1, ltsmSize]), np.zeros([1, ltsmSize]))
-    self.ltsmState = ltsmState
+    self.resetAllLtsmStates()
+
+  def resetAllLtsmStates(self):
+    # Execution is done one step at a time
+    executionBatchSize = 1
+    self._ltsmStateExecution = self.getEmptyLtsmState(executionBatchSize)
+
+    # Training is done in batches, always with an empty ltsm state
+    traningBatchSize = LearningParams().batchSize
+    self._ltsmStateTraining = self.getEmptyLtsmState(traningBatchSize)
+
+  def getEmptyLtsmState(self, batchSize):
+    """Generates an empty LTSM state"""
+    lstmSize = LearningParams().nnShape.layer_00_ltsm
+    emptyState = (np.zeros([batchSize, lstmSize]), np.zeros([batchSize, lstmSize]))
+    return emptyState
 
   def getId(self):
     return self._id
@@ -39,22 +51,22 @@ class Agent():
         tfSession=tfSession,
         actionIn=ActionInput(
             actorInput=[[currentDeltaF]],
-            ltsmInternalState=self.ltsmState,
+            ltsmInternalState=self._ltsmStateExecution,
             batchSize=1,
             traceLength=1,
         )
     )
 
-    self.ltsmState = nextState
+    self._ltsmStateExecution = nextState
 
     return action
 
-  def peekActorAction(self, tfSession: tf.compat.v1.Session, currentDeltaF, ltsmState):
+  def peekActorAction(self, tfSession: tf.compat.v1.Session, currentDeltaF):
     action = self.actor.getActionOnly(
         tfSession=tfSession,
         actionIn=ActionInput(
             actorInput=currentDeltaF,
-            ltsmInternalState=ltsmState,
+            ltsmInternalState=self._ltsmStateTraining,
             batchSize=LearningParams().batchSize,
             traceLength=LearningParams().traceLength,
         )
@@ -62,12 +74,12 @@ class Agent():
 
     return action
 
-  def peekActorTargetAction(self, tfSession: tf.compat.v1.Session, state, ltsmState):
+  def peekActorTargetAction(self, tfSession: tf.compat.v1.Session, state):
     action = self.actorTarget.getActionOnly(
         tfSession=tfSession,
         actionIn=ActionInput(
             actorInput=state,
-            ltsmInternalState=ltsmState,
+            ltsmInternalState=self._ltsmStateTraining,
             batchSize=LearningParams().batchSize,
             traceLength=LearningParams().traceLength,
         )
@@ -79,6 +91,7 @@ class Agent():
     estimatedQ = self.criticTarget.getEstimatedQ(
         tfSession=tfSession,
         criticIn=criticIn,
+        ltsmState=self._ltsmStateTraining,
     )
 
     return estimatedQ
@@ -87,17 +100,23 @@ class Agent():
     self.critic.updateModel(
         tfSession=tfSession,
         criticUpd=criticUpd,
+        ltsmState=self._ltsmStateTraining,
     )
 
   def calculateCriticGradients(self, tfSession: tf.compat.v1.Session, inpt: CriticGradientInput):
     gradients = self.critic.calculateGradients(
         tfSession=tfSession,
         inpt=inpt,
+        ltsmState=self._ltsmStateTraining,
     )
     return gradients
 
   def updateActor(self, tfSession: tf.compat.v1.Session, inpt: ActorUpdateInput):
-    self.actor.updateModel(tfSession, inpt)
+    self.actor.updateModel(
+      tfSession=tfSession,
+      inpt=inpt,
+      ltsmState=self._ltsmStateTraining
+    )
 
   def updateTargetModels(self, tfSession: tf.compat.v1.Session):
     self.actorTarget.updateNetParams(tfSession)

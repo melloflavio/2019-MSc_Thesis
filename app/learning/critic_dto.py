@@ -6,7 +6,6 @@ class CriticEstimateInput:
   state: List[List[float]]
   actionActor: float
   actionsOthers: List[float]
-  ltsmInternalState: tuple
   batchSize: int
   traceLength: int
 
@@ -16,7 +15,6 @@ class CriticUpdateInput:
   actionActor: float
   actionsOthers: List[float]
   targetQs: List[List[float]]
-  ltsmInternalState: tuple
   batchSize: int
   traceLength: int
 
@@ -25,6 +23,5 @@ class CriticGradientInput:
   state: List[List[float]]
   actionActor: float
   actionsOthers: List[float]
-  ltsmInternalState: tuple
   batchSize: int
   traceLength: int
