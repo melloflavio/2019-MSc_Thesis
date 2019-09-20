@@ -38,4 +38,6 @@ class LearningParams:
       layer_03_mlp_03 = 50,   # MLP Layer 3
       layer_04_mlp_04 = 1,   # MLP Layer 4 (output layer)
   )
+  explorationNoiseSize: float = 0.4
+  actionScale: float = 0.1
   modelName: str = 'DefaultModel'

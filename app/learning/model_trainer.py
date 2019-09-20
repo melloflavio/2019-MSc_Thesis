@@ -195,7 +195,8 @@ class ModelTrainer():
   def _01_calculateAllActorActions(self, tfSession: tf.compat.v1.Session, allStates):
     _model = LearningState().model
     allActions = [agent.runActorAction(tfSession, allStates.get(agent.getId())) for agent in _model.allAgents]
-    allActions = [action[0, 0] + _model.epsilon.value * np.random.normal(0.0, 0.4) for action in allActions]
+    noiseSize = LearningParams().explorationNoiseSize
+    allActions = [action[0, 0] + _model.epsilon.value * np.random.normal(0.0, noiseSize) for action in allActions]
     return allActions
 
   def _02_executeAllActorActions(self, allActions):

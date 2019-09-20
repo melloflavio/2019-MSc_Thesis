@@ -92,7 +92,8 @@ class Actor(ABC):
     l4_weights = tf.Variable(initializer([l3_units, l4_units]), name='l4_weights')
     actionUnscaled = tf.nn.tanh(tf.matmul(layer_3, l4_weights) + l4_bias)
 
-    action = tf.multiply(actionUnscaled, 0.1)
+    scale = LearningParams().actionScale
+    action = tf.multiply(actionUnscaled, scale)
 
     return action
 
