@@ -22,7 +22,7 @@ def plotObservedPower(history: SystemHistory, figureNum=0, shouldPlotAllLoads=Fa
 
   # Plot total power/load data
   plt.plot(stepsSeries, totalLoadSeries, color=colorTotalLoad, label='Total Load')
-  plt.plot(stepsSeries, totalPowerSeries, color=colorTotalPower, label='Total Power')
+  plt.plot(stepsSeries, totalPowerSeries, color=colorTotalPower, label='Observed Power')
 
   # Multiple scenarios involve a single load, so we make it optional to plot that single load
   if(shouldPlotAllLoads):
@@ -37,6 +37,9 @@ def plotObservedPower(history: SystemHistory, figureNum=0, shouldPlotAllLoads=Fa
     generatorColor = colorsIndividualNodes[idx % len(colorsIndividualNodes)]
     generatorSeries = generators[generatorId]
     plt.plot(stepsSeries, generatorSeries, color=generatorColor, label=f'{generatorId}')
+
+  totalSecondary = [sum (perGenOutput) for perGenOutput in zip(*generators.values())]
+  plt.plot(stepsSeries, totalSecondary, color=colorTotalPower, label='Total Secondary Ouput', linestyle='--')
 
   plt.legend()
   plt.xlabel('Steps', fontsize=FONT_SIZES['AXIS_LABEL'])

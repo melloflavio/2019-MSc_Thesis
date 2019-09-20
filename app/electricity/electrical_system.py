@@ -7,12 +7,20 @@ from .area_dynamics import AreaDynamics
 from .cost_calculator import CostCalculator
 
 class ElectricalSystem:
-  def __init__(self, initialFrequency, loads, generators):
+  def __init__(self, initialFrequency, loads, generators, shouldTrackOptimalCost=False):
     self.loads = loads
     self.generators = generators
+    self.shouldTrackOptimalCost = shouldTrackOptimalCost
 
     initialPower = sum([gen.getOutput() for gen in self.generators])
-    minCost, minCostNodesPower, minCostNodesCost = CostCalculator.calculateMinimumCost(self.generators, initialPower)
+
+    # Optimal cost calculation is computationally costly
+    # if not used in the training process, it vastly speeds up training foregoing having this data
+    # available & using it only when testing/benchmarking the trained models
+    if self.shouldTrackOptimalCost:
+      minCost, minCostNodesPower, minCostNodesCost = CostCalculator.calculateMinimumCost(self.generators, initialPower)
+    else:
+      minCost, minCostNodesPower, minCostNodesCost = (None, [], [])
 
     self.systemHistory = SystemHistory()
     self.systemHistory.pushState(ElectricalState(
@@ -50,7 +58,10 @@ class ElectricalSystem:
     frequencyNew = AreaDynamics.calculateFrequencyNew(powerGeneratedNew, totalLoad, frequencyOld)
 
     # 4. Calculate the optimal generation cost of the current output
-    minCost, minCostNodesPower, minCostNodesCost = CostCalculator.calculateMinimumCost(self.generators, zg)
+    if self.shouldTrackOptimalCost:
+      minCost, minCostNodesPower, minCostNodesCost = CostCalculator.calculateMinimumCost(self.generators, zg)
+    else:
+      minCost, minCostNodesPower, minCostNodesCost = (None, [], [])
 
     # 5. Push the new state to system history
     self.systemHistory.pushState(ElectricalState(
@@ -75,6 +86,17 @@ class ElectricalSystem:
     currentFrequency = self.systemHistory.frequency[-1]
     return AreaDynamics.getDeltaFrequency(currentFrequency)
 
+  def getGeneratorsOutputs(self):
+    genOutputs = {g.getId(): g.getOutput() for g in self.generators}
+    return genOutputs
+
+  def getTotalCost(self):
+    totalCost = 0
+    for id_ in self.getGeneratorIds():
+      totalCost += self.systemHistory.actualCosts.get(id_)[-1]
+    return totalCost
+
+  # TODO - deprecate fn
   def getCostOptimalDiferential(self):
     allCostDifferentials = {}
     for id_ in self.getGeneratorIds():
