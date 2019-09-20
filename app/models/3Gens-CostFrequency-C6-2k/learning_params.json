@@ -1,0 +1,71 @@
+{
+    "batchSize": 40,
+    "bufferSize": 500,
+    "electricalSystemSpecs": [
+        [
+            [
+                "L1",
+                4.0,
+                0.05
+            ]
+        ],
+        [
+            [
+                "G1",
+                1.33,
+                [
+                    300.0,
+                    5,
+                    0.001
+                ],
+                0.5,
+                5.0,
+                0.05
+            ],
+            [
+                "G2",
+                1.33,
+                [
+                    500.0,
+                    8,
+                    0.00194
+                ],
+                0.5,
+                5.0,
+                0.05
+            ],
+            [
+                "G3",
+                1.33,
+                [
+                    700.0,
+                    10,
+                    0.00482
+                ],
+                0.5,
+                2.0,
+                0.05
+            ]
+        ],
+        true
+    ],
+    "epsilonSpecs": {
+        "finalValue": 0.0001,
+        "thresholdProgress": 0.6,
+        "thresholdValue": 0.5
+    },
+    "gamma": 0.9,
+    "maxSteps": 100,
+    "modelName": "3Gens-CostFrequency-C6-2k",
+    "nnShape": {
+        "layer_00_ltsm": 100,
+        "layer_01_mlp_01": 1000,
+        "layer_02_mlp_02": 100,
+        "layer_03_mlp_03": 50,
+        "layer_04_mlp_04": 1
+    },
+    "numEpisodes": 2000,
+    "tau": 0.001,
+    "traceLength": 15,
+    "updateInterval": 4
+}

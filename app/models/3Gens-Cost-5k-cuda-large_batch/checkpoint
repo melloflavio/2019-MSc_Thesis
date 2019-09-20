@@ -1,0 +1,2 @@
+model_checkpoint_path: "C:\\Users\\flavi\\Documents\\Study\\City-UniLondon\\Thesis\\2019-MSc_Thesis\\app\\models\\3Gens-Cost-5k-cuda-large_batch\\model"
+all_model_checkpoint_paths: "C:\\Users\\flavi\\Documents\\Study\\City-UniLondon\\Thesis\\2019-MSc_Thesis\\app\\models\\3Gens-Cost-5k-cuda-large_batch\\model"

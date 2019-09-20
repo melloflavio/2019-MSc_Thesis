@@ -12,8 +12,8 @@ from dto import (
 
 
 LearningParams(
-    numEpisodes=10, # Number of learning episodes to run
-    maxSteps=10,   # Number of steps per learning episode
+    numEpisodes=5000, # Number of learning episodes to run
+    maxSteps=100,   # Number of steps per learning episode
     traceLength=8,     # Number of steps each sampled episode should contain
     batchSize=4,     # Number of episodes sampled from experience buffer
     electricalSystemSpecs= ElectricalSystemSpecs(
