@@ -351,8 +351,8 @@ class ModelTrainer():
     allAgents = LearningState().model.allAgents
 
     self._modelAdapter.storeInitialState(
-      elecSystem=LearningState().episode.electricalSystem,
-      allAgents=LearningState().model.allAgents
+      elecSystem=elecSystem,
+      allAgents=allAgents,
     )
 
     allRewardComponents = []
