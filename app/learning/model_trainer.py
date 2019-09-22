@@ -63,7 +63,7 @@ class ModelTrainer():
           print(f'{progressPrcent}% ', end='')
 
         # Clear values regarding episodes
-        self.resetEpisodeState(episodeIdx)
+        self.resetEpisodeState(episodeIdx, tfSession)
 
         for stepIdx in range(_params.maxSteps):
 
@@ -121,15 +121,15 @@ class ModelTrainer():
      )
     return shouldUpdate
 
-  def resetEpisodeState(self, episodeIdx: int):
+  def resetEpisodeState(self, episodeIdx: int, tfSession: tf.compat.v1.Session):
     # Push current reward to reward list
     if (LearningState().episode.cummReward is not None):
       LearningState().model.cummRewardList.append(LearningState().episode.cummReward)
 
-    # Store a snapshop of the rewards every 10%
-    episodeRewardDetails = LearningState().episode.allRewards
-    if (episodeIdx % (LearningParams().numEpisodes/10) == 0 and episodeRewardDetails):
-      LearningState().model.allRewards.append(episodeRewardDetails)
+    # Run a testing episode every 10% and store a snapshop of the rewards
+    if (episodeIdx % (LearningParams().numEpisodes/10) == 0):
+      allRewardComponents = self._run_test_episode(tfSession)
+      LearningState().model.allRewards.append(allRewardComponents)
 
 
     # Clear episode values
@@ -342,3 +342,39 @@ class ModelTrainer():
 
     for agent in allAgents:
       agent.updateTargetModels(tfSession)
+
+  def _run_test_episode(self, tfSession, stepsToTest=200):
+    # Instantiate new slightly randomized electrical system
+    specs = LearningParams().electricalSystemSpecs
+    elecSystem = ElectricalSystemFactory.create(specs)
+
+    allAgents = LearningState().model.allAgents
+
+    self._modelAdapter.storeInitialState(
+      elecSystem=LearningState().episode.electricalSystem,
+      allAgents=LearningState().model.allAgents
+    )
+
+    allRewardComponents = []
+
+    # Test for 1000 steps
+    for stepIdx in range(stepsToTest):
+      # Get all agents' actions
+      allStatesOrigin = self._modelAdapter.observeStates(elecSystem=elecSystem, allAgents=allAgents)
+
+      allActions = [agent.runActorAction(tfSession, allStatesOrigin.get(agent.getId())) for agent in allAgents]
+      allActions = [action[0, 0] for action in allActions]
+
+      # Execute agents'actions (i.e. update the generators' power output)
+      agentIds = [agent.getId() for agent in allAgents]
+      generatorUpdates = [NodePowerUpdate(
+          id_=agentId,
+          deltaPower=action
+        ) for (agentId, action) in zip(agentIds, allActions)]
+      elecSystem.updateGenerators(generatorUpdates)
+
+      # Calculate reward
+      earnedReward, rewardComponents = self._modelAdapter.calculateReward(elecSystem)
+      allRewardComponents.append(rewardComponents)
+
+    return allRewardComponents
