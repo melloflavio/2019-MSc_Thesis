@@ -29,5 +29,5 @@ class NnExtensionCost():
 class ActorCostSingle(NnExtensionCost, Actor):
   pass
 
-class ActorCostSingle(NnExtensionCost, Critic):
+class CriticCostSingle(NnExtensionCost, Critic):
   pass

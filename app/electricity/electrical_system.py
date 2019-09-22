@@ -111,11 +111,12 @@ class ElectricalSystem:
   def getOptimalDifferentialFromInitialState(self):
     # Get the sum of per generator secondary action difference from the optimal as calculated by the initial state
     allOutputDifferentials = {}
-    for id_ in self.getGeneratorIds():
-      actualOutput = self.systemHistory.generators.get(id_)[0]
-      optimalOutput = self.systemHistory.costOptimalPower.get(id_)[0]
+    for generator in self.generators:
+      _id = generator.getId()
+      actualOutput = generator.getOutput()
+      optimalOutput = self.systemHistory.costOptimalPowers.get(_id)[0]
       outputDifferential = actualOutput/optimalOutput - 1
-      allOutputDifferentials[id_] = outputDifferential
+      allOutputDifferentials[_id] = outputDifferential
 
     outputDeviations = [abs(outputDiff) for outputDiff in allOutputDifferentials.values()]
     return sum(outputDeviations)

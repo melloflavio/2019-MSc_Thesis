@@ -28,7 +28,7 @@ class ModelAdapterCostSingle(ModelAdapter):
   def shouldStopEarly(self, elecSystem):
     outputDifferential = elecSystem.getOptimalDifferentialFromInitialState()
     shouldStop = abs(outputDifferential) > 50
-    print(f'OutputDiff:{outputDifferential}')
+    # print(f'OutputDiff:{outputDifferential}')
     return shouldStop
 
   def storeInitialState(self, elecSystem, allAgents):
@@ -52,18 +52,6 @@ class ModelAdapterCostSingle(ModelAdapter):
     pass
 
   def calculateReward(self, elecSystem):
-    # totalCost = elecSystem.getTotalCost()
-
-    # # If initial output is tracked, the reward is for training/testing, thus compared against the initial output
-    # # Otherwise, it is for execution and thus compared against the output prior to taking the step
-    # totalOutputOrigin = self._initialOutput
-
-    # generatorsOutputs = elecSystem.getGeneratorsOutputs()
-    # totalOutputDestination = sum(generatorsOutputs.values())
-    # outputDifferential = (totalOutputDestination - totalOutputOrigin)/totalOutputOrigin
-
-    # earnedReward, rewardComponents = self._rewardFn(totalCost=totalCost, outputDifferential=outputDifferential)
-    # return earnedReward, rewardComponents
     outputDiff = elecSystem.getOptimalDifferentialFromInitialState()
     earnedReward, rewardComponents = self._rewardFn(outputDifferentialFromOpt=outputDiff)
     return earnedReward, rewardComponents
