@@ -48,3 +48,89 @@ def plotObservedPower(history: SystemHistory, figureNum=0, shouldPlotAllLoads=Fa
   plt.title('System Power (pu) x Time (Steps)', fontsize=FONT_SIZES['TITLE'])
 
   plt.show()
+
+def plotIndividualPowerVsOptimal(history: SystemHistory, figureNum=0):
+
+  # Get series to be plotted
+  stepsSeries = history.steps
+  actualPower = history.generators
+  optimalPower = history.costOptimalPowers
+
+  plt.figure(figureNum, figsize=FIG_SIZE)
+
+  for idx, generatorId in enumerate(actualPower):
+    # Since num generators is variable, colors may wrap around the palette
+    generatorColor = COLOR_PALETTE[idx % len(COLOR_PALETTE)]
+    actualPowerSeries = actualPower[generatorId]
+    optimalPowerSeries = optimalPower[generatorId]
+    plt.plot(stepsSeries, actualPowerSeries, color=generatorColor, linestyle='-', label=f'{generatorId} Actual')
+    plt.plot(stepsSeries, optimalPowerSeries, color=generatorColor, linestyle='--', label=f'{generatorId} Optimal')
+
+  plt.legend()
+  plt.xlabel('Steps', fontsize=FONT_SIZES['AXIS_LABEL'])
+  plt.ylabel('Power (pu)', fontsize=FONT_SIZES['AXIS_LABEL'])
+
+  plt.title('Actual vs Optimal Per Generator Output (pu) x Time (Steps)', fontsize=FONT_SIZES['TITLE'])
+
+  plt.show()
+
+def plotIndividualPowerVsInitialOptimal(history: SystemHistory, figureNum=0):
+
+  # Get series to be plotted
+  stepsSeries = history.steps
+  actualPower = history.generators
+  optimalPower = history.costOptimalPowers
+
+  plt.figure(figureNum, figsize=FIG_SIZE)
+
+  for idx, generatorId in enumerate(actualPower):
+    # Since num generators is variable, colors may wrap around the palette
+    generatorColor = COLOR_PALETTE[idx % len(COLOR_PALETTE)]
+    actualPowerSeries = actualPower[generatorId]
+    optimalPowerInitial = optimalPower[generatorId][0]
+    optimalPowerSeries = [optimalPowerInitial]*len(stepsSeries)
+    plt.plot(stepsSeries, actualPowerSeries, color=generatorColor, linestyle='-', label=f'{generatorId} Actual')
+    plt.plot(stepsSeries, optimalPowerSeries, color=generatorColor, linestyle='--', label=f'{generatorId} Optimal')
+
+  plt.legend()
+  plt.xlabel('Steps', fontsize=FONT_SIZES['AXIS_LABEL'])
+  plt.ylabel('Power (pu)', fontsize=FONT_SIZES['AXIS_LABEL'])
+
+  plt.title('Actual vs Optimal Per Generator Output (pu) x Time (Steps)', fontsize=FONT_SIZES['TITLE'])
+
+  plt.show()
+
+def plotPowerDifferentialFromInitialOptimal(history: SystemHistory, figureNum=0):
+  """Analogous to ElectricalSystem.getOptimalDifferentialFromInitialState """
+
+
+  # Get series to be plotted
+  stepsSeries = history.steps
+  actualPower = history.generators
+  optimalPower = history.costOptimalPowers
+
+  plt.figure(figureNum, figsize=FIG_SIZE)
+
+  totalDiffColor = COLOR_PALETTE[0]
+
+  allOutputDifferentials = []
+  for idx, generatorId in enumerate(actualPower):
+    # Since num generators is variable, colors may wrap around the palette
+    actualPowerSeries = actualPower[generatorId]
+    optimalPowerInitial = optimalPower[generatorId][0]
+    powerDifferentialSeries = [abs((actualOutput/optimalPowerInitial - 1)*100) for actualOutput in actualPowerSeries]
+
+    allOutputDifferentials.append(powerDifferentialSeries)
+
+  allDifferentialSeries = [sum (stepOutputDifferentials) for stepOutputDifferentials in zip(*allOutputDifferentials)]
+
+
+  plt.plot(stepsSeries, allDifferentialSeries, color=totalDiffColor, linestyle='-', label=f'Output Differential')
+
+  plt.legend()
+  plt.xlabel('Steps', fontsize=FONT_SIZES['AXIS_LABEL'])
+  plt.ylabel('Power Differential From Optimal (%)', fontsize=FONT_SIZES['AXIS_LABEL'])
+
+  plt.title('Aggregated Power Differential From Optimal (%) x Time (Steps)', fontsize=FONT_SIZES['TITLE'])
+
+  plt.show()
