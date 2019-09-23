@@ -49,6 +49,40 @@ def plotObservedPower(history: SystemHistory, figureNum=0, shouldPlotAllLoads=Fa
 
   plt.show()
 
+def plotObservedPowerZoomed(history: SystemHistory, figureNum=0):
+
+  # Get series to be plotted
+  stepsSeries = history.steps
+  loads = history.loads
+  totalLoadSeries = history.totalLoad
+  generators = history.generators
+  totalPowerSeries = history.totalPower
+
+  plt.figure(figureNum, figsize=FIG_SIZE)
+
+  # Declare colors to be used
+  colorTotalLoad = COLOR_PALETTE[0]
+  colorTotalPower = COLOR_PALETTE[1]
+  colorsIndividualNodes = COLOR_PALETTE[2:]
+
+  # Plot total power/load data
+  plt.plot(stepsSeries, totalLoadSeries, color=colorTotalLoad, label='Total Load')
+  plt.plot(stepsSeries, totalPowerSeries, color=colorTotalPower, label='Observed Power')
+
+  totalSecondary = [sum (perGenOutput) for perGenOutput in zip(*generators.values())]
+  plt.plot(stepsSeries, totalSecondary, color=colorTotalPower, label='Total Secondary Ouput', linestyle='--')
+
+  totalLoad = totalLoadSeries[0]
+  DEVIATION = 1
+  plt.ylim(bottom=totalLoad-DEVIATION, top=totalLoad+DEVIATION) # Set zoomed in y limits
+
+  plt.legend()
+  plt.xlabel('Steps', fontsize=FONT_SIZES['AXIS_LABEL'])
+  plt.ylabel('Power (pu)', fontsize=FONT_SIZES['AXIS_LABEL'])
+  plt.title('System Power (pu) x Time (Steps) - Zoom', fontsize=FONT_SIZES['TITLE'])
+
+  plt.show()
+
 def plotIndividualPowerVsOptimal(history: SystemHistory, figureNum=0):
 
   # Get series to be plotted
