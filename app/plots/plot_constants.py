@@ -18,4 +18,4 @@ FONT_SIZES = {
     'AXIS_LABEL': 12,
 }
 
-FIG_SIZE = (20,10)
+FIG_SIZE = (14,7)

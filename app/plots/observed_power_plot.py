@@ -70,7 +70,7 @@ def plotObservedPowerGenerators(history: SystemHistory, figureNum=0):
   plt.xlabel('Steps', fontsize=FONT_SIZES['AXIS_LABEL'])
   plt.ylabel('Power (pu)', fontsize=FONT_SIZES['AXIS_LABEL'])
 
-  plt.title('Per Generator - System Power (pu) x Time (Steps)', fontsize=FONT_SIZES['TITLE'])
+  plt.title('Per Generator - Power (pu) x Time (Steps)', fontsize=FONT_SIZES['TITLE'])
 
   plt.show()
 
