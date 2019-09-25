@@ -49,6 +49,31 @@ def plotObservedPower(history: SystemHistory, figureNum=0, shouldPlotAllLoads=Fa
 
   plt.show()
 
+def plotObservedPowerGenerators(history: SystemHistory, figureNum=0):
+
+  # Get series to be plotted
+  stepsSeries = history.steps
+  generators = history.generators
+
+  plt.figure(figureNum, figsize=FIG_SIZE)
+
+  # Declare colors to be used
+  colorsIndividualNodes = COLOR_PALETTE
+
+  for idx, generatorId in enumerate(generators):
+    # Since num generators is variable, colors may wrap around the palette
+    generatorColor = colorsIndividualNodes[idx % len(colorsIndividualNodes)]
+    generatorSeries = generators[generatorId]
+    plt.plot(stepsSeries, generatorSeries, color=generatorColor, label=f'{generatorId}')
+
+  plt.legend()
+  plt.xlabel('Steps', fontsize=FONT_SIZES['AXIS_LABEL'])
+  plt.ylabel('Power (pu)', fontsize=FONT_SIZES['AXIS_LABEL'])
+
+  plt.title('Per Generator - System Power (pu) x Time (Steps)', fontsize=FONT_SIZES['TITLE'])
+
+  plt.show()
+
 def plotObservedPowerZoomed(history: SystemHistory, figureNum=0):
 
   # Get series to be plotted
