@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import numpy as np
 
 from dto import ElectricalConstants, SystemHistory
 
@@ -52,8 +53,9 @@ def plotFrequencyZoom(history: SystemHistory, figureNum=0):
     plt.xlabel('Steps', fontsize=FONT_SIZES['AXIS_LABEL'])
     plt.ylabel('System Frequency (Hz)', fontsize=FONT_SIZES['AXIS_LABEL'])
 
-    DEVIATION = 0.1
+    DEVIATION = 0.05
     plt.ylim(bottom=nominalFrequency-DEVIATION, top=nominalFrequency+DEVIATION) # Set zoomed in y limits
+    plt.yticks(np.arange(nominalFrequency-DEVIATION, nominalFrequency+DEVIATION, (2*DEVIATION)/10))
 
     plt.title('System Frequency (Hz) x Time (Steps) - Zoom', fontsize=FONT_SIZES['TITLE'])
 
