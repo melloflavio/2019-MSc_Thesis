@@ -1,7 +1,7 @@
 from dto import SystemHistory
 
 from .frequency_plot import plotFrequency, plotFrequencyZoom
-from .observed_power_plot import plotObservedPower
+from .observed_power_plot import plotObservedPower, plotIndividualPowerVsOptimal
 from .costs_plot import plotTotalCosts, plotIndividualCostsAbsolute, plotIndividualCostsRelative
 
 def plotAll(history: SystemHistory):
@@ -13,12 +13,14 @@ def plotAll(history: SystemHistory):
   # Plot Observed system power output (+ individual generators)
   plotObservedPower(history, 2, shouldPlotAllLoads=False)
 
+  plotIndividualPowerVsOptimal(history, 3)
+
   ## Tertirary Control
   # Plot Total Costs: Observed v Minimum
-  plotTotalCosts(history, 3)
+  plotTotalCosts(history, 4)
 
   # Plot Individual Costs: Observed v Minimum
-  plotIndividualCostsAbsolute(history, 4)
+  plotIndividualCostsAbsolute(history, 5)
 
   # Plot Total Costs: % difference from Observed to Minimum
-  plotIndividualCostsRelative(history, 5)
+  plotIndividualCostsRelative(history, 6)
