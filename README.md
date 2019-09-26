@@ -3,6 +3,8 @@
 This repository was developed as portion of the final thesis of the MSc Data Science programme at City, University of London.
 The final report on the work developed can be seen at `./report`
 
+Version: 1.0
+
 
 ## Prerequisites
 - `PyEnv`: Ensures correct python version (as per `.python-version`)
