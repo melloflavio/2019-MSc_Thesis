@@ -20,9 +20,9 @@ class ModelAdapterFrequency(ModelAdapter):
   def _defaultRewardFunction(deltaFreq):
     baseComponent = 2**(-(deltaFreq**2)/100)
     peakComponent = 2**(-(deltaFreq**2)/2)
-    earnedReward = baseComponent + 9*peakComponent
+    earnedReward = (baseComponent + 9*peakComponent)/10
 
-    return earnedReward, {'base': baseComponent, 'peak': 9*peakComponent, 'total':earnedReward}
+    return earnedReward, {'base': baseComponent, 'peak': peakComponent, 'total':earnedReward}
 
   def shouldStopEarly(self, elecSystem):
     deltaFreq = elecSystem.getCurrentDeltaF()

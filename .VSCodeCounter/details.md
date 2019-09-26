@@ -1,0 +1,73 @@
+# Details
+
+Date : 2019-09-17 16:38:46
+
+Directory /mnt/c/Users/flavi/Documents/Study/City-UniLondon/Thesis/2019-MSc_Thesis/app/experiments
+
+Total : 58 files,  179681 codes, 0 comments, 58 blanks, all 179739 lines
+
+[summary](results.md)
+
+## Files
+| filename | language | code | comment | blank | total |
+| :--- | :--- | ---: | ---: | ---: | ---: |
+| [2Gens-Cost-0_5k.ipynb](file:///mnt/c/Users/flavi/Documents/Study/City-UniLondon/Thesis/2019-MSc_Thesis/app/experiments/2Gens-Cost-0_5k.ipynb) | jupyter | 3,845 | 0 | 1 | 3,846 |
+| [2Gens-Cost-5k-Copy1.ipynb](file:///mnt/c/Users/flavi/Documents/Study/City-UniLondon/Thesis/2019-MSc_Thesis/app/experiments/2Gens-Cost-5k-Copy1.ipynb) | jupyter | 3,496 | 0 | 1 | 3,497 |
+| [2Gens-Cost-5k.ipynb](file:///mnt/c/Users/flavi/Documents/Study/City-UniLondon/Thesis/2019-MSc_Thesis/app/experiments/2Gens-Cost-5k.ipynb) | jupyter | 3,014 | 0 | 1 | 3,015 |
+| [2Gens-Cost-9k.ipynb](file:///mnt/c/Users/flavi/Documents/Study/City-UniLondon/Thesis/2019-MSc_Thesis/app/experiments/2Gens-Cost-9k.ipynb) | jupyter | 1,710 | 0 | 1 | 1,711 |
+| [2Gens-CostFrequency-05k-Copy5-droop.ipynb](file:///mnt/c/Users/flavi/Documents/Study/City-UniLondon/Thesis/2019-MSc_Thesis/app/experiments/2Gens-CostFrequency-05k-Copy5-droop.ipynb) | jupyter | 3,512 | 0 | 1 | 3,513 |
+| [2Gens-CostFrequency-05k-Copy5.ipynb](file:///mnt/c/Users/flavi/Documents/Study/City-UniLondon/Thesis/2019-MSc_Thesis/app/experiments/2Gens-CostFrequency-05k-Copy5.ipynb) | jupyter | 3,501 | 0 | 1 | 3,502 |
+| [2Gens-CostFrequency-05k-Copy6-droop.ipynb](file:///mnt/c/Users/flavi/Documents/Study/City-UniLondon/Thesis/2019-MSc_Thesis/app/experiments/2Gens-CostFrequency-05k-Copy6-droop.ipynb) | jupyter | 59,080 | 0 | 1 | 59,081 |
+| [2Gens-CostFrequency-05k-Copy6.ipynb](file:///mnt/c/Users/flavi/Documents/Study/City-UniLondon/Thesis/2019-MSc_Thesis/app/experiments/2Gens-CostFrequency-05k-Copy6.ipynb) | jupyter | 3,805 | 0 | 1 | 3,806 |
+| [2Gens-CostFrequency-05k-Copy7-droop.ipynb](file:///mnt/c/Users/flavi/Documents/Study/City-UniLondon/Thesis/2019-MSc_Thesis/app/experiments/2Gens-CostFrequency-05k-Copy7-droop.ipynb) | jupyter | 3,512 | 0 | 1 | 3,513 |
+| [2Gens-CostFrequency-05k-Copy7.ipynb](file:///mnt/c/Users/flavi/Documents/Study/City-UniLondon/Thesis/2019-MSc_Thesis/app/experiments/2Gens-CostFrequency-05k-Copy7.ipynb) | jupyter | 3,501 | 0 | 1 | 3,502 |
+| [3Gens-Cost-05k-Copy1.ipynb](file:///mnt/c/Users/flavi/Documents/Study/City-UniLondon/Thesis/2019-MSc_Thesis/app/experiments/3Gens-Cost-05k-Copy1.ipynb) | jupyter | 3,833 | 0 | 1 | 3,834 |
+| [3Gens-Cost-05k-Copy2.ipynb](file:///mnt/c/Users/flavi/Documents/Study/City-UniLondon/Thesis/2019-MSc_Thesis/app/experiments/3Gens-Cost-05k-Copy2.ipynb) | jupyter | 1,847 | 0 | 1 | 1,848 |
+| [3Gens-Cost-05k.ipynb](file:///mnt/c/Users/flavi/Documents/Study/City-UniLondon/Thesis/2019-MSc_Thesis/app/experiments/3Gens-Cost-05k.ipynb) | jupyter | 3,519 | 0 | 1 | 3,520 |
+| [3Gens-Cost-0_7k.ipynb](file:///mnt/c/Users/flavi/Documents/Study/City-UniLondon/Thesis/2019-MSc_Thesis/app/experiments/3Gens-Cost-0_7k.ipynb) | jupyter | 3,512 | 0 | 1 | 3,513 |
+| [3Gens-Cost-2k.ipynb](file:///mnt/c/Users/flavi/Documents/Study/City-UniLondon/Thesis/2019-MSc_Thesis/app/experiments/3Gens-Cost-2k.ipynb) | jupyter | 3,833 | 0 | 1 | 3,834 |
+| [3Gens-Cost-5k-Cuda.ipynb](file:///mnt/c/Users/flavi/Documents/Study/City-UniLondon/Thesis/2019-MSc_Thesis/app/experiments/3Gens-Cost-5k-Cuda.ipynb) | jupyter | 474 | 0 | 1 | 475 |
+| [3Gens-Cost-5k.ipynb](file:///mnt/c/Users/flavi/Documents/Study/City-UniLondon/Thesis/2019-MSc_Thesis/app/experiments/3Gens-Cost-5k.ipynb) | jupyter | 505 | 0 | 1 | 506 |
+| [3Gens-Cost-8k.ipynb](file:///mnt/c/Users/flavi/Documents/Study/City-UniLondon/Thesis/2019-MSc_Thesis/app/experiments/3Gens-Cost-8k.ipynb) | jupyter | 505 | 0 | 1 | 506 |
+| [3Gens-CostFrequency-05k-Copy1.ipynb](file:///mnt/c/Users/flavi/Documents/Study/City-UniLondon/Thesis/2019-MSc_Thesis/app/experiments/3Gens-CostFrequency-05k-Copy1.ipynb) | jupyter | 3,833 | 0 | 1 | 3,834 |
+| [3Gens-CostFrequency-05k-Copy2.ipynb](file:///mnt/c/Users/flavi/Documents/Study/City-UniLondon/Thesis/2019-MSc_Thesis/app/experiments/3Gens-CostFrequency-05k-Copy2.ipynb) | jupyter | 3,839 | 0 | 1 | 3,840 |
+| [3Gens-CostFrequency-05k-Copy3.ipynb](file:///mnt/c/Users/flavi/Documents/Study/City-UniLondon/Thesis/2019-MSc_Thesis/app/experiments/3Gens-CostFrequency-05k-Copy3.ipynb) | jupyter | 3,827 | 0 | 1 | 3,828 |
+| [3Gens-CostFrequency-05k-Copy4.ipynb](file:///mnt/c/Users/flavi/Documents/Study/City-UniLondon/Thesis/2019-MSc_Thesis/app/experiments/3Gens-CostFrequency-05k-Copy4.ipynb) | jupyter | 3,512 | 0 | 1 | 3,513 |
+| [3Gens-CostFrequency-05k.ipynb](file:///mnt/c/Users/flavi/Documents/Study/City-UniLondon/Thesis/2019-MSc_Thesis/app/experiments/3Gens-CostFrequency-05k.ipynb) | jupyter | 3,518 | 0 | 1 | 3,519 |
+| [3Gens-CostFrequency-5k-Copy1.ipynb](file:///mnt/c/Users/flavi/Documents/Study/City-UniLondon/Thesis/2019-MSc_Thesis/app/experiments/3Gens-CostFrequency-5k-Copy1.ipynb) | jupyter | 3,523 | 0 | 1 | 3,524 |
+| [3Gens-CostFrequency-5k-Copy2.ipynb](file:///mnt/c/Users/flavi/Documents/Study/City-UniLondon/Thesis/2019-MSc_Thesis/app/experiments/3Gens-CostFrequency-5k-Copy2.ipynb) | jupyter | 3,510 | 0 | 1 | 3,511 |
+| [3Gens-CostFrequency-5k.ipynb](file:///mnt/c/Users/flavi/Documents/Study/City-UniLondon/Thesis/2019-MSc_Thesis/app/experiments/3Gens-CostFrequency-5k.ipynb) | jupyter | 3,512 | 0 | 1 | 3,513 |
+| [3Gens-CostFrequency-9k.ipynb](file:///mnt/c/Users/flavi/Documents/Study/City-UniLondon/Thesis/2019-MSc_Thesis/app/experiments/3Gens-CostFrequency-9k.ipynb) | jupyter | 3,831 | 0 | 1 | 3,832 |
+| [3Gens-CostFrequency-C5-2k.ipynb](file:///mnt/c/Users/flavi/Documents/Study/City-UniLondon/Thesis/2019-MSc_Thesis/app/experiments/3Gens-CostFrequency-C5-2k.ipynb) | jupyter | 3,512 | 0 | 1 | 3,513 |
+| [3Gens-CostFrequency-C5-5k.ipynb](file:///mnt/c/Users/flavi/Documents/Study/City-UniLondon/Thesis/2019-MSc_Thesis/app/experiments/3Gens-CostFrequency-C5-5k.ipynb) | jupyter | 505 | 0 | 1 | 506 |
+| [3Gens-CostFrequency-C6-2k.ipynb](file:///mnt/c/Users/flavi/Documents/Study/City-UniLondon/Thesis/2019-MSc_Thesis/app/experiments/3Gens-CostFrequency-C6-2k.ipynb) | jupyter | 3,512 | 0 | 1 | 3,513 |
+| [3Gens-CostFrequency-C6-5k.ipynb](file:///mnt/c/Users/flavi/Documents/Study/City-UniLondon/Thesis/2019-MSc_Thesis/app/experiments/3Gens-CostFrequency-C6-5k.ipynb) | jupyter | 505 | 0 | 1 | 506 |
+| [3Gens-Frequency-15k.ipynb](file:///mnt/c/Users/flavi/Documents/Study/City-UniLondon/Thesis/2019-MSc_Thesis/app/experiments/3Gens-Frequency-15k.ipynb) | jupyter | 686 | 0 | 1 | 687 |
+| [3Gens-Frequency-1k.ipynb](file:///mnt/c/Users/flavi/Documents/Study/City-UniLondon/Thesis/2019-MSc_Thesis/app/experiments/3Gens-Frequency-1k.ipynb) | jupyter | 686 | 0 | 1 | 687 |
+| [3Gens-Frequency-5k.ipynb](file:///mnt/c/Users/flavi/Documents/Study/City-UniLondon/Thesis/2019-MSc_Thesis/app/experiments/3Gens-Frequency-5k.ipynb) | jupyter | 652 | 0 | 1 | 653 |
+| [3Gens-Frequency-9k.ipynb](file:///mnt/c/Users/flavi/Documents/Study/City-UniLondon/Thesis/2019-MSc_Thesis/app/experiments/3Gens-Frequency-9k.ipynb) | jupyter | 652 | 0 | 1 | 653 |
+| [Cuda-Test-Copy1.ipynb](file:///mnt/c/Users/flavi/Documents/Study/City-UniLondon/Thesis/2019-MSc_Thesis/app/experiments/Cuda-Test-Copy1.ipynb) | jupyter | 596 | 0 | 1 | 597 |
+| [Cuda-Test-Copy2.ipynb](file:///mnt/c/Users/flavi/Documents/Study/City-UniLondon/Thesis/2019-MSc_Thesis/app/experiments/Cuda-Test-Copy2.ipynb) | jupyter | 1,001 | 0 | 1 | 1,002 |
+| [Cuda-Test.ipynb](file:///mnt/c/Users/flavi/Documents/Study/City-UniLondon/Thesis/2019-MSc_Thesis/app/experiments/Cuda-Test.ipynb) | jupyter | 724 | 0 | 1 | 725 |
+| [Meeting-CostFreq-SingleModel.ipynb](file:///mnt/c/Users/flavi/Documents/Study/City-UniLondon/Thesis/2019-MSc_Thesis/app/experiments/Meeting-CostFreq-SingleModel.ipynb) | jupyter | 884 | 0 | 1 | 885 |
+| [Meeting-DualModel.ipynb](file:///mnt/c/Users/flavi/Documents/Study/City-UniLondon/Thesis/2019-MSc_Thesis/app/experiments/Meeting-DualModel.ipynb) | jupyter | 544 | 0 | 1 | 545 |
+| [Meeting-Frequency-Copy1.ipynb](file:///mnt/c/Users/flavi/Documents/Study/City-UniLondon/Thesis/2019-MSc_Thesis/app/experiments/Meeting-Frequency-Copy1.ipynb) | jupyter | 706 | 0 | 1 | 707 |
+| [Meeting-Frequency-Copy2.ipynb](file:///mnt/c/Users/flavi/Documents/Study/City-UniLondon/Thesis/2019-MSc_Thesis/app/experiments/Meeting-Frequency-Copy2.ipynb) | jupyter | 767 | 0 | 1 | 768 |
+| [Meeting-Frequency-Copy3.ipynb](file:///mnt/c/Users/flavi/Documents/Study/City-UniLondon/Thesis/2019-MSc_Thesis/app/experiments/Meeting-Frequency-Copy3.ipynb) | jupyter | 4,857 | 0 | 1 | 4,858 |
+| [Meeting-Frequency-Copy4.ipynb](file:///mnt/c/Users/flavi/Documents/Study/City-UniLondon/Thesis/2019-MSc_Thesis/app/experiments/Meeting-Frequency-Copy4.ipynb) | jupyter | 4,979 | 0 | 1 | 4,980 |
+| [Meeting-Frequency-Copy5.ipynb](file:///mnt/c/Users/flavi/Documents/Study/City-UniLondon/Thesis/2019-MSc_Thesis/app/experiments/Meeting-Frequency-Copy5.ipynb) | jupyter | 658 | 0 | 1 | 659 |
+| [Meeting-Frequency-Copy6.ipynb](file:///mnt/c/Users/flavi/Documents/Study/City-UniLondon/Thesis/2019-MSc_Thesis/app/experiments/Meeting-Frequency-Copy6.ipynb) | jupyter | 3,635 | 0 | 1 | 3,636 |
+| [Meeting-Frequency-Copy7.ipynb](file:///mnt/c/Users/flavi/Documents/Study/City-UniLondon/Thesis/2019-MSc_Thesis/app/experiments/Meeting-Frequency-Copy7.ipynb) | jupyter | 3,635 | 0 | 1 | 3,636 |
+| [Meeting-Frequency.ipynb](file:///mnt/c/Users/flavi/Documents/Study/City-UniLondon/Thesis/2019-MSc_Thesis/app/experiments/Meeting-Frequency.ipynb) | jupyter | 609 | 0 | 1 | 610 |
+| [Sample-TestCost-NoDroop-Copy65.ipynb](file:///mnt/c/Users/flavi/Documents/Study/City-UniLondon/Thesis/2019-MSc_Thesis/app/experiments/Sample-TestCost-NoDroop-Copy65.ipynb) | jupyter | 755 | 0 | 1 | 756 |
+| [Sample-TestCostFreq-Copy7.ipynb](file:///mnt/c/Users/flavi/Documents/Study/City-UniLondon/Thesis/2019-MSc_Thesis/app/experiments/Sample-TestCostFreq-Copy7.ipynb) | jupyter | 818 | 0 | 1 | 819 |
+| [Sample-TestFrequency-15k.ipynb](file:///mnt/c/Users/flavi/Documents/Study/City-UniLondon/Thesis/2019-MSc_Thesis/app/experiments/Sample-TestFrequency-15k.ipynb) | jupyter | 591 | 0 | 1 | 592 |
+| [Sample-TestFrequency-sqfn-Copy6.ipynb](file:///mnt/c/Users/flavi/Documents/Study/City-UniLondon/Thesis/2019-MSc_Thesis/app/experiments/Sample-TestFrequency-sqfn-Copy6.ipynb) | jupyter | 623 | 0 | 1 | 624 |
+| [Sample-TestFrequency.ipynb](file:///mnt/c/Users/flavi/Documents/Study/City-UniLondon/Thesis/2019-MSc_Thesis/app/experiments/Sample-TestFrequency.ipynb) | jupyter | 577 | 0 | 1 | 578 |
+| [Sample.ipynb](file:///mnt/c/Users/flavi/Documents/Study/City-UniLondon/Thesis/2019-MSc_Thesis/app/experiments/Sample.ipynb) | jupyter | 429 | 0 | 1 | 430 |
+| [Sample_2.ipynb](file:///mnt/c/Users/flavi/Documents/Study/City-UniLondon/Thesis/2019-MSc_Thesis/app/experiments/Sample_2.ipynb) | jupyter | 376 | 0 | 1 | 377 |
+| [TestCostFreq-DualModel.ipynb](file:///mnt/c/Users/flavi/Documents/Study/City-UniLondon/Thesis/2019-MSc_Thesis/app/experiments/TestCostFreq-DualModel.ipynb) | jupyter | 929 | 0 | 1 | 930 |
+| [sandbox.ipynb](file:///mnt/c/Users/flavi/Documents/Study/City-UniLondon/Thesis/2019-MSc_Thesis/app/experiments/sandbox.ipynb) | jupyter | 125 | 0 | 1 | 126 |
+| [sandbox_3.ipynb](file:///mnt/c/Users/flavi/Documents/Study/City-UniLondon/Thesis/2019-MSc_Thesis/app/experiments/sandbox_3.ipynb) | jupyter | 244 | 0 | 1 | 245 |
+
+[summary](results.md)

@@ -5,7 +5,15 @@
 - `PipEnv`: Ensures dependencies & locks down package versions
 
 ## Running Code
-1. Ensure you are within the _virtualenv_: `pipenv shell`
+1. Starting with a system with python v3.7.3 and the corresponding pip version installed
+    **Note:** `Pyenv` and `pipenv` are optional, but facilitate the process of ensuring the correct versions of the libraries
+   1. If using pipenv, ensure you are within the _virtualenv_: `pipenv shell` or issue commands with `pipenv run <command>`
+2. Install all libraries specified in section B.2. Ensure the correct versions are being installed.
+   1. If using `pipenv` this can be done running the command `pipenv install`, which automatically installs all the libraries as specified in the pipfile
+   2. If relying on pip only, each library can be installed individually
+3. Start the jupyter notebook server: (`jupyter notebook`)
+4. Run the experiments found in the form of notebooks in the `./app/experiments` folder
+5. A template notebook can also be found which provide the blueprint for running future experiments. `./app/experiments/Template-Experiment.ipynb`
 
 
 ## Troubleshooting

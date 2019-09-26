@@ -1,13 +1,12 @@
-from typing import List
+from typing import List, Dict
 import tensorflow as tf
 
-from electricity import ElectricalSystemFactory
 from dto import ElectricalSystemSpecs, NodePowerUpdate
+from electricity import ElectricalSystemFactory
 from models import getPathForModel
 
-# from .cost_reward import costRewardFunction
-# from .cost_learning_agent import CostAgent
 from .learning_agent import Agent
+from .model_adapter import ModelAdapter
 
 FREQUENCY = 'frequency'
 COST = 'cost'
@@ -43,26 +42,22 @@ class ModelTesterActionComposition():
     }
 
   def loadTfModels(self, modelNames: Dict[str, str], generatorIds):
-    # Declare both models TF graphs and sessions
-    tfGraphs = {
-      FREQUENCY: tf.Graph(),
-      COST: tf.Graph(),
-    }
-    self._tfSessions[FREQUENCY] = tf.compat.v1.Session(graph=tfGraphs[FREQUENCY])
-    self._tfSessions[COST] = tf.compat.v1.Session(graph=tfGraphs[COST])
-
-    tfSavers = {}
-    # Recreate agents within each graph
     for modelType in MODEL_TYPES:
-      self._allAgents[modelType]: List[Agent] = [Agent(id_, self._modelAdapters[modelType]) for id_ in generatorIds]
-      tfSavers[modelType] = tf.compat.v1.train.Saver()
+      # Each model has its own graph & session
+      graph = tf.Graph()
+      tfSession = tf.compat.v1.Session(graph=graph)
+      with graph.as_default():
+         # Reconstruct graph variables by redeclaring agents
+        allAgents: List[Agent] = [Agent(id_, self._modelAdapters[modelType]) for id_ in generatorIds]
+        tfSaver = tf.compat.v1.train.Saver() # Saver obj used to restore session
+        modelPath = getPathForModel(modelNames[modelType])
+        tfSaver.restore(tfSession, modelPath)
 
-    # Restore TF sessions
-    for modelType in MODEL_TYPES:
-      modelPath = getPathForModel(modelNames[modelType])
-      tfSavers[modelType].restore(self._tfSessions[modelType], modelPath)
+      # Store tensorflwo session and agents for later use during testing
+      self._tfSessions[modelType] = tfSession
+      self._allAgents[modelType] = allAgents
 
-  def testAgents(self, electricalSystemSpecs: ElectricalSystemSpecs, modelNameFreq: str, modelNameCost: str, rewardFnCost=costRewardFunction, stepsToTest: int = 500, frequencyWeight=0.7):
+  def testAgents(self, electricalSystemSpecs: ElectricalSystemSpecs, modelNameFreq: str, modelNameCost: str, stepsToTest: int = 500, frequencyWeight=0.7):
     self._actionWeights = {
       FREQUENCY: frequencyWeight,
       COST: 1 - frequencyWeight,
@@ -120,7 +115,7 @@ class ModelTesterActionComposition():
   def executeAllActions(self, allActions, elecSystem):
     # Combine actions
     allActionsCombined = []
-    for actionIdx in range(allActions[FREQUENCY]):
+    for actionIdx in range(len(allActions[FREQUENCY])):
       totalAction = 0
       for modelType in MODEL_TYPES:
         action = allActions[modelType][actionIdx]
