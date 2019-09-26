@@ -19,7 +19,7 @@ class NeuralNetworkShape:
 class LearningParams:
   electricalSystemSpecs: ElectricalSystemSpecs
   gamma: float    = 0.9   # Gamma (Discount)
-  tau: float      = 0.001 # Tau
+  tau: float      = 0.001 # Tau (Target network mixing factor)
   epsilonSpecs: EpsilonSpecs = EpsilonSpecs( # Epsilon explore/exploit control
       thresholdProgress = 0.6, # % of steps where decay change should happen
       thresholdValue = 0.5, # Value at which decay change would happen
