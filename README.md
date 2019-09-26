@@ -1,5 +1,9 @@
 # Cost optimization in frequency control of unbalanced distribution systems
 
+This repository was developed as portion of the final thesis of the MSc Data Science programme at City, University of London.
+The final report on the work developed can be seen at `./report`
+
+
 ## Prerequisites
 - `PyEnv`: Ensures correct python version (as per `.python-version`)
 - `PipEnv`: Ensures dependencies & locks down package versions
