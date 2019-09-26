@@ -1,0 +1,22 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+pylint = "*"
+
+[packages]
+jupyter = "*"
+numpy = "*"
+pandas = "*"
+matplotlib = "*"
+ipykernel = "*"
+singleton-decorator = "*"
+pydash = "*"
+scipy = "*"
+tensorflow = "*"
+dataclasses-json = "*"
+
+[requires]
+python_version = "3.7"

@@ -1,0 +1,2 @@
+model_checkpoint_path: "/mnt/c/Users/flavi/Documents/Study/City-UniLondon/Thesis/2019-MSc_Thesis/app/models/Pico-3Gens-CostSingle-8k-PF2-C1-Scaled/model"
+all_model_checkpoint_paths: "/mnt/c/Users/flavi/Documents/Study/City-UniLondon/Thesis/2019-MSc_Thesis/app/models/Pico-3Gens-CostSingle-8k-PF2-C1-Scaled/model"

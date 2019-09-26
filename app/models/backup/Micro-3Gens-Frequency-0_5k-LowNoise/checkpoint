@@ -1,0 +1,2 @@
+model_checkpoint_path: "/mnt/c/Users/flavi/Documents/Study/City-UniLondon/Thesis/2019-MSc_Thesis/app/models/Micro-3Gens-Frequency-0_5k-LowNoise/model"
+all_model_checkpoint_paths: "/mnt/c/Users/flavi/Documents/Study/City-UniLondon/Thesis/2019-MSc_Thesis/app/models/Micro-3Gens-Frequency-0_5k-LowNoise/model"

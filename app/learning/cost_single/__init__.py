@@ -1,0 +1,1 @@
+from .model_adapter_cost_single import ModelAdapterCostSingle

@@ -1,0 +1,59 @@
+{
+    "batchSize": 40,
+    "bufferSize": 500,
+    "electricalSystemSpecs": [
+        [
+            [
+                "L1",
+                3.0,
+                0.05
+            ]
+        ],
+        [
+            [
+                "G1",
+                2,
+                [
+                    0.0,
+                    0,
+                    1
+                ],
+                0.5,
+                5.0,
+                0.1
+            ],
+            [
+                "G2",
+                2,
+                [
+                    0.0,
+                    0,
+                    2
+                ],
+                0.5,
+                5.0,
+                0.1
+            ]
+        ],
+        true
+    ],
+    "epsilonSpecs": {
+        "finalValue": 0.0001,
+        "thresholdProgress": 0.6,
+        "thresholdValue": 0.5
+    },
+    "gamma": 0.9,
+    "maxSteps": 100,
+    "modelName": "2Gen-OriginalTest-C65-5k",
+    "nnShape": {
+        "layer_00_ltsm": 100,
+        "layer_01_mlp_01": 1000,
+        "layer_02_mlp_02": 100,
+        "layer_03_mlp_03": 50,
+        "layer_04_mlp_04": 1
+    },
+    "numEpisodes": 5000,
+    "tau": 0.001,
+    "traceLength": 15,
+    "updateInterval": 4
+}
