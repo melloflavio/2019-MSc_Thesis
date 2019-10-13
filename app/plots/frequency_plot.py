@@ -3,7 +3,7 @@ import numpy as np
 
 from dto import ElectricalConstants, SystemHistory
 
-from .plot_constants import COLOR_PALETTE, FIG_SIZE, FONT_SIZES
+from .plot_constants import COLOR_PALETTE, FIG_SIZE, FONT_SIZES, LINE_WIDTH
 
 def plotFrequency(history: SystemHistory, figureNum=0):
 
@@ -24,10 +24,10 @@ def plotFrequency(history: SystemHistory, figureNum=0):
   plt.plot(stepsSeries, frequencySeries, color=colorObservedFreq, label='Observed')
   plt.legend()
 
-  plt.xlabel('Steps', fontsize=FONT_SIZES['AXIS_LABEL'])
+  plt.xlabel('Time (s)', fontsize=FONT_SIZES['AXIS_LABEL'])
   plt.ylabel('System Frequency (Hz)', fontsize=FONT_SIZES['AXIS_LABEL'])
 
-  plt.title('System Frequency (Hz) x Time (Steps)', fontsize=FONT_SIZES['TITLE'])
+  plt.title('System Frequency (Hz) x Time (s)', fontsize=FONT_SIZES['TITLE'])
 
   plt.show()
 
@@ -44,19 +44,30 @@ def plotFrequencyZoom(history: SystemHistory, figureNum=0):
     # Declare colors to be used
     colorNominalFreq = COLOR_PALETTE[0]
     colorObservedFreq = COLOR_PALETTE[1]
+    colotAccepetdRegion = 'green'
 
     # Plot data
-    plt.plot(stepsSeries, nominalSeries, color=colorNominalFreq, label='Nominal')
-    plt.plot(stepsSeries, frequencySeries, color=colorObservedFreq, label='Observed')
-    plt.legend()
+    plt.plot(stepsSeries, nominalSeries, color=colorNominalFreq, label='Nominal', linewidth=LINE_WIDTH)
+    plt.plot(stepsSeries, frequencySeries, color=colorObservedFreq, label='Observed', linewidth=LINE_WIDTH)
 
-    plt.xlabel('Steps', fontsize=FONT_SIZES['AXIS_LABEL'])
+    plt.xlabel('Time (s)', fontsize=FONT_SIZES['AXIS_LABEL'])
     plt.ylabel('System Frequency (Hz)', fontsize=FONT_SIZES['AXIS_LABEL'])
 
-    DEVIATION = 0.05
+    DEVIATION = 0.08
     plt.ylim(bottom=nominalFrequency-DEVIATION, top=nominalFrequency+DEVIATION) # Set zoomed in y limits
-    plt.yticks(np.arange(nominalFrequency-DEVIATION, nominalFrequency+DEVIATION, (2*DEVIATION)/10))
+    plt.yticks(np.arange(nominalFrequency-DEVIATION, nominalFrequency+DEVIATION, (2*DEVIATION)/8))
 
-    plt.title('System Frequency (Hz) x Time (Steps) - Zoom', fontsize=FONT_SIZES['TITLE'])
+    ACCEPTED_RANGE = 0.02
+    plt.fill_between(
+      stepsSeries,
+      y1=nominalFrequency-ACCEPTED_RANGE,
+      y2=nominalFrequency+ACCEPTED_RANGE,
+      color=colotAccepetdRegion,
+      alpha=0.25)
+    plt.fill(np.NaN, np.NaN, colotAccepetdRegion, alpha=0.25, label='AGC Range')
+
+    plt.legend(loc='upper right')
+
+    plt.title('System Frequency (Hz) x Time (s)', fontsize=FONT_SIZES['TITLE'])
 
     plt.show()

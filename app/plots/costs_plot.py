@@ -29,10 +29,10 @@ def plotTotalCosts(history: SystemHistory, figureNum=0):
   ax2.plot(stepsSeries, deltaCostSeries, color=colorCostsDifference, linestyle='--', label='Cost Differential')
   ax2.legend(loc='upper right')
 
-  ax1.set_xlabel('Steps', fontsize=FONT_SIZES['AXIS_LABEL'])
+  ax1.set_xlabel('Time (s)', fontsize=FONT_SIZES['AXIS_LABEL'])
   ax1.set_ylabel('Cost ($/h)', fontsize=FONT_SIZES['AXIS_LABEL'])
   ax2.set_ylabel('Relative Cost to Optimal (%)', fontsize=FONT_SIZES['AXIS_LABEL'])
-  plt.title('Costs ($/h) x Time (Steps)', fontsize=FONT_SIZES['TITLE'])
+  plt.title('Costs ($/h) x Time (s)', fontsize=FONT_SIZES['TITLE'])
 
   plt.show()
 
@@ -54,10 +54,10 @@ def plotIndividualCostsAbsolute(history: SystemHistory, figureNum=0):
     plt.plot(stepsSeries, optimalCostsSeries, color=generatorColor, linestyle='--', label=f'{generatorId} Optimal')
 
   plt.legend()
-  plt.xlabel('Steps', fontsize=FONT_SIZES['AXIS_LABEL'])
+  plt.xlabel('Time (s)', fontsize=FONT_SIZES['AXIS_LABEL'])
   plt.ylabel('Cost ($/h)', fontsize=FONT_SIZES['AXIS_LABEL'])
 
-  plt.title('Per Generator Costs ($/h) x Time (Steps)', fontsize=FONT_SIZES['TITLE'])
+  plt.title('Per Generator Costs ($/h) x Time (s)', fontsize=FONT_SIZES['TITLE'])
 
   plt.show()
 
@@ -79,10 +79,10 @@ def plotIndividualCostsRelative(history: SystemHistory, figureNum=0):
     plt.plot(stepsSeries, deltaCostSeries, color=generatorColor, linestyle='-.', label=f'{generatorId}')
 
   plt.legend()
-  plt.xlabel('Steps', fontsize=FONT_SIZES['AXIS_LABEL'])
+  plt.xlabel('Time (s)', fontsize=FONT_SIZES['AXIS_LABEL'])
   plt.ylabel('Cost Differential (%)', fontsize=FONT_SIZES['AXIS_LABEL'])
 
-  plt.title('Per Generator Costs Differential (%) x Time (Steps)', fontsize=FONT_SIZES['TITLE'])
+  plt.title('Per Generator Costs Differential (%) x Time (s)', fontsize=FONT_SIZES['TITLE'])
 
   plt.show()
 
@@ -106,10 +106,10 @@ def plotIndividualCostsAbsoluteToInitial(history: SystemHistory, figureNum=0):
     plt.plot(stepsSeries, optimalCostsSeries, color=generatorColor, linestyle='--', label=f'{generatorId} Optimal')
 
   plt.legend()
-  plt.xlabel('Steps', fontsize=FONT_SIZES['AXIS_LABEL'])
+  plt.xlabel('Time (s)', fontsize=FONT_SIZES['AXIS_LABEL'])
   plt.ylabel('Cost ($/h)', fontsize=FONT_SIZES['AXIS_LABEL'])
 
-  plt.title('Per Generator Costs ($/h) x Time (Steps)', fontsize=FONT_SIZES['TITLE'])
+  plt.title('Per Generator Costs ($/h) x Time (s)', fontsize=FONT_SIZES['TITLE'])
 
   plt.show()
 
@@ -133,9 +133,9 @@ def plotTotalCostDifferential(history: SystemHistory, figureNum=0):
     plt.plot(stepsSeries, optimalCostsSeries, color=generatorColor, linestyle='--', label=f'{generatorId} Optimal')
 
   plt.legend()
-  plt.xlabel('Steps', fontsize=FONT_SIZES['AXIS_LABEL'])
+  plt.xlabel('Time (s)', fontsize=FONT_SIZES['AXIS_LABEL'])
   plt.ylabel('Cost ($/h)', fontsize=FONT_SIZES['AXIS_LABEL'])
 
-  plt.title('Per Generator Costs ($/h) x Time (Steps)', fontsize=FONT_SIZES['TITLE'])
+  plt.title('Per Generator Costs ($/h) x Time (s)', fontsize=FONT_SIZES['TITLE'])
 
   plt.show()

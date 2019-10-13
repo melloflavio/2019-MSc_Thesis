@@ -14,8 +14,10 @@ COLOR_PALETTE = [
 ]
 
 FONT_SIZES = {
-    'TITLE': 14,
-    'AXIS_LABEL': 12,
+    'TITLE': 12,
+    'AXIS_LABEL': 10,
 }
 
-FIG_SIZE = (14,7)
+FIG_SIZE = (7, 3)
+
+LINE_WIDTH = 1.5

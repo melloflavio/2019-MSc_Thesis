@@ -42,10 +42,10 @@ def plotObservedPower(history: SystemHistory, figureNum=0, shouldPlotAllLoads=Fa
   # plt.plot(stepsSeries, totalSecondary, color=colorTotalPower, label='Total Secondary Ouput', linestyle='--')
 
   plt.legend()
-  plt.xlabel('Steps', fontsize=FONT_SIZES['AXIS_LABEL'])
+  plt.xlabel('Time (s)', fontsize=FONT_SIZES['AXIS_LABEL'])
   plt.ylabel('Power (pu)', fontsize=FONT_SIZES['AXIS_LABEL'])
 
-  plt.title('System Power (pu) x Time (Steps)', fontsize=FONT_SIZES['TITLE'])
+  plt.title('System Power (pu) x Time (s)', fontsize=FONT_SIZES['TITLE'])
 
   plt.show()
 
@@ -67,10 +67,10 @@ def plotObservedPowerGenerators(history: SystemHistory, figureNum=0):
     plt.plot(stepsSeries, generatorSeries, color=generatorColor, label=f'{generatorId}')
 
   plt.legend()
-  plt.xlabel('Steps', fontsize=FONT_SIZES['AXIS_LABEL'])
+  plt.xlabel('Time (s)', fontsize=FONT_SIZES['AXIS_LABEL'])
   plt.ylabel('Power (pu)', fontsize=FONT_SIZES['AXIS_LABEL'])
 
-  plt.title('Per Generator - Power (pu) x Time (Steps)', fontsize=FONT_SIZES['TITLE'])
+  plt.title('Per Generator - Power (pu) x Time (s)', fontsize=FONT_SIZES['TITLE'])
 
   plt.show()
 
@@ -102,9 +102,9 @@ def plotObservedPowerZoomed(history: SystemHistory, figureNum=0):
   plt.ylim(bottom=totalLoad-DEVIATION, top=totalLoad+DEVIATION) # Set zoomed in y limits
 
   plt.legend()
-  plt.xlabel('Steps', fontsize=FONT_SIZES['AXIS_LABEL'])
+  plt.xlabel('Time (s)', fontsize=FONT_SIZES['AXIS_LABEL'])
   plt.ylabel('Power (pu)', fontsize=FONT_SIZES['AXIS_LABEL'])
-  plt.title('System Power (pu) x Time (Steps) - Zoom', fontsize=FONT_SIZES['TITLE'])
+  plt.title('System Power (pu) x Time (s) - Zoom', fontsize=FONT_SIZES['TITLE'])
 
   plt.show()
 
@@ -126,10 +126,10 @@ def plotIndividualPowerVsOptimal(history: SystemHistory, figureNum=0):
     plt.plot(stepsSeries, optimalPowerSeries, color=generatorColor, linestyle='--', label=f'{generatorId} Optimal')
 
   plt.legend()
-  plt.xlabel('Steps', fontsize=FONT_SIZES['AXIS_LABEL'])
+  plt.xlabel('Time (s)', fontsize=FONT_SIZES['AXIS_LABEL'])
   plt.ylabel('Power (pu)', fontsize=FONT_SIZES['AXIS_LABEL'])
 
-  plt.title('Actual vs Optimal Per Generator Output (pu) x Time (Steps)', fontsize=FONT_SIZES['TITLE'])
+  plt.title('Actual vs Optimal Per Generator Output (pu) x Time (s)', fontsize=FONT_SIZES['TITLE'])
 
   plt.show()
 
@@ -152,10 +152,10 @@ def plotIndividualPowerVsInitialOptimal(history: SystemHistory, figureNum=0):
     plt.plot(stepsSeries, optimalPowerSeries, color=generatorColor, linestyle='--', label=f'{generatorId} Optimal')
 
   plt.legend()
-  plt.xlabel('Steps', fontsize=FONT_SIZES['AXIS_LABEL'])
+  plt.xlabel('Time (s)', fontsize=FONT_SIZES['AXIS_LABEL'])
   plt.ylabel('Power (pu)', fontsize=FONT_SIZES['AXIS_LABEL'])
 
-  plt.title('Per Generator Output (pu) Actual vs Target x Time (Steps)', fontsize=FONT_SIZES['TITLE'])
+  plt.title('Per Generator Output (pu) Actual vs Target x Time (s)', fontsize=FONT_SIZES['TITLE'])
 
   plt.show()
 
@@ -187,9 +187,9 @@ def plotPowerDifferentialFromInitialOptimal(history: SystemHistory, figureNum=0)
   plt.plot(stepsSeries, allDifferentialSeries, color=totalDiffColor, linestyle='-', label=f'Output Differential')
 
   plt.legend()
-  plt.xlabel('Steps', fontsize=FONT_SIZES['AXIS_LABEL'])
+  plt.xlabel('Time (s)', fontsize=FONT_SIZES['AXIS_LABEL'])
   plt.ylabel('Power Differential From Optimal (%)', fontsize=FONT_SIZES['AXIS_LABEL'])
 
-  plt.title('Aggregated Power Differential From Optimal (%) x Time (Steps)', fontsize=FONT_SIZES['TITLE'])
+  plt.title('Aggregated Power Differential From Optimal (%) x Time (s)', fontsize=FONT_SIZES['TITLE'])
 
   plt.show()
