@@ -53,7 +53,7 @@ def plotFrequencyZoom(history: SystemHistory, figureNum=0):
     plt.xlabel('Time (s)', fontsize=FONT_SIZES['AXIS_LABEL'])
     plt.ylabel('System Frequency (Hz)', fontsize=FONT_SIZES['AXIS_LABEL'])
 
-    DEVIATION = 0.24
+    DEVIATION = 0.08
     plt.ylim(bottom=nominalFrequency-DEVIATION, top=nominalFrequency+DEVIATION) # Set zoomed in y limits
     plt.yticks(np.arange(nominalFrequency-DEVIATION, nominalFrequency+DEVIATION, (2*DEVIATION)/8))
 

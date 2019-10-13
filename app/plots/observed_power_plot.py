@@ -140,7 +140,7 @@ def plotIndividualPowerVsInitialOptimal(history: SystemHistory, figureNum=0):
   actualPower = history.generators
   optimalPower = history.costOptimalPowers
 
-  plt.figure(figureNum, figsize=FIG_SIZE)
+  plt.figure(figureNum, figsize=(7,5))
 
   for idx, generatorId in enumerate(actualPower):
     # Since num generators is variable, colors may wrap around the palette
@@ -151,7 +151,7 @@ def plotIndividualPowerVsInitialOptimal(history: SystemHistory, figureNum=0):
     plt.plot(stepsSeries, actualPowerSeries, color=generatorColor, linestyle='-', label=f'{generatorId} Actual')
     plt.plot(stepsSeries, optimalPowerSeries, color=generatorColor, linestyle='--', label=f'{generatorId} Optimal')
 
-  plt.legend()
+  plt.legend(loc='right')
   plt.xlabel('Time (s)', fontsize=FONT_SIZES['AXIS_LABEL'])
   plt.ylabel('Power (pu)', fontsize=FONT_SIZES['AXIS_LABEL'])
 
