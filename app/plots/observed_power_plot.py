@@ -129,7 +129,7 @@ def plotIndividualPowerVsOptimal(history: SystemHistory, figureNum=0):
   plt.xlabel('Time (s)', fontsize=FONT_SIZES['AXIS_LABEL'])
   plt.ylabel('Power (pu)', fontsize=FONT_SIZES['AXIS_LABEL'])
 
-  plt.title('Actual vs Optimal Per Generator Output (pu) x Time (s)', fontsize=FONT_SIZES['TITLE'])
+  # plt.title('Actual vs Optimal Per Generator Output (pu) x Time (s)', fontsize=FONT_SIZES['TITLE'])
 
   plt.show()
 
@@ -155,7 +155,7 @@ def plotIndividualPowerVsInitialOptimal(history: SystemHistory, figureNum=0):
   plt.xlabel('Time (s)', fontsize=FONT_SIZES['AXIS_LABEL'])
   plt.ylabel('Power (pu)', fontsize=FONT_SIZES['AXIS_LABEL'])
 
-  plt.title('Per Generator Output (pu) Actual vs Target x Time (s)', fontsize=FONT_SIZES['TITLE'])
+  # plt.title('Per Generator Output (pu) Actual vs Target x Time (s)', fontsize=FONT_SIZES['TITLE'])
 
   plt.show()
 
@@ -190,6 +190,6 @@ def plotPowerDifferentialFromInitialOptimal(history: SystemHistory, figureNum=0)
   plt.xlabel('Time (s)', fontsize=FONT_SIZES['AXIS_LABEL'])
   plt.ylabel('Power Differential From Optimal (%)', fontsize=FONT_SIZES['AXIS_LABEL'])
 
-  plt.title('Aggregated Power Differential From Optimal (%) x Time (s)', fontsize=FONT_SIZES['TITLE'])
+  # plt.title('Aggregated Power Differential From Optimal (%) x Time (s)', fontsize=FONT_SIZES['TITLE'])
 
   plt.show()

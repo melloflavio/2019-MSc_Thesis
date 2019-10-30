@@ -53,21 +53,21 @@ def plotFrequencyZoom(history: SystemHistory, figureNum=0):
     plt.xlabel('Time (s)', fontsize=FONT_SIZES['AXIS_LABEL'])
     plt.ylabel('System Frequency (Hz)', fontsize=FONT_SIZES['AXIS_LABEL'])
 
-    DEVIATION = 0.08
+    DEVIATION = 0.12
     plt.ylim(bottom=nominalFrequency-DEVIATION, top=nominalFrequency+DEVIATION) # Set zoomed in y limits
     plt.yticks(np.arange(nominalFrequency-DEVIATION, nominalFrequency+DEVIATION, (2*DEVIATION)/8))
 
-    ACCEPTED_RANGE = 0.02
-    plt.fill_between(
-      stepsSeries,
-      y1=nominalFrequency-ACCEPTED_RANGE,
-      y2=nominalFrequency+ACCEPTED_RANGE,
-      color=colotAccepetdRegion,
-      alpha=0.25)
-    plt.fill(np.NaN, np.NaN, colotAccepetdRegion, alpha=0.25, label='AGC Range')
+    # ACCEPTED_RANGE = 0.02
+    # plt.fill_between(
+    #   stepsSeries,
+    #   y1=nominalFrequency-ACCEPTED_RANGE,
+    #   y2=nominalFrequency+ACCEPTED_RANGE,
+    #   color=colotAccepetdRegion,
+    #   alpha=0.25)
+    # plt.fill(np.NaN, np.NaN, colotAccepetdRegion, alpha=0.25, label='AGC Range')
 
     plt.legend(loc='upper right')
 
-    plt.title('System Frequency (Hz) x Time (s)', fontsize=FONT_SIZES['TITLE'])
+    # plt.title('System Frequency (Hz) x Time (s)', fontsize=FONT_SIZES['TITLE'])
 
     plt.show()
